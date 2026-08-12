@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install ${{ matrix.python-version }}
+      - run: uv sync --extra duckdb --python ${{ matrix.python-version }}
+      - name: Lint
+        run: uv run ruff check .
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Tests
+        run: uv run pytest -q
+      - name: Benchmarks (smoke)
+        run: uv run qf bench
+      - name: Quality audit (smoke)
+        run: uv run qf audit --json /tmp/quality-audit.json
+      - name: Site is reproducible
+        run: |
+          uv run python tools/build_site.py
+          git diff --exit-code -- site/index.html
+      - name: Point-in-time example
+        run: echo n | uv run python examples/04_point_in_time/run.py
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build
+      - name: Smoke-test the installed wheel
+        run: |
+          uv venv --python 3.12 /tmp/qf-wheel-test
+          uv pip install --python /tmp/qf-wheel-test/bin/python dist/*.whl
+          cd /tmp
+          /tmp/qf-wheel-test/bin/qf audit --json /tmp/qf-wheel-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

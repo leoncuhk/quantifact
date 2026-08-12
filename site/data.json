@@ -1,0 +1,1913 @@
+{
+ "question": "How have markets responded to the conflict in the Middle East and the resulting oil supply shortage, and how does today compare to similar historical episodes?",
+ "as_of": "2026-08-01",
+ "contracts": {
+  "passed": 68,
+  "total": 68
+ },
+ "point_in_time": {
+  "late": {
+   "as_of": "2026-08-01",
+   "episodes": [
+    "gulf_war_1990",
+    "iran_hormuz_2026",
+    "israel_iran_2025",
+    "russia_ukraine_2022"
+   ],
+   "return_cells": 223,
+   "cache_key": "5ce414e826"
+  },
+  "early": {
+   "as_of": "2026-06-14",
+   "episodes": [
+    "gulf_war_1990",
+    "israel_iran_2025",
+    "russia_ukraine_2022"
+   ],
+   "return_cells": 167,
+   "cache_key": "c50a043ad4"
+  }
+ },
+ "clarifications": [
+  {
+   "question": "As of when should this be answered?",
+   "why": "The knowledge date decides what the analysis is allowed to know. Answering 'today' for a historical question is how look-ahead gets into research.",
+   "options": [
+    {
+     "label": "Today (2026-08-01)",
+     "recommended": true
+    },
+    {
+     "label": "The eve of the 2026 escalation (2026-06-14)",
+     "recommended": false
+    },
+    {
+     "label": "Year-end 2025 (2025-12-31)",
+     "recommended": false
+    }
+   ]
+  },
+  {
+   "question": "Which historical episodes should today's shock be compared against?",
+   "why": "The episode set defines every downstream comparison; choosing it after seeing results is what makes research unreproducible.",
+   "options": [
+    {
+     "label": "All known oil supply shocks (4)",
+     "recommended": true
+    },
+    {
+     "label": "Only the two most commonly cited precedents",
+     "recommended": false
+    },
+    {
+     "label": "Post-2020 episodes only",
+     "recommended": false
+    }
+   ]
+  },
+  {
+   "question": "Over what window should the market response be measured?",
+   "why": "Five days measures the impact reaction; a quarter measures the regime. Mixing them across episodes is the classic error here.",
+   "options": [
+    {
+     "label": "20 calendar days after the episode start",
+     "recommended": true
+    },
+    {
+     "label": "5 calendar days (impact only)",
+     "recommended": false
+    },
+    {
+     "label": "90 calendar days (full transmission)",
+     "recommended": false
+    }
+   ]
+  },
+  {
+   "question": "Which macro conditions should be compared going into each episode?",
+   "why": "'Macro conditions' is under-specified: real yields, output gap, trade balances, inflation, or a dozen other things.",
+   "options": [
+    {
+     "label": "Real yield, output gap, headline CPI, core CPI, net energy trade (5 indicators)",
+     "recommended": true
+    },
+    {
+     "label": "Three classics: real yield, headline CPI, output gap",
+     "recommended": false
+    }
+   ]
+  }
+ ],
+ "bindings": [
+  {
+   "requirement": "us_real_yield",
+   "query": "US 10y real yield",
+   "chosen": "US.REAL_YIELD.10Y",
+   "considered": [
+    {
+     "series_id": "US.REAL_YIELD.10Y",
+     "score": 22.468,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_REAL_YIELD",
+     "score": 10.491,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP",
+     "score": 3.172,
+     "accepted": false,
+     "reasons": [
+      "unit '% of potential' != required '%'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.INDEX",
+     "score": 3.099,
+     "accepted": false,
+     "reasons": [
+      "unit 'index' != required '%'",
+      "values [100.3, 355.6] outside prior [-6, 12] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP.Q",
+     "score": 3.099,
+     "accepted": false,
+     "reasons": [
+      "frequency Q != required M",
+      "unit '% of potential' != required '%'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.CORE.YOY",
+     "score": 3.05,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.YOY",
+     "score": 3.05,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.NET_ENERGY_TRADE",
+     "score": 3.033,
+     "accepted": false,
+     "reasons": [
+      "unit '% of GDP' != required '%'"
+     ]
+    }
+   ]
+  },
+  {
+   "requirement": "us_output_gap",
+   "query": "US output gap potential",
+   "chosen": "US.OUTPUT_GAP",
+   "considered": [
+    {
+     "series_id": "US.OUTPUT_GAP",
+     "score": 18.093,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP.Q",
+     "score": 17.982,
+     "accepted": false,
+     "reasons": [
+      "frequency Q != required M"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_OUTPUT_GAP",
+     "score": 9.65,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of potential'"
+     ]
+    },
+    {
+     "series_id": "US.REAL_YIELD.10Y",
+     "score": 3.154,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of potential'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.INDEX",
+     "score": 3.099,
+     "accepted": false,
+     "reasons": [
+      "unit 'index' != required '% of potential'",
+      "values [100.3, 355.6] outside prior [-15, 15] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "US.CPI.CORE.YOY",
+     "score": 3.05,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of potential'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.YOY",
+     "score": 3.05,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of potential'"
+     ]
+    },
+    {
+     "series_id": "US.NET_ENERGY_TRADE",
+     "score": 3.033,
+     "accepted": false,
+     "reasons": [
+      "unit '% of GDP' != required '% of potential'"
+     ]
+    }
+   ]
+  },
+  {
+   "requirement": "us_headline_cpi",
+   "query": "US headline CPI year over year",
+   "chosen": "US.CPI.HEADLINE.YOY",
+   "considered": [
+    {
+     "series_id": "US.CPI.HEADLINE.YOY",
+     "score": 22.434,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.YOY.BPS",
+     "score": 21.244,
+     "accepted": false,
+     "reasons": [
+      "values [37.13, 536.5] outside prior [-6, 20] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "US.CPI.CORE.YOY",
+     "score": 17.669,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.INDEX",
+     "score": 12.682,
+     "accepted": false,
+     "reasons": [
+      "unit 'index' != required '%'",
+      "values [100.3, 355.6] outside prior [-6, 20] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_HEADLINE_CPI",
+     "score": 8.562,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_CORE_CPI",
+     "score": 5.097,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP",
+     "score": 3.172,
+     "accepted": false,
+     "reasons": [
+      "unit '% of potential' != required '%'"
+     ]
+    },
+    {
+     "series_id": "US.REAL_YIELD.10Y",
+     "score": 3.154,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    }
+   ]
+  },
+  {
+   "requirement": "us_core_cpi",
+   "query": "US core CPI year over year",
+   "chosen": "US.CPI.CORE.YOY",
+   "considered": [
+    {
+     "series_id": "US.CPI.CORE.YOY",
+     "score": 23.444,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.YOY",
+     "score": 17.669,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.YOY.BPS",
+     "score": 16.674,
+     "accepted": false,
+     "reasons": [
+      "values [37.13, 536.5] outside prior [-6, 20] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_CORE_CPI",
+     "score": 9.297,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.INDEX",
+     "score": 7.55,
+     "accepted": false,
+     "reasons": [
+      "unit 'index' != required '%'",
+      "values [100.3, 355.6] outside prior [-6, 20] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_HEADLINE_CPI",
+     "score": 5.097,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP",
+     "score": 3.172,
+     "accepted": false,
+     "reasons": [
+      "unit '% of potential' != required '%'"
+     ]
+    },
+    {
+     "series_id": "US.REAL_YIELD.10Y",
+     "score": 3.154,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    }
+   ]
+  },
+  {
+   "requirement": "us_net_energy_trade",
+   "query": "US net energy trade balance",
+   "chosen": "US.NET_ENERGY_TRADE",
+   "considered": [
+    {
+     "series_id": "US.NET_ENERGY_TRADE",
+     "score": 27.329,
+     "accepted": true,
+     "reasons": [
+      "frequency, unit, coverage and value range match the requirement"
+     ]
+    },
+    {
+     "series_id": "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_NET_ENERGY_TRADE",
+     "score": 14.417,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of GDP'"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP",
+     "score": 3.172,
+     "accepted": false,
+     "reasons": [
+      "unit '% of potential' != required '% of GDP'"
+     ]
+    },
+    {
+     "series_id": "US.REAL_YIELD.10Y",
+     "score": 3.154,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of GDP'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.INDEX",
+     "score": 3.099,
+     "accepted": false,
+     "reasons": [
+      "unit 'index' != required '% of GDP'",
+      "values [100.3, 355.6] outside prior [-15, 15] — likely a level or a different scale, not this concept"
+     ]
+    },
+    {
+     "series_id": "US.OUTPUT_GAP.Q",
+     "score": 3.099,
+     "accepted": false,
+     "reasons": [
+      "frequency Q != required M",
+      "unit '% of potential' != required '% of GDP'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.CORE.YOY",
+     "score": 3.05,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of GDP'"
+     ]
+    },
+    {
+     "series_id": "US.CPI.HEADLINE.YOY",
+     "score": 3.05,
+     "accepted": false,
+     "reasons": [
+      "unit '%' != required '% of GDP'"
+     ]
+    }
+   ]
+  }
+ ],
+ "plan": {
+  "layers": [
+   [
+    "market_prices",
+    "spine_episodes",
+    "spine_markets",
+    "us_core_cpi",
+    "us_headline_cpi",
+    "us_net_energy_trade",
+    "us_output_gap",
+    "us_real_yield"
+   ],
+   [
+    "macro_panel",
+    "market_episode_returns"
+   ],
+   [
+    "macro_event_time_overlay",
+    "market_action_data"
+   ],
+   [
+    "macro_conditions_dashboard",
+    "market_action_table",
+    "market_pairwise_returns"
+   ],
+   [
+    "market_pairwise_scatter",
+    "market_scatter_by_asset_class"
+   ]
+  ],
+  "assumptions": [
+   "Knowledge date (as_of): 2026-08-01 — nothing published later was read",
+   "Universe: 56 markets listed as of that date (survivorship-free)",
+   "Episodes compared: gulf_war_1990, russia_ukraine_2022, israel_iran_2025, iran_hormuz_2026",
+   "Market response measured over 20 calendar days after each start",
+   "Macro indicators: us_real_yield, us_output_gap, us_headline_cpi, us_core_cpi, us_net_energy_trade",
+   "Macro conditions aligned in event time, -18 to +18 months",
+   "Applied lesson: per-asset-class-panels"
+  ],
+  "tasks": [
+   {
+    "name": "spine_episodes",
+    "type": "data_ingestion",
+    "description": "Episode spine: one row per oil supply shock under study.",
+    "sort": [
+     [
+      "episode",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "episode"
+    ],
+    "row_expectation": "one row per episode",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "episode",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "stable episode key"
+     },
+     {
+      "name": "label",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "human readable episode label"
+     },
+     {
+      "name": "start_date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "first day of the episode"
+     },
+     {
+      "name": "oil_shock",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "size of the oil supply shock"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "episode"
+      ]
+     },
+     {
+      "kind": "row_count",
+      "min": 2
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def spine_episodes() -> pd.DataFrame:\n    out = load_table('episodes').copy()\n    out = out[['episode', 'label', 'start_date', 'oil_shock']]\n    return out.sort_values(['episode']).reset_index(drop=True)\n",
+    "rows": 4,
+    "cache_key": "8fcc8d92ea"
+   },
+   {
+    "name": "spine_markets",
+    "type": "data_ingestion",
+    "description": "Market spine as of the knowledge date: survivorship-free universe with each market's asset class.",
+    "sort": [
+     [
+      "market_id",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "market_id"
+    ],
+    "row_expectation": "one row per listed market",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "stable market key"
+     },
+     {
+      "name": "asset_class",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "equity/bond/fx/commodity/credit/inflation"
+     },
+     {
+      "name": "listed_from",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "dimension",
+      "description": "first date this market existed"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "market_id"
+      ]
+     },
+     {
+      "kind": "row_count",
+      "min": 56,
+      "max": 56
+     }
+    ],
+    "chart_spec": null,
+    "code": "def spine_markets() -> pd.DataFrame:\n    out = load_table('markets').copy()\n    out = out[['market_id', 'asset_class', 'listed_from']]\n    return out.sort_values(['market_id']).reset_index(drop=True)\n",
+    "rows": 56,
+    "cache_key": "26b4dae576"
+   },
+   {
+    "name": "market_prices",
+    "type": "data_ingestion",
+    "description": "Daily total-return index for every market in the universe.",
+    "sort": [
+     [
+      "market_id",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "market_id",
+     "date"
+    ],
+    "row_expectation": "one row per market per trading day",
+    "series_inputs": [
+     "MKT.ALUM.CO.TRI",
+     "MKT.ASX.EQ.TRI",
+     "MKT.AUDUSD.FX.TRI"
+    ],
+    "n_series": 56,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "price",
+      "dtype": "float64",
+      "unit": "index",
+      "role": "measure",
+      "description": "total return index level"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "nonnull",
+      "column": "price",
+      "min": 0.999
+     },
+     {
+      "kind": "range",
+      "column": "price",
+      "min": 0.0,
+      "max": 1000000000.0
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def market_prices() -> pd.DataFrame:\n    mapping = {'MKT.ALUM.CO.TRI': 'ALUM.CO', 'MKT.ASX.EQ.TRI': 'ASX.EQ', 'MKT.AUDUSD.FX.TRI': 'AUDUSD.FX', 'MKT.AUS10Y.BO.TRI': 'AUS10Y.BO', 'MKT.BRENT.CO.TRI': 'BRENT.CO', 'MKT.BTP10Y.BO.TRI': 'BTP10Y.BO', 'MKT.BUND10Y.BO.TRI': 'BUND10Y.BO', 'MKT.CAN10Y.BO.TRI': 'CAN10Y.BO', 'MKT.COPPER.CO.TRI': 'COPPER.CO', 'MKT.CORN.CO.TRI': 'CORN.CO', 'MKT.COTTON.CO.TRI': 'COTTON.CO', 'MKT.DAX.EQ.TRI': 'DAX.EQ', 'MKT.EMSOV.CR.TRI': 'EMSOV.CR', 'MKT.EURHY.CR.TRI': 'EURHY.CR', 'MKT.EURIG.CR.TRI': 'EURIG.CR', 'MKT.EURILB.IN.TRI': 'EURILB.IN', 'MKT.EURUSD.FX.TRI': 'EURUSD.FX', 'MKT.GBPUSD.FX.TRI': 'GBPUSD.FX', 'MKT.GILT10Y.BO.TRI': 'GILT10Y.BO', 'MKT.GOLD.CO.TRI': 'GOLD.CO', 'MKT.HSI.EQ.TRI': 'HSI.EQ', 'MKT.IBOV.EQ.TRI': 'IBOV.EQ', 'MKT.JGB10Y.BO.TRI': 'JGB10Y.BO', 'MKT.JPBE.IN.TRI': 'JPBE.IN', 'MKT.KOSPI.EQ.TRI': 'KOSPI.EQ', 'MKT.NATGAS.CO.TRI': 'NATGAS.CO', 'MKT.NDX.EQ.TRI': 'NDX.EQ', 'MKT.NEWCO.EQ.TRI': 'NEWCO.EQ', 'MKT.NKY.EQ.TRI': 'NKY.EQ', 'MKT.OAT10Y.BO.TRI': 'OAT10Y.BO', 'MKT.SENSEX.EQ.TRI': 'SENSEX.EQ', 'MKT.SILVER.CO.TRI': 'SILVER.CO', 'MKT.SOY.CO.TRI': 'SOY.CO', 'MKT.SPX.EQ.TRI': 'SPX.EQ', 'MKT.SX5E.EQ.TRI': 'SX5E.EQ', 'MKT.TSX.EQ.TRI': 'TSX.EQ', 'MKT.UKILB.IN.TRI': 'UKILB.IN', 'MKT.UKX.EQ.TRI': 'UKX.EQ', 'MKT.US10YTIPS.IN.TRI': 'US10YTIPS.IN', 'MKT.US5Y5YBE.IN.TRI': 'US5Y5YBE.IN', 'MKT.USDBRL.FX.TRI': 'USDBRL.FX', 'MKT.USDCAD.FX.TRI': 'USDCAD.FX', 'MKT.USDCHF.FX.TRI': 'USDCHF.FX', 'MKT.USDINR.FX.TRI': 'USDINR.FX', 'MKT.USDJPY.FX.TRI': 'USDJPY.FX', 'MKT.USDKRW.FX.TRI': 'USDKRW.FX', 'MKT.USDMXN.FX.TRI': 'USDMXN.FX', 'MKT.USDNOK.FX.TRI': 'USDNOK.FX', 'MKT.USDZAR.FX.TRI': 'USDZAR.FX', 'MKT.USHY.CR.TRI': 'USHY.CR', 'MKT.USIG.CR.TRI': 'USIG.CR', 'MKT.UST10Y.BO.TRI': 'UST10Y.BO', 'MKT.UST2Y.BO.TRI': 'UST2Y.BO', 'MKT.UST30Y.BO.TRI': 'UST30Y.BO', 'MKT.WHEAT.CO.TRI': 'WHEAT.CO', 'MKT.WTI.CO.TRI': 'WTI.CO'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'market_id': entity,\n            'price': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'market_id', 'price']]\n    return out.sort_values(['market_id', 'date']).reset_index(drop=True)\n",
+    "rows": 555045,
+    "cache_key": "5ce414e826"
+   },
+   {
+    "name": "us_real_yield",
+    "type": "data_ingestion",
+    "description": "Monthly us real yield from US.REAL_YIELD.10Y.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "indicator",
+     "date"
+    ],
+    "row_expectation": "one row per month",
+    "series_inputs": [
+     "US.REAL_YIELD.10Y"
+    ],
+    "n_series": 1,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "nonnull",
+      "column": "value",
+      "min": 0.99
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def us_real_yield() -> pd.DataFrame:\n    mapping = {'US.REAL_YIELD.10Y': 'us_real_yield'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
+    "rows": 499,
+    "cache_key": "9857d5691b"
+   },
+   {
+    "name": "us_output_gap",
+    "type": "data_ingestion",
+    "description": "Monthly us output gap from US.OUTPUT_GAP.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "indicator",
+     "date"
+    ],
+    "row_expectation": "one row per month",
+    "series_inputs": [
+     "US.OUTPUT_GAP"
+    ],
+    "n_series": 1,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "nonnull",
+      "column": "value",
+      "min": 0.99
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def us_output_gap() -> pd.DataFrame:\n    mapping = {'US.OUTPUT_GAP': 'us_output_gap'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
+    "rows": 497,
+    "cache_key": "aa1b43e5cb"
+   },
+   {
+    "name": "us_headline_cpi",
+    "type": "data_ingestion",
+    "description": "Monthly us headline cpi from US.CPI.HEADLINE.YOY.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "indicator",
+     "date"
+    ],
+    "row_expectation": "one row per month",
+    "series_inputs": [
+     "US.CPI.HEADLINE.YOY"
+    ],
+    "n_series": 1,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "nonnull",
+      "column": "value",
+      "min": 0.99
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def us_headline_cpi() -> pd.DataFrame:\n    mapping = {'US.CPI.HEADLINE.YOY': 'us_headline_cpi'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
+    "rows": 498,
+    "cache_key": "7a7858d7c5"
+   },
+   {
+    "name": "us_core_cpi",
+    "type": "data_ingestion",
+    "description": "Monthly us core cpi from US.CPI.CORE.YOY.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "indicator",
+     "date"
+    ],
+    "row_expectation": "one row per month",
+    "series_inputs": [
+     "US.CPI.CORE.YOY"
+    ],
+    "n_series": 1,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "nonnull",
+      "column": "value",
+      "min": 0.99
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def us_core_cpi() -> pd.DataFrame:\n    mapping = {'US.CPI.CORE.YOY': 'us_core_cpi'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
+    "rows": 498,
+    "cache_key": "b49aafdbb6"
+   },
+   {
+    "name": "us_net_energy_trade",
+    "type": "data_ingestion",
+    "description": "Monthly us net energy trade from US.NET_ENERGY_TRADE.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [],
+    "index": [
+     "indicator",
+     "date"
+    ],
+    "row_expectation": "one row per month",
+    "series_inputs": [
+     "US.NET_ENERGY_TRADE"
+    ],
+    "n_series": 1,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "nonnull",
+      "column": "value",
+      "min": 0.99
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def us_net_energy_trade() -> pd.DataFrame:\n    mapping = {'US.NET_ENERGY_TRADE': 'us_net_energy_trade'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
+    "rows": 497,
+    "cache_key": "b2c05eb441"
+   },
+   {
+    "name": "macro_panel",
+    "type": "table_logic",
+    "description": "Long panel of every macro indicator used by the dashboard.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "date",
+      true
+     ]
+    ],
+    "depends_on": [
+     "us_real_yield",
+     "us_output_gap",
+     "us_headline_cpi",
+     "us_core_cpi",
+     "us_net_energy_trade"
+    ],
+    "index": [
+     "indicator",
+     "date"
+    ],
+    "row_expectation": "one row per indicator per month",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "date",
+      "dtype": "datetime64[ns]",
+      "unit": null,
+      "role": "observation_date",
+      "description": "observation date"
+     },
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "indicator",
+       "date"
+      ]
+     },
+     {
+      "kind": "no_future_observations"
+     }
+    ],
+    "chart_spec": null,
+    "code": "def macro_panel(us_real_yield: pd.DataFrame, us_output_gap: pd.DataFrame, us_headline_cpi: pd.DataFrame, us_core_cpi: pd.DataFrame, us_net_energy_trade: pd.DataFrame) -> pd.DataFrame:\n    out = pd.concat([us_real_yield, us_output_gap, us_headline_cpi, us_core_cpi, us_net_energy_trade], ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
+    "rows": 2489,
+    "cache_key": "96e489cadf"
+   },
+   {
+    "name": "market_episode_returns",
+    "type": "table_logic",
+    "description": "Total return of each market over the 20 calendar days following each episode start.",
+    "sort": [
+     [
+      "market_id",
+      true
+     ],
+     [
+      "episode",
+      true
+     ]
+    ],
+    "depends_on": [
+     "market_prices",
+     "spine_episodes"
+    ],
+    "index": [
+     "market_id",
+     "episode"
+    ],
+    "row_expectation": "one row per market per episode",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "episode",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "episode key"
+     },
+     {
+      "name": "return_pct",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "return over the 20d window after the episode start"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "market_id",
+       "episode"
+      ]
+     },
+     {
+      "kind": "range",
+      "column": "return_pct",
+      "min": -0.95,
+      "max": 3.0
+     },
+     {
+      "kind": "nonnull",
+      "column": "return_pct",
+      "min": 1.0
+     },
+     {
+      "kind": "row_count",
+      "min": 223,
+      "max": 223
+     }
+    ],
+    "chart_spec": null,
+    "code": "def market_episode_returns(market_prices: pd.DataFrame, spine_episodes: pd.DataFrame) -> pd.DataFrame:\n    px = market_prices.copy()\n    px['date'] = pd.to_datetime(px['date'])\n    ep = spine_episodes.copy()\n    ep['start_date'] = pd.to_datetime(ep['start_date'])\n    rows = []\n    for _, e in ep.iterrows():\n        t0 = e['start_date']\n        t1 = t0 + pd.Timedelta(days=20)\n        win = px[(px['date'] >= t0) & (px['date'] <= t1)]\n        for entity, g in win.groupby('market_id', sort=True):\n            g = g.sort_values('date')\n            if len(g) < 2:\n                continue\n            first = float(g['price'].iloc[0])\n            last = float(g['price'].iloc[-1])\n            if first == 0.0:\n                continue\n            rows.append({\n                'market_id': entity,\n                'episode': e['episode'],\n                'return_pct': last / first - 1.0,\n            })\n    out = pd.DataFrame(rows)\n    out = out[['market_id', 'episode', 'return_pct']]\n    return out.sort_values(['market_id', 'episode']).reset_index(drop=True)\n",
+    "rows": 223,
+    "cache_key": "f5ffc3a34e"
+   },
+   {
+    "name": "market_action_data",
+    "type": "table_logic",
+    "description": "Episode returns joined to the asset class of each market.",
+    "sort": [
+     [
+      "market_id",
+      true
+     ],
+     [
+      "episode",
+      true
+     ]
+    ],
+    "depends_on": [
+     "market_episode_returns",
+     "spine_markets"
+    ],
+    "index": [
+     "market_id",
+     "episode"
+    ],
+    "row_expectation": "one row per market per episode",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "episode",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "episode key"
+     },
+     {
+      "name": "asset_class",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "asset class of the market"
+     },
+     {
+      "name": "return_pct",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "episode window return"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "market_id",
+       "episode"
+      ]
+     },
+     {
+      "kind": "row_count",
+      "min": 223,
+      "max": 223
+     }
+    ],
+    "chart_spec": null,
+    "code": "def market_action_data(market_episode_returns: pd.DataFrame, spine_markets: pd.DataFrame) -> pd.DataFrame:\n    out = market_episode_returns.merge(spine_markets, on=['market_id'], how='inner')\n    out = out[['market_id', 'episode', 'asset_class', 'return_pct']]\n    return out.sort_values(['market_id', 'episode']).reset_index(drop=True)\n",
+    "rows": 223,
+    "cache_key": "68083c295c"
+   },
+   {
+    "name": "market_pairwise_returns",
+    "type": "table_logic",
+    "description": "Wide pivot of market_action_data: one row per market with its return in every episode, used by the scatter grid.",
+    "sort": [
+     [
+      "market_id",
+      true
+     ]
+    ],
+    "depends_on": [
+     "market_action_data"
+    ],
+    "index": [
+     "market_id"
+    ],
+    "row_expectation": "one row per market",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "asset_class",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "asset class of the market"
+     },
+     {
+      "name": "ret_gulf_war_1990",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during gulf_war_1990"
+     },
+     {
+      "name": "ret_russia_ukraine_2022",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during russia_ukraine_2022"
+     },
+     {
+      "name": "ret_israel_iran_2025",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during israel_iran_2025"
+     },
+     {
+      "name": "ret_iran_hormuz_2026",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during iran_hormuz_2026"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "market_id"
+      ]
+     },
+     {
+      "kind": "row_count",
+      "min": 56,
+      "max": 56
+     }
+    ],
+    "chart_spec": null,
+    "code": "def market_pairwise_returns(market_action_data: pd.DataFrame) -> pd.DataFrame:\n    src = market_action_data.copy()\n    wide = src.pivot_table(index=['market_id'], columns='episode',\n                           values='return_pct', aggfunc='first')\n    wide.columns = ['ret_' + str(c) for c in wide.columns]\n    wide = wide.reset_index()\n    extra = src[['market_id'] + ['asset_class']].drop_duplicates(['market_id'])\n    out = wide.merge(extra, on=['market_id'], how='left')\n    out = out[['market_id', 'asset_class', 'ret_gulf_war_1990', 'ret_russia_ukraine_2022', 'ret_israel_iran_2025', 'ret_iran_hormuz_2026']]\n    return out.sort_values(['market_id']).reset_index(drop=True)\n",
+    "rows": 56,
+    "cache_key": "316b7e972c"
+   },
+   {
+    "name": "macro_event_time_overlay",
+    "type": "table_logic",
+    "description": "Macro indicators aligned in event time around each episode start, from 18 months before to 18 months after.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "episode",
+      true
+     ],
+     [
+      "month_offset",
+      true
+     ]
+    ],
+    "depends_on": [
+     "macro_panel",
+     "spine_episodes"
+    ],
+    "index": [
+     "indicator",
+     "episode",
+     "month_offset"
+    ],
+    "row_expectation": "one row per indicator per episode per month offset",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "episode",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "episode key"
+     },
+     {
+      "name": "month_offset",
+      "dtype": "int64",
+      "unit": "months",
+      "role": "dimension",
+      "description": "months relative to episode start"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "unique",
+      "columns": [
+       "indicator",
+       "episode",
+       "month_offset"
+      ]
+     },
+     {
+      "kind": "range",
+      "column": "month_offset",
+      "min": -18,
+      "max": 18
+     }
+    ],
+    "chart_spec": null,
+    "code": "def macro_event_time_overlay(macro_panel: pd.DataFrame, spine_episodes: pd.DataFrame) -> pd.DataFrame:\n    pn = macro_panel.copy()\n    pn['date'] = pd.to_datetime(pn['date'])\n    ep = spine_episodes.copy()\n    ep['start_date'] = pd.to_datetime(ep['start_date'])\n    rows = []\n    for _, e in ep.iterrows():\n        t0 = e['start_date']\n        lo = t0 - pd.DateOffset(months=18)\n        hi = t0 + pd.DateOffset(months=18)\n        win = pn[(pn['date'] >= lo) & (pn['date'] <= hi)]\n        for indicator, g in win.groupby('indicator', sort=True):\n            g = g.sort_values('date')\n            offs = ((g['date'].dt.year - t0.year) * 12\n                    + (g['date'].dt.month - t0.month))\n            for off, val in zip(offs.to_numpy(), g['value'].to_numpy()):\n                rows.append({\n                    'indicator': indicator,\n                    'episode': e['episode'],\n                    'month_offset': int(off),\n                    'value': float(val),\n                })\n    out = pd.DataFrame(rows)\n    out = out.groupby(['indicator', 'episode', 'month_offset'], as_index=False)['value'].mean()\n    out = out[['indicator', 'episode', 'month_offset', 'value']]\n    return out.sort_values(['indicator', 'episode', 'month_offset']).reset_index(drop=True)\n",
+    "rows": 608,
+    "cache_key": "87709332f6"
+   },
+   {
+    "name": "market_action_table",
+    "type": "chart",
+    "description": "Returns by market during each episode, largest moves first.",
+    "sort": [
+     [
+      "return_pct",
+      false
+     ]
+    ],
+    "depends_on": [
+     "market_action_data"
+    ],
+    "index": [
+     "market_id",
+     "episode"
+    ],
+    "row_expectation": "one row per market per episode, top 30 by return",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "asset_class",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "asset class of the market"
+     },
+     {
+      "name": "episode",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "episode key"
+     },
+     {
+      "name": "return_pct",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "episode window return"
+     }
+    ],
+    "invariants": [
+     {
+      "kind": "row_count",
+      "min": 1,
+      "max": 30
+     }
+    ],
+    "chart_spec": {
+     "kind": "table",
+     "title": "Market action table",
+     "color_by": [
+      "return_pct"
+     ],
+     "percent": true
+    },
+    "code": "def market_action_table(market_action_data: pd.DataFrame) -> pd.DataFrame:\n    out = market_action_data.copy()\n    out = out[['market_id', 'asset_class', 'episode', 'return_pct']]\n    out = out.sort_values(['return_pct'], ascending=[False]).reset_index(drop=True)\n    out = out.head(30)\n    return out\n",
+    "rows": 30,
+    "cache_key": "910fa57ef9"
+   },
+   {
+    "name": "market_pairwise_scatter",
+    "type": "chart",
+    "description": "Each market's russia_ukraine_2022 response against its iran_hormuz_2026 response; a steep positive slope would mean today rhymes.",
+    "sort": [
+     [
+      "market_id",
+      true
+     ]
+    ],
+    "depends_on": [
+     "market_pairwise_returns"
+    ],
+    "index": [
+     "market_id"
+    ],
+    "row_expectation": "one point per market present in both episodes",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "asset_class",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "asset class of the market"
+     },
+     {
+      "name": "ret_russia_ukraine_2022",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during russia_ukraine_2022"
+     },
+     {
+      "name": "ret_iran_hormuz_2026",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during iran_hormuz_2026"
+     }
+    ],
+    "invariants": [],
+    "chart_spec": {
+     "kind": "scatter",
+     "x": "ret_russia_ukraine_2022",
+     "y": "ret_iran_hormuz_2026",
+     "label": "market_id",
+     "color_by": "asset_class",
+     "title": "russia_ukraine_2022 vs iran_hormuz_2026 — all markets",
+     "xlabel": "russia_ukraine_2022 return",
+     "ylabel": "iran_hormuz_2026 return",
+     "percent": true
+    },
+    "code": "def market_pairwise_scatter(market_pairwise_returns: pd.DataFrame) -> pd.DataFrame:\n    out = market_pairwise_returns.copy()\n    out = out[['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026']]\n    out = out.dropna(subset=['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026'])\n    out = out.sort_values(['market_id'], ascending=[True]).reset_index(drop=True)\n    return out\n",
+    "rows": 56,
+    "cache_key": "ae13be105c"
+   },
+   {
+    "name": "macro_conditions_dashboard",
+    "type": "chart",
+    "description": "Macro conditions leading into each episode, aligned on the episode start date.",
+    "sort": [
+     [
+      "indicator",
+      true
+     ],
+     [
+      "episode",
+      true
+     ],
+     [
+      "month_offset",
+      true
+     ]
+    ],
+    "depends_on": [
+     "macro_event_time_overlay"
+    ],
+    "index": [
+     "indicator",
+     "episode",
+     "month_offset"
+    ],
+    "row_expectation": "one row per indicator per episode per month offset",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "indicator",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "indicator key"
+     },
+     {
+      "name": "episode",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "episode key"
+     },
+     {
+      "name": "month_offset",
+      "dtype": "int64",
+      "unit": "months",
+      "role": "dimension",
+      "description": "months relative to episode start"
+     },
+     {
+      "name": "value",
+      "dtype": "float64",
+      "unit": "%",
+      "role": "measure",
+      "description": "indicator value, percent-family unit (see indicator)"
+     }
+    ],
+    "invariants": [],
+    "chart_spec": {
+     "kind": "line",
+     "x": "month_offset",
+     "y": "value",
+     "series": "episode",
+     "facet": "indicator",
+     "title": "US macro conditions — event-time overlay",
+     "xlabel": "months from episode start",
+     "ylabel": "level"
+    },
+    "code": "def macro_conditions_dashboard(macro_event_time_overlay: pd.DataFrame) -> pd.DataFrame:\n    out = macro_event_time_overlay.copy()\n    out = out[['indicator', 'episode', 'month_offset', 'value']]\n    out = out.sort_values(['indicator', 'episode', 'month_offset'], ascending=[True, True, True]).reset_index(drop=True)\n    return out\n",
+    "rows": 608,
+    "cache_key": "81cfc328cb"
+   },
+   {
+    "name": "market_scatter_by_asset_class",
+    "type": "chart",
+    "description": "The same comparison broken out by asset class: FX, rates, equities and commodities transmit an oil shock through different channels, so one pooled scatter hides more than it reveals.",
+    "sort": [
+     [
+      "asset_class",
+      true
+     ],
+     [
+      "market_id",
+      true
+     ]
+    ],
+    "depends_on": [
+     "market_pairwise_returns"
+    ],
+    "index": [
+     "market_id"
+    ],
+    "row_expectation": "one point per market present in both episodes",
+    "series_inputs": [],
+    "n_series": 0,
+    "columns": [
+     {
+      "name": "market_id",
+      "dtype": "string",
+      "unit": null,
+      "role": "entity",
+      "description": "market key"
+     },
+     {
+      "name": "asset_class",
+      "dtype": "string",
+      "unit": null,
+      "role": "dimension",
+      "description": "asset class of the market"
+     },
+     {
+      "name": "ret_russia_ukraine_2022",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during russia_ukraine_2022"
+     },
+     {
+      "name": "ret_iran_hormuz_2026",
+      "dtype": "float64",
+      "unit": "ratio",
+      "role": "measure",
+      "description": "window return during iran_hormuz_2026"
+     }
+    ],
+    "invariants": [],
+    "chart_spec": {
+     "kind": "scatter",
+     "x": "ret_russia_ukraine_2022",
+     "y": "ret_iran_hormuz_2026",
+     "facet": "asset_class",
+     "label": "market_id",
+     "title": "russia_ukraine_2022 vs iran_hormuz_2026 — by asset class",
+     "xlabel": "russia_ukraine_2022 return",
+     "ylabel": "iran_hormuz_2026 return",
+     "percent": true
+    },
+    "code": "def market_scatter_by_asset_class(market_pairwise_returns: pd.DataFrame) -> pd.DataFrame:\n    out = market_pairwise_returns.copy()\n    out = out[['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026']]\n    out = out.dropna(subset=['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026'])\n    out = out.sort_values(['asset_class', 'market_id'], ascending=[True, True]).reset_index(drop=True)\n    return out\n",
+    "rows": 56,
+    "cache_key": "2086caf3e4"
+   }
+  ]
+ },
+ "runs": {
+  "cold": {
+   "stages": {
+    "plan": 0.003550749970600009,
+    "codegen": 0.0006470829830504954,
+    "static": 0.004124250030145049,
+    "execute": 0.198701000015717,
+    "validate": 0.02666600001975894,
+    "review": 0.024951917002908885,
+    "writeback": 0.016026958997827023,
+    "report": 0.006022875022608787
+   },
+   "cached": 0,
+   "tasks": 16,
+   "traces": [
+    {
+     "task": "market_prices",
+     "ms": 133.08,
+     "cached": false,
+     "rows": 555045
+    },
+    {
+     "task": "spine_episodes",
+     "ms": 1.35,
+     "cached": false,
+     "rows": 4
+    },
+    {
+     "task": "spine_markets",
+     "ms": 0.98,
+     "cached": false,
+     "rows": 56
+    },
+    {
+     "task": "us_core_cpi",
+     "ms": 2.05,
+     "cached": false,
+     "rows": 498
+    },
+    {
+     "task": "us_headline_cpi",
+     "ms": 1.92,
+     "cached": false,
+     "rows": 498
+    },
+    {
+     "task": "us_net_energy_trade",
+     "ms": 1.98,
+     "cached": false,
+     "rows": 497
+    },
+    {
+     "task": "us_output_gap",
+     "ms": 1.59,
+     "cached": false,
+     "rows": 497
+    },
+    {
+     "task": "us_real_yield",
+     "ms": 1.57,
+     "cached": false,
+     "rows": 499
+    },
+    {
+     "task": "macro_panel",
+     "ms": 1.19,
+     "cached": false,
+     "rows": 2489
+    },
+    {
+     "task": "market_episode_returns",
+     "ms": 25.98,
+     "cached": false,
+     "rows": 223
+    },
+    {
+     "task": "macro_event_time_overlay",
+     "ms": 10.42,
+     "cached": false,
+     "rows": 608
+    },
+    {
+     "task": "market_action_data",
+     "ms": 2.13,
+     "cached": false,
+     "rows": 223
+    },
+    {
+     "task": "macro_conditions_dashboard",
+     "ms": 1.0,
+     "cached": false,
+     "rows": 608
+    },
+    {
+     "task": "market_action_table",
+     "ms": 0.88,
+     "cached": false,
+     "rows": 30
+    },
+    {
+     "task": "market_pairwise_returns",
+     "ms": 7.38,
+     "cached": false,
+     "rows": 56
+    },
+    {
+     "task": "market_pairwise_scatter",
+     "ms": 0.86,
+     "cached": false,
+     "rows": 56
+    }
+   ]
+  },
+  "warm": {
+   "stages": {
+    "plan": 0.003693958977237344,
+    "codegen": 0.0006659160135313869,
+    "static": 0.004004916991107166,
+    "execute": 0.001859750016592443,
+    "validate": 0.02488804195309058,
+    "review": 0.021951665985397995,
+    "writeback": 0.016672083002049476,
+    "report": 0.004997999989427626
+   },
+   "cached": 16,
+   "tasks": 16
+  },
+  "after_teach": {
+   "stages": {
+    "plan": 0.0034232920152135193,
+    "codegen": 0.0007035839953459799,
+    "static": 0.00412587501341477,
+    "execute": 0.002855750033631921,
+    "validate": 0.025281041976995766,
+    "review": 0.023092874966096133,
+    "writeback": 0.015418542025145143,
+    "report": 0.006270332960411906
+   },
+   "cached": 16,
+   "tasks": 17
+  }
+ },
+ "teach": {
+  "complaint": "When comparing multiple historical episodes, break the analysis out by asset class — FX, rates, equities and commodities transmit an oil shock through fundamentally different channels, so a single pooled scatter hides more than it reveals.",
+  "lesson_id": "per-asset-class-panels",
+  "benchmark_id": "teach-per-asset-class-panels",
+  "assertions": [
+   {
+    "type": "plan_has_task",
+    "name": "market_scatter_by_asset_class"
+   },
+   {
+    "type": "chart_has_facet",
+    "facet": "asset_class"
+   },
+   {
+    "type": "plan_valid"
+   }
+  ],
+  "failed_before": true,
+  "passes_after": true,
+  "regressions": [],
+  "accepted": true,
+  "files": [
+   "context/lessons/per-asset-class-panels.md",
+   "benchmarks/teach-per-asset-class-panels.json"
+  ]
+ },
+ "bench": {
+  "question": "How have markets responded to the conflict in the Middle East and the resulting oil supply shortage, and how does today compare to similar historical episodes?",
+  "tasks": 16,
+  "layers": 5,
+  "as_of": "2026-08-01",
+  "timings": [
+   {
+    "label": "cold",
+    "seconds": 0.13159508298849687,
+    "tasks_executed": 16,
+    "tasks_cached": 0,
+    "note": "empty cache"
+   },
+   {
+    "label": "warm",
+    "seconds": 0.005535500007681549,
+    "tasks_executed": 0,
+    "tasks_cached": 16,
+    "note": "nothing changed"
+   },
+   {
+    "label": "small_edit",
+    "seconds": 0.006596290972083807,
+    "tasks_executed": 1,
+    "tasks_cached": 15,
+    "note": "final chart edited"
+   },
+   {
+    "label": "no_cache",
+    "seconds": 0.09607675002189353,
+    "tasks_executed": 16,
+    "tasks_cached": 0,
+    "note": "same edit, caching disabled"
+   }
+  ],
+  "determinism": {
+   "identical_code": 16,
+   "identical_values": 16,
+   "tasks": 16
+  },
+  "codegen": {
+   "simulated_latency_per_task": 0.4,
+   "parallel": 0.40815591701539233,
+   "serial": 6.464235832972918,
+   "speedup": 15.837662921175143,
+   "parallel_3_tasks": 0.4062420420232229,
+   "tasks": 16
+  },
+  "environment": {
+   "backend": "reference",
+   "pandas": "3.0.5",
+   "adapter": "demo-synthetic"
+  },
+  "speedups": {
+   "warm_vs_cold": 23.7729352011352,
+   "small_edit_vs_no_cache": 14.565268637860335,
+   "small_edit_vs_cold": 19.949860238946556
+  }
+ },
+ "review": [
+  {
+   "task": "market_pairwise_returns",
+   "severity": "note",
+   "message": "'ret_gulf_war_1990' is 2% null"
+  }
+ ],
+ "store": {
+  "series": 71,
+  "written_back": [
+   "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_CORE_CPI",
+   "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_HEADLINE_CPI",
+   "QF.HOW_HAVE_MARKETS_RESPONDED_T.MACRO_PANEL.US_NET_ENERGY_TRADE"
+  ]
+ }
+}

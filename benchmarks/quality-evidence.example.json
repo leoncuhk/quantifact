@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "measurement_window": "YYYY-MM-DD/YYYY-MM-DD",
+  "criteria": {
+    "real_task_accuracy": {
+      "score": 0.0,
+      "evidence": "Replace with held-out task count, acceptance rubric and reviewer record",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "planner_eval": {
+      "score": 0.0,
+      "evidence": "Replace with >=50 diverse expert-audited questions and pass rate",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "context_depth": {
+      "score": 0.0,
+      "evidence": "Replace with taxonomy coverage and named expert approvers",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "tool_coverage": {
+      "score": 0.0,
+      "evidence": "Replace with sampled workflow tool inventory and coverage ratio",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "learning_outcomes": {
+      "score": 0.0,
+      "evidence": "Replace with accepted lessons, held-out lift and regression rate",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "execution_isolation": {
+      "score": 0.0,
+      "evidence": "Replace with sandbox controls and adversarial escape-test report",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "service_reliability": {
+      "score": 0.0,
+      "evidence": "Replace with SLO window, success rate, p95 latency and recovery tests",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    },
+    "expert_adoption": {
+      "score": 0.0,
+      "evidence": "Replace with cohort size, weekly retention, time saved and trust survey",
+      "artifact": "URI or repository path to immutable raw results",
+      "approved_by": "Named accountable reviewer or review board",
+      "measured_at": "YYYY-MM-DD",
+      "sample_size": 0
+    }
+  }
+}

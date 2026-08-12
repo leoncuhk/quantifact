@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write          # PyPI trusted publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra duckdb
+      - run: uv run pytest -q
+      - name: Require audited operating evidence
+        run: test -f benchmarks/quality-evidence.json
+      - name: PAT-level release gate
+        run: uv run qf audit --evidence benchmarks/quality-evidence.json --strict
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1

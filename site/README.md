@@ -1,0 +1,16 @@
+# Interactive run explorer
+
+[`index.html`](index.html) is a self-contained view of a real Quantifact run:
+its compiled plan, generated code, point-in-time comparison, contract evidence,
+and reproducible benchmarks. The page has no runtime dependencies and can be
+served directly by GitHub Pages.
+
+```bash
+uv run python tools/export_site_data.py site/data.json   # run the system, export artefacts
+uv run python tools/build_site.py                        # build site/index.html
+```
+
+It contains no credentials, no vendor data, no local paths and no endpoint
+identity. The data is synthetic throughout. Generated output is committed so a
+visitor can inspect it without installing the package; CI rebuilds it and fails
+if the checked-in page has drifted.

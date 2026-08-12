@@ -1,0 +1,15 @@
+name: Adapter request
+description: A data source you want served
+labels: ["adapter"]
+body:
+  - type: input
+    attributes: { label: Source, placeholder: "e.g. an in-house DuckDB hub, a vendor API" }
+    validations: { required: true }
+  - type: dropdown
+    attributes:
+      label: Does it store a publication date per observation?
+      options: ["yes", "no", "not sure"]
+      description: Without it, point-in-time cannot be enforced for that source.
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: Anything unusual about identifiers, units or frequencies }
