@@ -8,15 +8,15 @@ built on.
 
 ```python
 Task(
-    name="market_episode_returns",         # == the function name
+    name="market_episode_returns",  # == the function name
     type="table_logic",
     description="Total return of each market over the 20 calendar days "
-                "following each episode start.",
-    depends_on=["market_prices", "spine_episodes"],   # == the parameters
-    index=["market_id", "episode"],                   # == the row grain
+    "following each episode start.",
+    depends_on=["market_prices", "spine_episodes"],  # == the parameters
+    index=["market_id", "episode"],  # == the row grain
     row_expectation="one row per market per episode",
-    sort=[["market_id", True], ["episode", True]],    # == presentation order
-    columns=[...],                                    # == the return type
+    sort=[["market_id", True], ["episode", True]],  # == presentation order
+    columns=[...],  # == the return type
     invariants=[{"kind": "row_count", "min": 223, "max": 223}, ...],
 )
 ```

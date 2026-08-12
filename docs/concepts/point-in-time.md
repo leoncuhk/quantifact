@@ -30,9 +30,9 @@ already closed over the knowledge date, and static analysis rejects any keyword
 argument to them. Late data is not filtered out — it is never handed over.
 
 ```python
-load_series("MKT.BRENT.CO.TRI")                       # what the model writes
-adapter.read_series("MKT.BRENT.CO.TRI", as_of=...)    # what actually runs
-load_series("MKT.BRENT.CO.TRI", as_of="2026-08-01")   # L0-static rejects this
+load_series("MKT.BRENT.CO.TRI")  # what the model writes
+adapter.read_series("MKT.BRENT.CO.TRI", as_of=...)  # what actually runs
+load_series("MKT.BRENT.CO.TRI", as_of="2026-08-01")  # L0-static rejects this
 ```
 
 **2. Dated outputs are checked.** Any column with role `observation_date` or

@@ -31,11 +31,11 @@ art = qf.analyse(
     out="report.html",
 )
 
-art.plan.as_of                      # the knowledge date everything was bound to
-art.result.trace("market_prices")   # cache key, rows, timing
-art.verdicts                        # every contract verdict, layer by layer
-art.findings                        # what self review noticed
-art.written_series                  # outputs written back into the store
+art.plan.as_of  # the knowledge date everything was bound to
+art.result.trace("market_prices")  # cache key, rows, timing
+art.verdicts  # every contract verdict, layer by layer
+art.findings  # what self review noticed
+art.written_series  # outputs written back into the store
 ```
 
 ## Choosing a knowledge date

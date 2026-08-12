@@ -79,9 +79,11 @@ report     .qf/report.html
 from quantifact import Quantifact
 
 qf = Quantifact(".qf")
-art = qf.analyse("How did markets respond to the oil supply shock?",
-                 answers={"as_of": "2026-06-14"},   # the knowledge date
-                 out="report.html")
+art = qf.analyse(
+    "How did markets respond to the oil supply shock?",
+    answers={"as_of": "2026-06-14"},  # the knowledge date
+    out="report.html",
+)
 ```
 
 ## What it guarantees
@@ -144,6 +146,7 @@ system.
 ```python
 class Adapter(Protocol):
     name: str
+
     def catalog(self) -> list[SeriesMeta]: ...
     def read_series(self, series_id: str, *, as_of) -> pd.Series: ...
     def tables(self) -> list[str]: ...

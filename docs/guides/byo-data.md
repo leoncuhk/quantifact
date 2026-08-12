@@ -26,9 +26,10 @@ CREATE TABLE series_observations (
 from quantifact import Quantifact
 from quantifact.data.adapters.duckdb_local import DuckDBAdapter
 
-adapter = DuckDBAdapter("hub.duckdb",
-                        tables={"markets": "markets", "episodes": "episodes",
-                                "calendar": "calendar"})
+adapter = DuckDBAdapter(
+    "hub.duckdb",
+    tables={"markets": "markets", "episodes": "episodes", "calendar": "calendar"},
+)
 qf = Quantifact(".qf", adapter=adapter)
 ```
 
