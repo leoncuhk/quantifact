@@ -1,7 +1,7 @@
 """Diff the charts of two reports: LLM-written code vs the deterministic oracle.
 
-    uv run python tools/compare_reports.py .pat-llmrun/report-llm.html \
-        .pat-refrun/report-ref.html site/llm_vs_reference.json
+    uv run python tools/compare_reports.py llm-report.html reference-report.html \
+        benchmarks/llm_vs_reference.json
 """
 from __future__ import annotations
 

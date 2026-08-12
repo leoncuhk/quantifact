@@ -328,10 +328,11 @@ class Quantifact:
                    prompt: str) -> list[str]:
         """Outputs land in the same store the inputs came from.
 
-        Two consequences, both from the talk this replicates: an analysis output
-        is indistinguishable from a modelled input, and one analysis can feed the
-        next. Publication date is the knowledge date of the run, so a written
-        series can never leak into an earlier vintage.
+        Two consequences: an analysis output is indistinguishable from a
+        modelled input, and one analysis can feed the next — which is how a
+        research desk compounds instead of repeating itself. The publication
+        date of a written series is the knowledge date of the run that produced
+        it, so it can never leak backwards into an earlier vintage.
         """
         store = getattr(self.adapter, "store", None)
         if store is None:

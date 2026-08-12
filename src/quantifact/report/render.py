@@ -19,6 +19,7 @@ from typing import Any
 
 import pandas as pd
 
+from ..contracts.pointintime import describe
 from ..harness.execute import RunResult
 from ..plan.model import AnalysisPlan, Task
 from ..review.checks import Finding
@@ -265,6 +266,7 @@ font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 h1{font-size:26px;margin:0 0 6px}h2{font-size:19px;margin:34px 0 10px}
 h3{font-size:15px;margin:0 0 8px}
 .sub{color:var(--muted);margin:0 0 22px}
+.asof{margin-top:-14px;font-size:13px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;
 padding:16px 18px;margin:14px 0}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
@@ -320,12 +322,18 @@ def render_report(plan: AnalysisPlan, result: RunResult, findings: list[Finding]
     meta = meta or {}
     parts: list[str] = []
     parts.append(f"<h1>{html.escape(plan.question)}</h1>")
-    parts.append('<p class="sub">Pocket Analyst · '
+    parts.append('<p class="sub">quantifact · '
                  f'{len(plan.tasks)} tasks in {len(result.layers)} layers · '
                  f'{result.cache_hits}/{len(result.traces)} served from cache · '
                  f'{result.wall_seconds:.2f}s</p>')
+    if plan.as_of:
+        # The vintage belongs at the top of the page, not in an appendix: a
+        # reader should never have to ask what this analysis was allowed to know.
+        parts.append(f'<p class="sub asof">{html.escape(describe(plan.as_of))}</p>')
 
     parts.append('<div class="kpis">')
+    if plan.as_of:
+        parts.append(_kpi("knowledge date", plan.as_of))
     parts.append(_kpi("tasks", str(len(plan.tasks))))
     parts.append(_kpi("layers", str(len(result.layers))))
     parts.append(_kpi("cache hits", f"{result.cache_hits}/{len(result.traces)}"))

@@ -1,6 +1,6 @@
-"""The adapter protocol — five methods, and they are the whole data contract.
+"""The adapter protocol — six methods, and they are the whole data contract.
 
-Anything that can answer these five questions can drive quantifact:
+Anything that can answer these six questions can drive quantifact:
 
 ``catalog()``      what exists, in enough detail to *choose* without reading data
 ``read_series()``  a series as it was knowable on a given date

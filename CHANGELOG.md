@@ -13,8 +13,8 @@ First public release.
 ### Added
 - **Plan as an intermediate representation**: typed tasks with columns, units,
   semantic roles, row grain, row order and invariants, plus a required
-  knowledge date; `PlanCompiler` rejects 15 classes of malformed plan before any
-  code is generated.
+  knowledge date; `PlanCompiler` runs 30 checks in 9 categories and rejects a malformed plan
+  before any code is generated.
 - **Contracts**: L0 static analysis, L1 schema and row order, L1-pit
   observation dates, L2 invariants, optional L3 semantic review, L4 self review.
 - **Point-in-time by construction**: bitemporal store, loaders bound to the
@@ -23,7 +23,7 @@ First public release.
   compiler used as the test oracle and an OpenAI-compatible LLM backend.
 - **Execution harness** with restricted globals, layered execution and a
   content-addressed value cache.
-- **Adapters**: five-method protocol, synthetic demo adapter, DuckDB adapter.
+- **Adapters**: six-method protocol, synthetic demo adapter, DuckDB adapter.
 - **The flywheel**: lessons, benchmarks and a teach loop that only accepts a
   lesson which first reproduces the failure.
 - **Reports**: single-file HTML with inline SVG charts, per-chart CSV export,

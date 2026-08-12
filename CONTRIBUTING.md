@@ -2,7 +2,7 @@
 
 ## What is most useful
 
-1. **Adapters.** A new data source that implements the five-method protocol is
+1. **Adapters.** A new data source that implements the six-method protocol is
    the highest-value contribution. Keep credentials and licensed data out of the
    repository; an adapter is code, not a data dump.
 2. **Contract checks.** New invariant kinds, new static-analysis rules, new

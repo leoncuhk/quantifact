@@ -7,8 +7,12 @@ requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "Leon" }]
-keywords = ["llm", "agents", "investment-research", "point-in-time", "pandas",
-            "data-contracts", "reproducibility", "evals"]
+keywords = ["llm", "llm-agents", "ai-agent", "investment-research",
+            "investment-research-agent", "ai-analyst", "research-agent",
+            "point-in-time", "look-ahead-bias", "survivorship-bias",
+            "quantitative-finance", "financial-data", "data-contracts",
+            "dataframe-validation", "pandas", "agentic-coding", "compiler",
+            "reproducibility", "evals", "pocket-analyst"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Financial and Insurance Industry",

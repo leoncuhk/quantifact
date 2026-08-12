@@ -7,7 +7,7 @@ The public surface is small and stable:
 | `quantifact.Quantifact` | the system: `clarify`, `build_plan`, `analyse` |
 | `quantifact.AnalysisPlan`, `Task`, `ColumnSpec` | the intermediate representation |
 | `quantifact.PlanCompiler` | compile-time validation, returns execution layers |
-| `quantifact.Adapter` | the five-method data protocol |
+| `quantifact.Adapter` | the six-method data protocol |
 | `quantifact.DemoSyntheticAdapter` | synthetic data, no credentials |
 | `quantifact.SeriesMeta`, `SeriesStore`, `SeriesSearch` | catalog, storage, binding |
 | `quantifact.ExecutionHarness`, `ValueCache` | execution and caching |

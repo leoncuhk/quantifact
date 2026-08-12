@@ -1,6 +1,6 @@
 # Write an adapter
 
-Five methods. Everything else — entitlements, publication lags, licence tags —
+Six methods. Everything else — entitlements, publication lags, licence tags —
 travels inside `SeriesMeta` rather than in a parallel system.
 
 ```python

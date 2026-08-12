@@ -5,9 +5,9 @@ free-form pandas passes each validation layer and whether it produces the same
 values as the deterministic compiler. That is the honest version of the talk's
 "two LLMs on the same task should produce semantically equivalent code".
 
-    PAT_LLM_API_KEY=... uv run python tools/llm_trial.py --rounds 2
+    QF_LLM_API_KEY=... uv run python tools/llm_trial.py --rounds 2 --fix
 
-Writes site/llm_trial.json for the blueprint page.
+Writes benchmarks/llm_trial.json, which benchmarks/RESULTS.md reports.
 """
 
 from __future__ import annotations

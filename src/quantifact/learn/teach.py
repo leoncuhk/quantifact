@@ -51,11 +51,11 @@ class TeachResult:
 def draft_lesson(complaint: str) -> tuple[str, str, str | None]:
     """Map a free-text complaint to (effect, lesson_id, when).
 
-    Stand-in for the drafting agent in the talk: deterministic keyword routing
-    into a registry of effects the planner actually understands. An LLM drafter
-    would produce the same triple plus nicer prose; the important part is that
-    a lesson must name an effect the planner can act on, otherwise it is just
-    text that changes nothing.
+    Deterministic keyword routing into a registry of effects the planner
+    actually understands. A model can draft the prose instead — and will do it
+    better — but the triple it returns still has to name an effect, because a
+    lesson that maps to no effect cannot be verified and therefore cannot be
+    accepted. That constraint is the point, not the keyword matching.
     """
     low = complaint.lower()
     for effect, spec in KNOWN_EFFECTS.items():

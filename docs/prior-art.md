@@ -33,7 +33,7 @@ solve:
 1. **Point-in-time as a first-class contract** — bitemporal storage, loaders
    bound to a knowledge date, survivorship-free universes, and `as_of` in the
    cache key. See [concepts/point-in-time.md](concepts/point-in-time.md).
-2. **A five-method adapter protocol** so the data layer is replaceable, with
+2. **A six-method adapter protocol** so the data layer is replaceable, with
    invariants and licence tags travelling inside the catalog.
 
 ## Older ideas this leans on
