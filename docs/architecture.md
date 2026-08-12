@@ -63,12 +63,25 @@ identity, entitlement and knowledge-date semantics. If an adapter cannot supply
 publication timing or vintage history, the system must weaken or refuse the
 corresponding guarantee rather than imply point-in-time safety.
 
-## Arrow semantics
+## Architectural views
 
-- **Blue:** mandatory control and evidence hand-off.
-- **Dashed grey:** permissioned point-in-time data access.
-- **Violet:** benchmark-gated learning and approved versioned change.
+The diagram separates three planes inside one explicit system boundary:
+
+- the **online runtime plane** owns the typed success path from question to
+  evidence product;
+- the **shared control and platform plane** owns model access, point-in-time
+  data, execution, caching, evidence storage and observability;
+- the **offline governance plane** owns learning and release approval.
+
+Research experts and model providers are external dependencies. They interact
+through named interfaces; neither becomes the orchestrator of the system.
+
+## Interface semantics
+
+- **Blue:** typed control and evidence interface.
+- **Dashed grey:** dependency on a shared platform service.
+- **Violet:** governed lifecycle for traces, benchmarks and approved releases.
 
 Combining these into a single generic arrow would hide important authority
-boundaries: data access is not control flow, and feedback is not permission to
-self-modify.
+boundaries: calling a model or loading data is not orchestration, and feedback
+is not permission to self-modify.

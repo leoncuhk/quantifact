@@ -21,11 +21,12 @@ assumptions, rival explanations, and inference limits needed to challenge it.
   <img src="docs/assets/architecture.svg" alt="Quantifact uses four bounded subsystems: research understanding, analysis compiler, controlled execution, and organisation learning" width="100%">
 </p>
 
-Blue arrows are control and evidence flow, dashed grey arrows are permissioned
-point-in-time data access, and violet arrows are learning that may return only
-after a failing benchmark, full regression, and human approval. Models sit
-above these boundaries as replaceable planners, code generators, or critics;
-no model owns orchestration or can bypass a required gate.
+The diagram is a system view, not a linear agent demo. Blue arrows are typed
+control and evidence interfaces, dashed grey arrows are service dependencies,
+and violet arrows are the governed lifecycle. Models enter only through a
+gateway; data, execution, evidence storage, and release approval remain
+system-owned. Learning can affect only a later version after a failing
+benchmark, full regression, and human approval.
 
 ## What you get
 

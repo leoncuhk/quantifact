@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def test_architecture_names_four_bounded_subsystems_and_three_flows():
+def test_architecture_names_system_planes_subsystems_and_interfaces():
     path = ROOT / "docs/assets/architecture.svg"
     ET.parse(path)  # malformed SVG should fail before GitHub renders it
     svg = path.read_text()
@@ -18,11 +18,15 @@ def test_architecture_names_four_bounded_subsystems_and_three_flows():
         "ANALYSIS COMPILER",
         "CONTROLLED EXECUTION",
         "ORGANISATION LEARNING",
-        "PERMISSION-AWARE, POINT-IN-TIME DATA + TOOL SUBSTRATE",
-        "REVIEWABLE EVIDENCE PACKAGE",
+        "QUANTIFACT SYSTEM BOUNDARY",
+        "ONLINE RUNTIME PLANE",
+        "SHARED CONTROL + PLATFORM PLANE",
+        "OFFLINE GOVERNANCE PLANE",
+        "PIT DATA + RETRIEVAL",
+        "EVIDENCE + OBSERVABILITY STORE",
     ):
         assert phrase in svg
-    for flow in ('class="flow"', 'class="data"', 'class="learn"'):
+    for flow in ('class="flow"', 'class="dependency"', 'class="learn"'):
         assert flow in svg
 
 
@@ -30,11 +34,12 @@ def test_site_explains_architecture_workflow_and_reasoning_contract():
     page = (ROOT / "site/index.html").read_text()
     assert "__ARCHITECTURE__" not in page and "__DATA__" not in page
     for phrase in (
-        "Four bounded systems contain four different research risks",
+        "Separate runtime, platform controls, and governance",
+        "Investment Research System Architecture",
         "Investment research workflow",
         "Critical investment reasoning",
-        "benchmark-gated learning",
-        "never automatic merge",
+        "governed lifecycle",
+        "APPROVED RELEASE ARTEFACTS",
     ):
         assert phrase in page
 

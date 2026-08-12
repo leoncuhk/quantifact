@@ -53,7 +53,7 @@ grid-template-columns:120px 1fr 80px;gap:12px;align-items:center;font:12px var(-
 background:var(--blue);border-radius:4px}.fill.green{background:var(--green)}.right{text-align:right}
 .callout{padding:26px;border:1px solid var(--line);border-radius:12px;background:var(--paper);
 display:flex;justify-content:space-between;gap:30px;align-items:center}.callout p{color:var(--copy);margin:5px 0 0}
-.architecture{border-radius:16px;overflow:hidden;background:#0b1424;line-height:0;
+.architecture{border-radius:16px;overflow:hidden;background:#f8fafc;line-height:0;
 box-shadow:0 18px 50px rgba(15,23,42,.12)}.architecture svg{display:block;width:100%;height:auto}
 .systems{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}.system{padding:22px;
 background:var(--paper);border:1px solid var(--line);border-radius:12px}.system:nth-child(4){border-color:var(--violet)}
@@ -87,9 +87,10 @@ footer{padding:45px 0 70px;color:var(--muted);font-size:13px}@media(max-width:80
 </div></header>
 
 <section id="architecture"><div class="wrap">
-  <div class="head"><div><div class="label">System architecture</div><h2>Four bounded systems contain four different research risks.</h2></div>
-  <p>This is not one general agent with a long prompt. Each subsystem has one
-  accountable hand-off, and models cannot bypass the deterministic boundaries.</p></div>
+  <div class="head"><div><div class="label">System engineering view</div><h2>Separate runtime, platform controls, and governance.</h2></div>
+  <p>The system boundary makes authority explicit. Three online subsystems
+  compile evidence; shared services own models, data, execution and artefacts;
+  the fourth subsystem governs learning outside the live success path.</p></div>
   <div class="architecture">__ARCHITECTURE__</div>
   <div class="systems">
     <article class="system"><div class="label">01 · research understanding</div><h3>Make the question admissible</h3><p>Prevents precise answers to vague or hindsight-defined questions.</p><ul><li>communicate and clarify</li><li>retrieve context, documents and data</li><li>fix definitions, claims, rivals and falsifiers</li></ul><div class="system-output">OUT → ResearchDesign + AnalysisPlan</div></article>
