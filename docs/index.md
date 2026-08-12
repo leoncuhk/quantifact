@@ -16,6 +16,11 @@
 - [Evals and benchmarks](guides/evals.md)
 - [Running it for real](guides/production.md)
 
+**See it**
+
+- [Interactive architecture walkthrough](https://claude.ai/code/artifact/3e2419d3-23b3-4975-b946-445cf23aee8f) — pass listing, a real compiled
+  plan, the point-in-time defence and the benchmarks, from a live run
+
 **Context**
 
 - [How this compares to Dagster, dbt and agent frameworks](compare.md)

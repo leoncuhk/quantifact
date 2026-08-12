@@ -1,6 +1,6 @@
 {
  "model": "deepseek-v4-flash",
- "base_url": "https://aihubmix.com/v1",
+ "base_url": "an OpenAI-compatible endpoint",
  "tasks": 16,
  "rounds": [
   {

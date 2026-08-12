@@ -51,6 +51,10 @@ and is **not affiliated with or endorsed by** Bridgewater Associates. Full
 attribution and the list of what was taken from the talk — and what quantifact
 adds — is in [`docs/prior-art.md`](docs/prior-art.md).
 
+**[→ Interactive architecture walkthrough](https://claude.ai/code/artifact/3e2419d3-23b3-4975-b946-445cf23aee8f)** — thirteen passes, a real
+compiled plan with its generated code, the point-in-time defence, and every
+benchmark, all rendered from a live run of this repository.
+
 ## 60-second demo
 
 No API key, no credentials, no data licence — the demo adapter is synthetic and
@@ -210,6 +214,7 @@ chart it cannot defend.
 - [Guides](docs/guides/) — quickstart · bring your own data · write an adapter ·
   evals · production
 - [Comparison](docs/compare.md) and [prior art](docs/prior-art.md)
+- [Interactive walkthrough](https://claude.ai/code/artifact/3e2419d3-23b3-4975-b946-445cf23aee8f) — the same material as a single page
 - [Architecture decisions](docs/adr/)
 
 ## Licence and disclaimer

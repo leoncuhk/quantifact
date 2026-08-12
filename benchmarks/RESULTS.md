@@ -38,7 +38,9 @@ codegen wall time is set by the slowest single task.
 
 ## 2. A real model writing every task
 
-`deepseek-v4-flash` through an OpenAI-compatible endpoint, temperature 0.
+`deepseek-v4-flash`, temperature 0, served through a third-party
+OpenAI-compatible gateway (the gateway is irrelevant to the result; the model
+name is not).
 Every task is graded against the reference compiler as oracle: which contract
 layers it passed, and whether its values match.
 
