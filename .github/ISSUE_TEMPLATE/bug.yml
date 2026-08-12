@@ -1,0 +1,14 @@
+name: Bug
+description: Something is broken
+labels: ["bug"]
+body:
+  - type: textarea
+    attributes: { label: What happened }
+    validations: { required: true }
+  - type: textarea
+    attributes: { label: How to reproduce, description: A command or a short script. }
+    validations: { required: true }
+  - type: input
+    attributes: { label: "quantifact version" }
+  - type: input
+    attributes: { label: "Python / pandas versions" }

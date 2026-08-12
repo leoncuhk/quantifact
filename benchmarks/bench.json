@@ -1,0 +1,59 @@
+{
+  "question": "How have markets responded to the conflict in the Middle East and the resulting oil supply shortage, and how does today compare to similar historical episodes?",
+  "tasks": 16,
+  "layers": 5,
+  "as_of": "2026-08-01",
+  "timings": [
+    {
+      "label": "cold",
+      "seconds": 0.15849720797268674,
+      "tasks_executed": 16,
+      "tasks_cached": 0,
+      "note": "empty cache"
+    },
+    {
+      "label": "warm",
+      "seconds": 0.006012625002767891,
+      "tasks_executed": 0,
+      "tasks_cached": 16,
+      "note": "nothing changed"
+    },
+    {
+      "label": "small_edit",
+      "seconds": 0.006957500008866191,
+      "tasks_executed": 1,
+      "tasks_cached": 15,
+      "note": "final chart edited"
+    },
+    {
+      "label": "no_cache",
+      "seconds": 0.10000654100440443,
+      "tasks_executed": 16,
+      "tasks_cached": 0,
+      "note": "same edit, caching disabled"
+    }
+  ],
+  "determinism": {
+    "identical_code": 16,
+    "identical_values": 16,
+    "tasks": 16
+  },
+  "codegen": {
+    "simulated_latency_per_task": 0.4,
+    "parallel": 0.4081786249880679,
+    "serial": 6.461048917029984,
+    "speedup": 15.828974183101472,
+    "parallel_3_tasks": 0.4050168750109151,
+    "tasks": 16
+  },
+  "environment": {
+    "backend": "reference",
+    "pandas": "3.0.5",
+    "adapter": "demo-synthetic"
+  },
+  "speedups": {
+    "warm_vs_cold": 26.360733938957296,
+    "small_edit_vs_no_cache": 14.373918918715418,
+    "small_edit_vs_cold": 22.780770071248018
+  }
+}

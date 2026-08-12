@@ -1,0 +1,29 @@
+name: A wrong number got through
+description: The most valuable report — a layer should have caught something and did not
+labels: ["correctness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        quantifact's whole claim is that a wrong result is stopped before it
+        reaches a report. A counterexample is worth more than a feature request.
+  - type: textarea
+    attributes:
+      label: The task contract
+      description: The task's columns, index, row grain, sort and invariants (paste the JSON).
+      render: json
+    validations: { required: true }
+  - type: textarea
+    attributes:
+      label: The generated code
+      render: python
+    validations: { required: true }
+  - type: textarea
+    attributes:
+      label: Why the result is wrong
+      description: What the correct answer is and how you know.
+    validations: { required: true }
+  - type: input
+    attributes:
+      label: Which layer should have caught it
+      placeholder: "L1 schema / L1-pit / L2 invariants / L4 review"

@@ -1,0 +1,15 @@
+{
+ "id": "plan-compiles",
+ "prompt": "How have markets responded to the conflict in the Middle East and the resulting oil supply shortage?",
+ "kind": "plan",
+ "origin": "manual",
+ "human_audited": true,
+ "note": "The baseline: the demo question must produce a plan that compiles, with the full ingestion/logic/chart structure.",
+ "assertions": [
+  {"type": "plan_valid"},
+  {"type": "task_count_min", "value": 14},
+  {"type": "plan_has_task", "name": "market_episode_returns"},
+  {"type": "plan_has_task", "name": "macro_conditions_dashboard"}
+ ],
+ "answers": {}
+}

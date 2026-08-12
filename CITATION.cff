@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: "quantifact: an investment-research agent that has to prove its numbers"
+message: "If you use this software or its ideas, please cite it."
+type: software
+authors:
+  - family-names: Leon
+    website: "https://github.com/leoncuhk"
+repository-code: "https://github.com/leoncuhk/quantifact"
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-08-12
+keywords:
+  - llm agents
+  - investment research
+  - point-in-time
+  - data contracts
+  - reproducibility
+abstract: >-
+  quantifact treats agentic analysis as a compiler problem: a question is
+  clarified into an intermediate representation with schemas, units, row grain
+  and a knowledge date; each task compiles in parallel into one pandas function;
+  static analysis derives the dependency graph; layered contracts run as
+  ordinary Python; and a caching harness executes the code bound to the
+  knowledge date, making look-ahead structurally impossible rather than
+  discouraged.

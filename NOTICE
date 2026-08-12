@@ -1,0 +1,10 @@
+quantifact
+Copyright 2026 the quantifact authors
+
+This product includes software developed by the quantifact authors.
+
+The architecture replicated here was described publicly by Bridgewater
+Associates at INTERRUPT26 ("Building Pat, the AI Pocket Analyst Tool").
+quantifact is an independent implementation of the ideas in that talk. It is
+not affiliated with, endorsed by, or derived from any Bridgewater code, data or
+trademark.
