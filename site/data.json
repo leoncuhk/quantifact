@@ -11,7 +11,7 @@
     "russia_ukraine_2022"
    ],
    "return_cells": 223,
-   "cache_key": "5ce414e826e9a6433ea1"
+   "cache_key": "5ce414e826"
   },
   "early": {
    "as_of": "2026-06-14",
@@ -21,7 +21,7 @@
     "russia_ukraine_2022"
    ],
    "return_cells": 167,
-   "cache_key": "c50a043ad45979b9a047"
+   "cache_key": "c50a043ad4"
   }
  },
  "clarifications": [
@@ -563,7 +563,7 @@
     "chart_spec": null,
     "code": "def spine_episodes() -> pd.DataFrame:\n    out = load_table('episodes').copy()\n    out = out[['episode', 'label', 'start_date', 'oil_shock']]\n    return out.sort_values(['episode']).reset_index(drop=True)\n",
     "rows": 4,
-    "cache_key": "8fcc8d92ea1a5587a754"
+    "cache_key": "8fcc8d92ea"
    },
    {
     "name": "spine_markets",
@@ -621,7 +621,7 @@
     "chart_spec": null,
     "code": "def spine_markets() -> pd.DataFrame:\n    out = load_table('markets').copy()\n    out = out[['market_id', 'asset_class', 'listed_from']]\n    return out.sort_values(['market_id']).reset_index(drop=True)\n",
     "rows": 56,
-    "cache_key": "26b4dae576728cbca86a"
+    "cache_key": "26b4dae576"
    },
    {
     "name": "market_prices",
@@ -691,7 +691,7 @@
     "chart_spec": null,
     "code": "def market_prices() -> pd.DataFrame:\n    mapping = {'MKT.ALUM.CO.TRI': 'ALUM.CO', 'MKT.ASX.EQ.TRI': 'ASX.EQ', 'MKT.AUDUSD.FX.TRI': 'AUDUSD.FX', 'MKT.AUS10Y.BO.TRI': 'AUS10Y.BO', 'MKT.BRENT.CO.TRI': 'BRENT.CO', 'MKT.BTP10Y.BO.TRI': 'BTP10Y.BO', 'MKT.BUND10Y.BO.TRI': 'BUND10Y.BO', 'MKT.CAN10Y.BO.TRI': 'CAN10Y.BO', 'MKT.COPPER.CO.TRI': 'COPPER.CO', 'MKT.CORN.CO.TRI': 'CORN.CO', 'MKT.COTTON.CO.TRI': 'COTTON.CO', 'MKT.DAX.EQ.TRI': 'DAX.EQ', 'MKT.EMSOV.CR.TRI': 'EMSOV.CR', 'MKT.EURHY.CR.TRI': 'EURHY.CR', 'MKT.EURIG.CR.TRI': 'EURIG.CR', 'MKT.EURILB.IN.TRI': 'EURILB.IN', 'MKT.EURUSD.FX.TRI': 'EURUSD.FX', 'MKT.GBPUSD.FX.TRI': 'GBPUSD.FX', 'MKT.GILT10Y.BO.TRI': 'GILT10Y.BO', 'MKT.GOLD.CO.TRI': 'GOLD.CO', 'MKT.HSI.EQ.TRI': 'HSI.EQ', 'MKT.IBOV.EQ.TRI': 'IBOV.EQ', 'MKT.JGB10Y.BO.TRI': 'JGB10Y.BO', 'MKT.JPBE.IN.TRI': 'JPBE.IN', 'MKT.KOSPI.EQ.TRI': 'KOSPI.EQ', 'MKT.NATGAS.CO.TRI': 'NATGAS.CO', 'MKT.NDX.EQ.TRI': 'NDX.EQ', 'MKT.NEWCO.EQ.TRI': 'NEWCO.EQ', 'MKT.NKY.EQ.TRI': 'NKY.EQ', 'MKT.OAT10Y.BO.TRI': 'OAT10Y.BO', 'MKT.SENSEX.EQ.TRI': 'SENSEX.EQ', 'MKT.SILVER.CO.TRI': 'SILVER.CO', 'MKT.SOY.CO.TRI': 'SOY.CO', 'MKT.SPX.EQ.TRI': 'SPX.EQ', 'MKT.SX5E.EQ.TRI': 'SX5E.EQ', 'MKT.TSX.EQ.TRI': 'TSX.EQ', 'MKT.UKILB.IN.TRI': 'UKILB.IN', 'MKT.UKX.EQ.TRI': 'UKX.EQ', 'MKT.US10YTIPS.IN.TRI': 'US10YTIPS.IN', 'MKT.US5Y5YBE.IN.TRI': 'US5Y5YBE.IN', 'MKT.USDBRL.FX.TRI': 'USDBRL.FX', 'MKT.USDCAD.FX.TRI': 'USDCAD.FX', 'MKT.USDCHF.FX.TRI': 'USDCHF.FX', 'MKT.USDINR.FX.TRI': 'USDINR.FX', 'MKT.USDJPY.FX.TRI': 'USDJPY.FX', 'MKT.USDKRW.FX.TRI': 'USDKRW.FX', 'MKT.USDMXN.FX.TRI': 'USDMXN.FX', 'MKT.USDNOK.FX.TRI': 'USDNOK.FX', 'MKT.USDZAR.FX.TRI': 'USDZAR.FX', 'MKT.USHY.CR.TRI': 'USHY.CR', 'MKT.USIG.CR.TRI': 'USIG.CR', 'MKT.UST10Y.BO.TRI': 'UST10Y.BO', 'MKT.UST2Y.BO.TRI': 'UST2Y.BO', 'MKT.UST30Y.BO.TRI': 'UST30Y.BO', 'MKT.WHEAT.CO.TRI': 'WHEAT.CO', 'MKT.WTI.CO.TRI': 'WTI.CO'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'market_id': entity,\n            'price': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'market_id', 'price']]\n    return out.sort_values(['market_id', 'date']).reset_index(drop=True)\n",
     "rows": 555045,
-    "cache_key": "5ce414e826e9a6433ea1"
+    "cache_key": "5ce414e826"
    },
    {
     "name": "us_real_yield",
@@ -753,7 +753,7 @@
     "chart_spec": null,
     "code": "def us_real_yield() -> pd.DataFrame:\n    mapping = {'US.REAL_YIELD.10Y': 'us_real_yield'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
     "rows": 499,
-    "cache_key": "9857d5691b3b4c41951b"
+    "cache_key": "9857d5691b"
    },
    {
     "name": "us_output_gap",
@@ -815,7 +815,7 @@
     "chart_spec": null,
     "code": "def us_output_gap() -> pd.DataFrame:\n    mapping = {'US.OUTPUT_GAP': 'us_output_gap'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
     "rows": 497,
-    "cache_key": "aa1b43e5cb3a1295e504"
+    "cache_key": "aa1b43e5cb"
    },
    {
     "name": "us_headline_cpi",
@@ -877,7 +877,7 @@
     "chart_spec": null,
     "code": "def us_headline_cpi() -> pd.DataFrame:\n    mapping = {'US.CPI.HEADLINE.YOY': 'us_headline_cpi'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
     "rows": 498,
-    "cache_key": "7a7858d7c5306e55191e"
+    "cache_key": "7a7858d7c5"
    },
    {
     "name": "us_core_cpi",
@@ -939,7 +939,7 @@
     "chart_spec": null,
     "code": "def us_core_cpi() -> pd.DataFrame:\n    mapping = {'US.CPI.CORE.YOY': 'us_core_cpi'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
     "rows": 498,
-    "cache_key": "b49aafdbb6538e931dca"
+    "cache_key": "b49aafdbb6"
    },
    {
     "name": "us_net_energy_trade",
@@ -1001,7 +1001,7 @@
     "chart_spec": null,
     "code": "def us_net_energy_trade() -> pd.DataFrame:\n    mapping = {'US.NET_ENERGY_TRADE': 'us_net_energy_trade'}\n    frames = []\n    for series_id, entity in mapping.items():\n        s = load_series(series_id)\n        frames.append(pd.DataFrame({\n            'date': s.index,\n            'indicator': entity,\n            'value': s.to_numpy(dtype='float64'),\n        }))\n    out = pd.concat(frames, ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
     "rows": 497,
-    "cache_key": "b2c05eb441c416898b3e"
+    "cache_key": "b2c05eb441"
    },
    {
     "name": "macro_panel",
@@ -1069,7 +1069,7 @@
     "chart_spec": null,
     "code": "def macro_panel(us_real_yield: pd.DataFrame, us_output_gap: pd.DataFrame, us_headline_cpi: pd.DataFrame, us_core_cpi: pd.DataFrame, us_net_energy_trade: pd.DataFrame) -> pd.DataFrame:\n    out = pd.concat([us_real_yield, us_output_gap, us_headline_cpi, us_core_cpi, us_net_energy_trade], ignore_index=True)\n    out = out[['date', 'indicator', 'value']]\n    return out.sort_values(['indicator', 'date']).reset_index(drop=True)\n",
     "rows": 2489,
-    "cache_key": "96e489cadf0712e17725"
+    "cache_key": "96e489cadf"
    },
    {
     "name": "market_episode_returns",
@@ -1147,7 +1147,7 @@
     "chart_spec": null,
     "code": "def market_episode_returns(market_prices: pd.DataFrame, spine_episodes: pd.DataFrame) -> pd.DataFrame:\n    px = market_prices.copy()\n    px['date'] = pd.to_datetime(px['date'])\n    ep = spine_episodes.copy()\n    ep['start_date'] = pd.to_datetime(ep['start_date'])\n    rows = []\n    for _, e in ep.iterrows():\n        t0 = e['start_date']\n        t1 = t0 + pd.Timedelta(days=20)\n        win = px[(px['date'] >= t0) & (px['date'] <= t1)]\n        for entity, g in win.groupby('market_id', sort=True):\n            g = g.sort_values('date')\n            if len(g) < 2:\n                continue\n            first = float(g['price'].iloc[0])\n            last = float(g['price'].iloc[-1])\n            if first == 0.0:\n                continue\n            rows.append({\n                'market_id': entity,\n                'episode': e['episode'],\n                'return_pct': last / first - 1.0,\n            })\n    out = pd.DataFrame(rows)\n    out = out[['market_id', 'episode', 'return_pct']]\n    return out.sort_values(['market_id', 'episode']).reset_index(drop=True)\n",
     "rows": 223,
-    "cache_key": "f5ffc3a34e8ae721830a"
+    "cache_key": "f5ffc3a34e"
    },
    {
     "name": "market_action_data",
@@ -1221,7 +1221,7 @@
     "chart_spec": null,
     "code": "def market_action_data(market_episode_returns: pd.DataFrame, spine_markets: pd.DataFrame) -> pd.DataFrame:\n    out = market_episode_returns.merge(spine_markets, on=['market_id'], how='inner')\n    out = out[['market_id', 'episode', 'asset_class', 'return_pct']]\n    return out.sort_values(['market_id', 'episode']).reset_index(drop=True)\n",
     "rows": 223,
-    "cache_key": "68083c295c3be1310622"
+    "cache_key": "68083c295c"
    },
    {
     "name": "market_pairwise_returns",
@@ -1302,7 +1302,7 @@
     "chart_spec": null,
     "code": "def market_pairwise_returns(market_action_data: pd.DataFrame) -> pd.DataFrame:\n    src = market_action_data.copy()\n    wide = src.pivot_table(index=['market_id'], columns='episode',\n                           values='return_pct', aggfunc='first')\n    wide.columns = ['ret_' + str(c) for c in wide.columns]\n    wide = wide.reset_index()\n    extra = src[['market_id'] + ['asset_class']].drop_duplicates(['market_id'])\n    out = wide.merge(extra, on=['market_id'], how='left')\n    out = out[['market_id', 'asset_class', 'ret_gulf_war_1990', 'ret_russia_ukraine_2022', 'ret_israel_iran_2025', 'ret_iran_hormuz_2026']]\n    return out.sort_values(['market_id']).reset_index(drop=True)\n",
     "rows": 56,
-    "cache_key": "316b7e972c26fed7521a"
+    "cache_key": "316b7e972c"
    },
    {
     "name": "macro_event_time_overlay",
@@ -1383,7 +1383,7 @@
     "chart_spec": null,
     "code": "def macro_event_time_overlay(macro_panel: pd.DataFrame, spine_episodes: pd.DataFrame) -> pd.DataFrame:\n    pn = macro_panel.copy()\n    pn['date'] = pd.to_datetime(pn['date'])\n    ep = spine_episodes.copy()\n    ep['start_date'] = pd.to_datetime(ep['start_date'])\n    rows = []\n    for _, e in ep.iterrows():\n        t0 = e['start_date']\n        lo = t0 - pd.DateOffset(months=18)\n        hi = t0 + pd.DateOffset(months=18)\n        win = pn[(pn['date'] >= lo) & (pn['date'] <= hi)]\n        for indicator, g in win.groupby('indicator', sort=True):\n            g = g.sort_values('date')\n            offs = ((g['date'].dt.year - t0.year) * 12\n                    + (g['date'].dt.month - t0.month))\n            for off, val in zip(offs.to_numpy(), g['value'].to_numpy()):\n                rows.append({\n                    'indicator': indicator,\n                    'episode': e['episode'],\n                    'month_offset': int(off),\n                    'value': float(val),\n                })\n    out = pd.DataFrame(rows)\n    out = out.groupby(['indicator', 'episode', 'month_offset'], as_index=False)['value'].mean()\n    out = out[['indicator', 'episode', 'month_offset', 'value']]\n    return out.sort_values(['indicator', 'episode', 'month_offset']).reset_index(drop=True)\n",
     "rows": 608,
-    "cache_key": "87709332f60edf40fffc"
+    "cache_key": "87709332f6"
    },
    {
     "name": "market_action_table",
@@ -1452,7 +1452,7 @@
     },
     "code": "def market_action_table(market_action_data: pd.DataFrame) -> pd.DataFrame:\n    out = market_action_data.copy()\n    out = out[['market_id', 'asset_class', 'episode', 'return_pct']]\n    out = out.sort_values(['return_pct'], ascending=[False]).reset_index(drop=True)\n    out = out.head(30)\n    return out\n",
     "rows": 30,
-    "cache_key": "910fa57ef9f8b77f607b"
+    "cache_key": "910fa57ef9"
    },
    {
     "name": "market_pairwise_scatter",
@@ -1517,7 +1517,7 @@
     },
     "code": "def market_pairwise_scatter(market_pairwise_returns: pd.DataFrame) -> pd.DataFrame:\n    out = market_pairwise_returns.copy()\n    out = out[['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026']]\n    out = out.dropna(subset=['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026'])\n    out = out.sort_values(['market_id'], ascending=[True]).reset_index(drop=True)\n    return out\n",
     "rows": 56,
-    "cache_key": "ae13be105cb476a15577"
+    "cache_key": "ae13be105c"
    },
    {
     "name": "macro_conditions_dashboard",
@@ -1591,7 +1591,7 @@
     },
     "code": "def macro_conditions_dashboard(macro_event_time_overlay: pd.DataFrame) -> pd.DataFrame:\n    out = macro_event_time_overlay.copy()\n    out = out[['indicator', 'episode', 'month_offset', 'value']]\n    out = out.sort_values(['indicator', 'episode', 'month_offset'], ascending=[True, True, True]).reset_index(drop=True)\n    return out\n",
     "rows": 608,
-    "cache_key": "81cfc328cb34e57c8d0c"
+    "cache_key": "81cfc328cb"
    },
    {
     "name": "market_scatter_by_asset_class",
@@ -1660,118 +1660,118 @@
     },
     "code": "def market_scatter_by_asset_class(market_pairwise_returns: pd.DataFrame) -> pd.DataFrame:\n    out = market_pairwise_returns.copy()\n    out = out[['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026']]\n    out = out.dropna(subset=['market_id', 'asset_class', 'ret_russia_ukraine_2022', 'ret_iran_hormuz_2026'])\n    out = out.sort_values(['asset_class', 'market_id'], ascending=[True, True]).reset_index(drop=True)\n    return out\n",
     "rows": 56,
-    "cache_key": "2086caf3e41dd3b0c7ed"
+    "cache_key": "2086caf3e4"
    }
   ]
  },
  "runs": {
   "cold": {
    "stages": {
-    "plan": 0.003047125006560236,
-    "codegen": 0.0007352079846896231,
-    "static": 0.0038819999899715185,
-    "execute": 0.17826483398675919,
-    "validate": 0.026155915984418243,
-    "review": 0.023862541012931615,
-    "writeback": 0.01561679196311161,
-    "report": 0.006028582982253283
+    "plan": 0.0031202500103972852,
+    "codegen": 0.0007510000141337514,
+    "static": 0.004135292023420334,
+    "execute": 0.187909625004977,
+    "validate": 0.025965290958993137,
+    "review": 0.024425707990303636,
+    "writeback": 0.019410208973567933,
+    "report": 0.006421583006158471
    },
    "cached": 0,
    "tasks": 16,
    "traces": [
     {
      "task": "market_prices",
-     "ms": 116.52,
+     "ms": 125.12,
      "cached": false,
      "rows": 555045
     },
     {
      "task": "spine_episodes",
-     "ms": 1.12,
+     "ms": 1.11,
      "cached": false,
      "rows": 4
     },
     {
      "task": "spine_markets",
-     "ms": 0.95,
+     "ms": 0.94,
      "cached": false,
      "rows": 56
     },
     {
      "task": "us_core_cpi",
-     "ms": 1.99,
+     "ms": 1.96,
      "cached": false,
      "rows": 498
     },
     {
      "task": "us_headline_cpi",
-     "ms": 1.97,
+     "ms": 1.94,
      "cached": false,
      "rows": 498
     },
     {
      "task": "us_net_energy_trade",
-     "ms": 1.96,
+     "ms": 2.07,
      "cached": false,
      "rows": 497
     },
     {
      "task": "us_output_gap",
-     "ms": 1.71,
+     "ms": 1.74,
      "cached": false,
      "rows": 497
     },
     {
      "task": "us_real_yield",
-     "ms": 1.74,
+     "ms": 1.58,
      "cached": false,
      "rows": 499
     },
     {
      "task": "macro_panel",
-     "ms": 1.31,
+     "ms": 1.45,
      "cached": false,
      "rows": 2489
     },
     {
      "task": "market_episode_returns",
-     "ms": 25.0,
+     "ms": 25.66,
      "cached": false,
      "rows": 223
     },
     {
      "task": "macro_event_time_overlay",
-     "ms": 10.14,
+     "ms": 10.77,
      "cached": false,
      "rows": 608
     },
     {
      "task": "market_action_data",
-     "ms": 2.28,
+     "ms": 2.31,
      "cached": false,
      "rows": 223
     },
     {
      "task": "macro_conditions_dashboard",
-     "ms": 1.08,
+     "ms": 1.3,
      "cached": false,
      "rows": 608
     },
     {
      "task": "market_action_table",
-     "ms": 0.96,
+     "ms": 1.04,
      "cached": false,
      "rows": 30
     },
     {
      "task": "market_pairwise_returns",
-     "ms": 4.85,
+     "ms": 5.13,
      "cached": false,
      "rows": 56
     },
     {
      "task": "market_pairwise_scatter",
-     "ms": 0.76,
+     "ms": 0.78,
      "cached": false,
      "rows": 56
     }
@@ -1779,28 +1779,28 @@
   },
   "warm": {
    "stages": {
-    "plan": 0.002925375010818243,
-    "codegen": 0.0007257089600898325,
-    "static": 0.0038856249884702265,
-    "execute": 0.002043624990619719,
-    "validate": 0.02650612499564886,
-    "review": 0.02260350005235523,
-    "writeback": 0.015337791992351413,
-    "report": 0.005375666019972414
+    "plan": 0.0034377920092083514,
+    "codegen": 0.0008240410243161023,
+    "static": 0.004139165976084769,
+    "execute": 0.0019906669622287154,
+    "validate": 0.026086916972417384,
+    "review": 0.026287042011972517,
+    "writeback": 0.01732283300952986,
+    "report": 0.005360417009796947
    },
    "cached": 16,
    "tasks": 16
   },
   "after_teach": {
    "stages": {
-    "plan": 0.0026952920015901327,
-    "codegen": 0.0007059159688651562,
-    "static": 0.004090917005669326,
-    "execute": 0.003063624957576394,
-    "validate": 0.02560041699325666,
-    "review": 0.022561874997336417,
-    "writeback": 0.015898166981060058,
-    "report": 0.006408917019143701
+    "plan": 0.0028245829744264483,
+    "codegen": 0.000748958031181246,
+    "static": 0.0041125830030068755,
+    "execute": 0.0031767500331625342,
+    "validate": 0.02563887496944517,
+    "review": 0.02271283301524818,
+    "writeback": 0.01675658399472013,
+    "report": 0.0063875000341795385
    },
    "cached": 16,
    "tasks": 17
@@ -1840,28 +1840,28 @@
   "timings": [
    {
     "label": "cold",
-    "seconds": 0.13519241695757955,
+    "seconds": 0.12899625004502013,
     "tasks_executed": 16,
     "tasks_cached": 0,
     "note": "empty cache"
    },
    {
     "label": "warm",
-    "seconds": 0.005712874990422279,
+    "seconds": 0.005423333030194044,
     "tasks_executed": 0,
     "tasks_cached": 16,
     "note": "nothing changed"
    },
    {
     "label": "small_edit",
-    "seconds": 0.00717024999903515,
+    "seconds": 0.006610958022065461,
     "tasks_executed": 1,
     "tasks_cached": 15,
     "note": "final chart edited"
    },
    {
     "label": "no_cache",
-    "seconds": 0.09637958300299942,
+    "seconds": 0.09551487502176315,
     "tasks_executed": 16,
     "tasks_cached": 0,
     "note": "same edit, caching disabled"
@@ -1874,10 +1874,10 @@
   },
   "codegen": {
    "simulated_latency_per_task": 0.4,
-   "parallel": 0.40697958297096193,
-   "serial": 6.465336166962516,
-   "speedup": 15.88614377105944,
-   "parallel_3_tasks": 0.40373154199915007,
+   "parallel": 0.40662895899731666,
+   "serial": 6.458038832992315,
+   "speedup": 15.881895989200641,
+   "parallel_3_tasks": 0.4051176250213757,
    "tasks": 16
   },
   "environment": {
@@ -1886,9 +1886,9 @@
    "adapter": "demo-synthetic"
   },
   "speedups": {
-   "warm_vs_cold": 23.6645151844267,
-   "small_edit_vs_no_cache": 13.44159311264859,
-   "small_edit_vs_cold": 18.854630867232167
+   "warm_vs_cold": 23.78541928493827,
+   "small_edit_vs_no_cache": 14.447962716290467,
+   "small_edit_vs_cold": 19.51248965951199
   }
  },
  "review": [

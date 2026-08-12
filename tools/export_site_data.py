@@ -72,13 +72,13 @@ def main(out: str = "site/data.json") -> int:
                          art_taught.result.frames["spine_episodes"]["episode"])),
                      "return_cells": len(
                          art_taught.result.frames["market_episode_returns"]),
-                     "cache_key": art_taught.result.trace("market_prices").cache_key},
+                     "cache_key": art_taught.result.trace("market_prices").cache_key[:10]},
             "early": {"as_of": earlier.plan.as_of,
                       "episodes": sorted(set(
                           earlier.result.frames["spine_episodes"]["episode"])),
                       "return_cells": len(
                           earlier.result.frames["market_episode_returns"]),
-                      "cache_key": earlier.result.trace("market_prices").cache_key},
+                      "cache_key": earlier.result.trace("market_prices").cache_key[:10]},
         },
         "clarifications": clarifications,
         "bindings": bindings,
@@ -100,7 +100,7 @@ def main(out: str = "site/data.json") -> int:
                     "chart_spec": t.chart_spec,
                     "code": art_taught.codes[t.name],
                     "rows": art_taught.result.trace(t.name).rows,
-                    "cache_key": art_taught.result.trace(t.name).cache_key,
+                    "cache_key": art_taught.result.trace(t.name).cache_key[:10],
                 }
                 for t in plan.tasks
             ],

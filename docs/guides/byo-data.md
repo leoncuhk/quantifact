@@ -51,4 +51,4 @@ qf = Quantifact(".qf", adapter=adapter)
 
 Your adapter, your credentials, your contract with the vendor. quantifact
 cannot make redistribution lawful, and most market-data agreements cover derived
-works as well as raw data. Read [DISCLAIMER.md](../../DISCLAIMER.md).
+works as well as raw data. Read [disclaimer](../disclaimer.md).

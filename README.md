@@ -213,12 +213,12 @@ chart it cannot defend.
   [caching](docs/concepts/caching.md) · [the flywheel](docs/concepts/flywheel.md)
 - [Guides](docs/guides/) — quickstart · bring your own data · write an adapter ·
   evals · production
+- [Public API](docs/index.md#public-api) and [architecture decisions](docs/adr/)
 - [Comparison](docs/compare.md) and [prior art](docs/prior-art.md)
 - [Interactive walkthrough](https://claude.ai/code/artifact/3e2419d3-23b3-4975-b946-445cf23aee8f) — the same material as a single page
-- [Architecture decisions](docs/adr/)
 
 ## Licence and disclaimer
 
-Apache-2.0. Read [DISCLAIMER.md](DISCLAIMER.md) before pointing this at
+Apache-2.0. Read the [disclaimer](docs/disclaimer.md) before pointing this at
 anything real: not investment advice, synthetic demo data, and no licence to
 redistribute anybody's market data.

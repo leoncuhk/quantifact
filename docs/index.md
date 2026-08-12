@@ -21,6 +21,23 @@
 - [Interactive architecture walkthrough](https://claude.ai/code/artifact/3e2419d3-23b3-4975-b946-445cf23aee8f) — pass listing, a real compiled
   plan, the point-in-time defence and the benchmarks, from a live run
 
+**Public API**
+
+| import | what it is |
+|---|---|
+| `quantifact.Quantifact` | the system: `clarify`, `build_plan`, `analyse` |
+| `AnalysisPlan`, `Task`, `ColumnSpec` | the intermediate representation |
+| `PlanCompiler` | compile-time validation; returns execution layers |
+| `Adapter`, `DemoSyntheticAdapter` | the six-method data protocol, and one implementation |
+| `SeriesMeta`, `SeriesStore`, `SeriesSearch` | catalog, bitemporal storage, binding |
+| `ExecutionHarness`, `ValueCache` | execution and caching |
+| `Verdict`, `TaskUnfixable` | contract results |
+| `ReferenceCodegen`, `generate_all` | the deterministic backend |
+| `Lesson`, `Benchmark`, `teach` | the flywheel |
+
+Everything else is an implementation detail and may move between 0.x releases.
+Docstrings carry the reasoning; the concept pages carry the design.
+
 **Context**
 
 - [How this compares to Dagster, dbt and agent frameworks](compare.md)
