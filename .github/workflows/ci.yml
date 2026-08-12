@@ -25,6 +25,8 @@ jobs:
         run: uv run pytest -q
       - name: Benchmarks (smoke)
         run: uv run qf bench
+      - name: Quality audit (smoke)
+        run: uv run qf audit --json /tmp/quality-audit.json
       - name: Point-in-time example
         run: echo n | uv run python examples/04_point_in_time/run.py
 
@@ -34,6 +36,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv build
+      - name: Smoke-test the installed wheel
+        run: |
+          uv venv --python 3.12 /tmp/qf-wheel-test
+          uv pip install --python /tmp/qf-wheel-test/bin/python dist/*.whl
+          cd /tmp
+          /tmp/qf-wheel-test/bin/qf audit --json /tmp/qf-wheel-audit.json
       - uses: actions/upload-artifact@v4
         with:
           name: dist

@@ -33,12 +33,15 @@ DTYPE_CHECK = {
 
 # ---------------------------------------------------------------- L0 static
 
+
 def l0_static(task: Task, source: str, facts: CodeFacts | None = None) -> Verdict:
     facts = facts or analyse(task.name, source)
     problems = list(facts.violations)
     if set(facts.params) != set(task.depends_on):
-        problems.append(f"signature {facts.params} does not match declared "
-                        f"dependencies {task.depends_on}")
+        problems.append(
+            f"signature {facts.params} does not match declared "
+            f"dependencies {task.depends_on}"
+        )
     if task.series_inputs and facts.series_ids:
         undeclared = set(facts.series_ids) - set(task.series_inputs)
         if undeclared:
@@ -46,12 +49,14 @@ def l0_static(task: Task, source: str, facts: CodeFacts | None = None) -> Verdic
     return Verdict(task.name, "L0-static", not problems, problems)
 
 
-def validate_static(plan: AnalysisPlan, codes: dict[str, str],
-                    facts: dict[str, CodeFacts] | None = None) -> list[Verdict]:
+def validate_static(
+    plan: AnalysisPlan, codes: dict[str, str], facts: dict[str, CodeFacts] | None = None
+) -> list[Verdict]:
     return [l0_static(t, codes[t.name], (facts or {}).get(t.name)) for t in plan.tasks]
 
 
 # ---------------------------------------------------------------- L1 schema
+
 
 def l1_schema(task: Task, df: pd.DataFrame) -> Verdict:
     problems: list[str] = []
@@ -73,10 +78,13 @@ def l1_schema(task: Task, df: pd.DataFrame) -> Verdict:
         check = DTYPE_CHECK.get(spec.dtype)
         if check and not check(col):
             problems.append(
-                f"column '{spec.name}' has dtype {col.dtype}, declared {spec.dtype}")
+                f"column '{spec.name}' has dtype {col.dtype}, declared {spec.dtype}"
+            )
         if not spec.nullable and col.isna().any():
-            problems.append(f"column '{spec.name}' declared non-nullable but has "
-                            f"{int(col.isna().sum())} nulls")
+            problems.append(
+                f"column '{spec.name}' declared non-nullable but has "
+                f"{int(col.isna().sum())} nulls"
+            )
     if df.empty:
         problems.append("dataframe is empty")
 
@@ -92,8 +100,10 @@ def l1_schema(task: Task, df: pd.DataFrame) -> Verdict:
 
 # ------------------------------------------------------------ L2 invariants
 
-def l2_invariants(task: Task, df: pd.DataFrame,
-                  as_of: str | date | None = None) -> Verdict:
+
+def l2_invariants(
+    task: Task, df: pd.DataFrame, as_of: str | date | None = None
+) -> Verdict:
     problems: list[str] = []
     for inv in task.invariants:
         kind = inv["kind"]
@@ -103,7 +113,8 @@ def l2_invariants(task: Task, df: pd.DataFrame,
                 ratio = float(df[col].notna().mean()) if len(df) else 0.0
                 if ratio < inv.get("min", 1.0):
                     problems.append(
-                        f"non-null ratio of '{col}' is {ratio:.3f} < {inv['min']}")
+                        f"non-null ratio of '{col}' is {ratio:.3f} < {inv['min']}"
+                    )
         elif kind == "range":
             col = inv["column"]
             if col in df.columns and len(df):
@@ -112,12 +123,14 @@ def l2_invariants(task: Task, df: pd.DataFrame,
                 if bad:
                     problems.append(
                         f"{bad} rows of '{col}' outside [{lo}, {hi}] "
-                        f"(observed {df[col].min():.4g}..{df[col].max():.4g})")
+                        f"(observed {df[col].min():.4g}..{df[col].max():.4g})"
+                    )
         elif kind == "row_count":
             n = len(df)
             if n < inv.get("min", 0) or n > inv.get("max", 10**12):
-                problems.append(f"row count {n} outside "
-                                f"[{inv.get('min', 0)}, {inv.get('max', '∞')}]")
+                problems.append(
+                    f"row count {n} outside [{inv.get('min', 0)}, {inv.get('max', '∞')}]"
+                )
         elif kind == "unique":
             cols = inv["columns"]
             if all(c in df.columns for c in cols):
@@ -136,8 +149,9 @@ def l2_invariants(task: Task, df: pd.DataFrame,
     return Verdict(task.name, "L2-invariants", not problems, problems)
 
 
-def validate_result(task: Task, df: pd.DataFrame,
-                    as_of: str | date | None = None) -> list[Verdict]:
+def validate_result(
+    task: Task, df: pd.DataFrame, as_of: str | date | None = None
+) -> list[Verdict]:
     """L1 + L1-pit + L2 for one materialised frame."""
     out = [l1_schema(task, df)]
     if as_of is not None:
@@ -146,6 +160,14 @@ def validate_result(task: Task, df: pd.DataFrame,
     return out
 
 
-__all__ = ["DTYPE_CHECK", "TaskUnfixable", "Verdict", "l0_static", "l1_schema",
-           "l2_invariants", "no_future_observations", "validate_result",
-           "validate_static"]
+__all__ = [
+    "DTYPE_CHECK",
+    "TaskUnfixable",
+    "Verdict",
+    "l0_static",
+    "l1_schema",
+    "l2_invariants",
+    "no_future_observations",
+    "validate_result",
+    "validate_static",
+]

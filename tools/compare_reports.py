@@ -3,6 +3,7 @@
     uv run python tools/compare_reports.py llm-report.html reference-report.html \
         benchmarks/llm_vs_reference.json
 """
+
 from __future__ import annotations
 
 import io
@@ -13,10 +14,17 @@ from pathlib import Path
 
 import pandas as pd
 
-PATTERN = (r'task, code and data — (\w+)</summary><pre>(.*?)</pre>'
-           r'<pre id="csv\d+"[^>]*>(.*?)</pre>')
-ENTITIES = [("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"), ("&#x27;", "'"),
-            ("&quot;", '"')]
+PATTERN = (
+    r"task, code and data — (\w+)</summary><pre>(.*?)</pre>"
+    r'<pre id="csv\d+"[^>]*>(.*?)</pre>'
+)
+ENTITIES = [
+    ("&amp;", "&"),
+    ("&lt;", "<"),
+    ("&gt;", ">"),
+    ("&#x27;", "'"),
+    ("&quot;", '"'),
+]
 
 
 def charts(path: str) -> dict[str, pd.DataFrame]:
@@ -43,18 +51,28 @@ def main(llm: str, ref: str, out: str = "site/llm_vs_reference.json") -> int:
         diff = None
         if same_shape and num:
             diff = float((x[num].astype(float) - y[num].astype(float)).abs().max().max())
-        rows.append({
-            "chart": name, "llm_rows": len(x), "reference_rows": len(y),
-            "identical": bool(x.equals(y)),
-            "max_abs_diff": diff,
-            "status": ("identical" if x.equals(y)
-                       else "equal within float epsilon" if diff is not None and diff < 1e-9
-                       else "differs"),
-        })
+        rows.append(
+            {
+                "chart": name,
+                "llm_rows": len(x),
+                "reference_rows": len(y),
+                "identical": bool(x.equals(y)),
+                "max_abs_diff": diff,
+                "status": (
+                    "identical"
+                    if x.equals(y)
+                    else "equal within float epsilon"
+                    if diff is not None and diff < 1e-9
+                    else "differs"
+                ),
+            }
+        )
     Path(out).write_text(json.dumps(rows, indent=1))
     for r in rows:
-        print(f"{r['chart']:<32} {r.get('status')}  rows {r.get('llm_rows')} vs "
-              f"{r.get('reference_rows')}  max|diff| {r.get('max_abs_diff')}")
+        print(
+            f"{r['chart']:<32} {r.get('status')}  rows {r.get('llm_rows')} vs "
+            f"{r.get('reference_rows')}  max|diff| {r.get('max_abs_diff')}"
+        )
     print(f"\nwrote {out}")
     return 0
 

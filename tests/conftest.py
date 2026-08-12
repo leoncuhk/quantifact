@@ -30,12 +30,19 @@ def plan(qf):
 @pytest.fixture(scope="session")
 def codes(plan, qf):
     from quantifact.codegen.base import generate_all
+
     return generate_all(plan, qf.backend)
 
 
 def toy_task(**over) -> Task:
-    base = dict(name="t", type="table_logic", description="d",
-                columns=[ColumnSpec("a", "col a")], index=["a"],
-                row_expectation="one row", depends_on=["u"])
+    base = {
+        "name": "t",
+        "type": "table_logic",
+        "description": "d",
+        "columns": [ColumnSpec("a", "col a")],
+        "index": ["a"],
+        "row_expectation": "one row",
+        "depends_on": ["u"],
+    }
     base.update(over)
     return Task(**base)

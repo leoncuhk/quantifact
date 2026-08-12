@@ -35,9 +35,11 @@ from .harness.cache import ValueCache
 from .harness.execute import ExecutionHarness
 from .plan.model import AnalysisPlan
 
-QUESTION = ("How have markets responded to the conflict in the Middle East and the "
-            "resulting oil supply shortage, and how does today compare to similar "
-            "historical episodes?")
+QUESTION = (
+    "How have markets responded to the conflict in the Middle East and the "
+    "resulting oil supply shortage, and how does today compare to similar "
+    "historical episodes?"
+)
 
 
 @dataclass
@@ -71,12 +73,15 @@ class BenchReport:
     def speedups(self) -> dict[str, float]:
         out: dict[str, float] = {}
         try:
-            out["warm_vs_cold"] = (self.get("cold").seconds
-                                   / max(self.get("warm").seconds, 1e-9))
-            out["small_edit_vs_no_cache"] = (self.get("no_cache").seconds
-                                             / max(self.get("small_edit").seconds, 1e-9))
-            out["small_edit_vs_cold"] = (self.get("cold").seconds
-                                         / max(self.get("small_edit").seconds, 1e-9))
+            out["warm_vs_cold"] = self.get("cold").seconds / max(
+                self.get("warm").seconds, 1e-9
+            )
+            out["small_edit_vs_no_cache"] = self.get("no_cache").seconds / max(
+                self.get("small_edit").seconds, 1e-9
+            )
+            out["small_edit_vs_cold"] = self.get("cold").seconds / max(
+                self.get("small_edit").seconds, 1e-9
+            )
         except StopIteration:
             pass
         return out
@@ -84,24 +89,33 @@ class BenchReport:
     def markdown(self) -> str:
         rows = "\n".join(
             f"| {t.label} | {t.seconds * 1000:8.1f} ms | {t.tasks_executed} | "
-            f"{t.tasks_cached} | {t.note} |" for t in self.timings)
-        head = (f"plan: {self.tasks} tasks in {self.layers} layers, "
-                f"as_of {self.as_of}\n\n"
-                "| scenario | wall | executed | cached | note |\n"
-                "|---|---:|---:|---:|---|\n")
-        tail = "\n\n" + "\n".join(f"- {k}: **{v:.1f}x**"
-                                  for k, v in self.speedups().items())
-        det = (f"\n- code identical across two compilations: "
-               f"{self.determinism.get('identical_code', 0)}/{self.tasks} tasks"
-               f"\n- values identical: "
-               f"{self.determinism.get('identical_values', 0)}/{self.tasks} tasks")
-        cg = (f"\n- codegen at {self.codegen.get('simulated_latency_per_task', 0):.2f}s"
-              f" simulated latency per task: parallel "
-              f"{self.codegen.get('parallel', 0):.2f}s vs serial "
-              f"{self.codegen.get('serial', 0):.2f}s "
-              f"({self.codegen.get('speedup', 0):.1f}x)"
-              f"\n- the same codegen for a 3-task plan: "
-              f"{self.codegen.get('parallel_3_tasks', 0):.2f}s")
+            f"{t.tasks_cached} | {t.note} |"
+            for t in self.timings
+        )
+        head = (
+            f"plan: {self.tasks} tasks in {self.layers} layers, "
+            f"as_of {self.as_of}\n\n"
+            "| scenario | wall | executed | cached | note |\n"
+            "|---|---:|---:|---:|---|\n"
+        )
+        tail = "\n\n" + "\n".join(
+            f"- {k}: **{v:.1f}x**" for k, v in self.speedups().items()
+        )
+        det = (
+            f"\n- code identical across two compilations: "
+            f"{self.determinism.get('identical_code', 0)}/{self.tasks} tasks"
+            f"\n- values identical: "
+            f"{self.determinism.get('identical_values', 0)}/{self.tasks} tasks"
+        )
+        cg = (
+            f"\n- codegen at {self.codegen.get('simulated_latency_per_task', 0):.2f}s"
+            f" simulated latency per task: parallel "
+            f"{self.codegen.get('parallel', 0):.2f}s vs serial "
+            f"{self.codegen.get('serial', 0):.2f}s "
+            f"({self.codegen.get('speedup', 0):.1f}x)"
+            f"\n- the same codegen for a 3-task plan: "
+            f"{self.codegen.get('parallel_3_tasks', 0):.2f}s"
+        )
         return head + rows + tail + det + cg
 
 
@@ -124,8 +138,12 @@ def values_hash(frames: dict[str, pd.DataFrame]) -> dict[str, str]:
     return out
 
 
-def run(workspace: str | Path = ".qf-bench", backend: CodegenBackend | None = None,
-        keep: bool = False, latency: float = 0.4) -> BenchReport:
+def run(
+    workspace: str | Path = ".qf-bench",
+    backend: CodegenBackend | None = None,
+    keep: bool = False,
+    latency: float = 0.4,
+) -> BenchReport:
     ws = Path(workspace)
     if ws.exists() and not keep:
         shutil.rmtree(ws)
@@ -133,18 +151,26 @@ def run(workspace: str | Path = ".qf-bench", backend: CodegenBackend | None = No
     qf = Quantifact(ws, ANALYST, backend=backend)
     plan, _ = qf.build_plan(QUESTION)
 
-    report = BenchReport(question=QUESTION, tasks=len(plan.tasks), layers=0,
-                         as_of=plan.as_of,
-                         environment={"backend": backend.name,
-                                      "pandas": pd.__version__,
-                                      "adapter": qf.adapter.name})
+    report = BenchReport(
+        question=QUESTION,
+        tasks=len(plan.tasks),
+        layers=0,
+        as_of=plan.as_of,
+        environment={
+            "backend": backend.name,
+            "pandas": pd.__version__,
+            "adapter": qf.adapter.name,
+        },
+    )
 
     # ---- codegen: parallel vs serial ------------------------------------
     codes = generate_all(plan, backend)
     sim = SimulatedLatencyCodegen(latency)
-    small = AnalysisPlan(question=plan.question, as_of=plan.as_of,
-                         tasks=[t for t in plan.tasks
-                                if t.type == "data_ingestion"][:3])
+    small = AnalysisPlan(
+        question=plan.question,
+        as_of=plan.as_of,
+        tasks=[t for t in plan.tasks if t.type == "data_ingestion"][:3],
+    )
     t0 = time.perf_counter()
     generate_all(plan, sim)
     par = time.perf_counter() - t0
@@ -154,24 +180,36 @@ def run(workspace: str | Path = ".qf-bench", backend: CodegenBackend | None = No
     t0 = time.perf_counter()
     generate_all(small, sim)
     par3 = time.perf_counter() - t0
-    report.codegen = {"simulated_latency_per_task": latency, "parallel": par,
-                      "serial": ser, "speedup": ser / max(par, 1e-9),
-                      "parallel_3_tasks": par3, "tasks": len(plan.tasks)}
+    report.codegen = {
+        "simulated_latency_per_task": latency,
+        "parallel": par,
+        "serial": ser,
+        "speedup": ser / max(par, 1e-9),
+        "parallel_3_tasks": par3,
+        "tasks": len(plan.tasks),
+    }
 
-    def timed(label: str, harness: ExecutionHarness, p: AnalysisPlan,
-              c: dict[str, str], note: str = "") -> Timing:
+    def timed(
+        label: str,
+        harness: ExecutionHarness,
+        p: AnalysisPlan,
+        c: dict[str, str],
+        note: str = "",
+    ) -> Timing:
         t = time.perf_counter()
         res = harness.run(p, c)
         elapsed = time.perf_counter() - t
         report.layers = len(res.layers)
-        return Timing(label, elapsed, len(res.traces) - res.cache_hits,
-                      res.cache_hits, note)
+        return Timing(
+            label, elapsed, len(res.traces) - res.cache_hits, res.cache_hits, note
+        )
 
     # Warm the OS page cache first so every scenario is measured on the same
     # footing; otherwise the first full run pays for reading the store off disk
     # and the comparison flatters the cache.
-    ExecutionHarness(qf.adapter, ValueCache(ws / "warmup", enabled=False)) \
-        .run(plan, codes)
+    ExecutionHarness(qf.adapter, ValueCache(ws / "warmup", enabled=False)).run(
+        plan, codes
+    )
 
     cache = ValueCache(ws / "bench-cache")
     cache.clear()
@@ -182,22 +220,27 @@ def run(workspace: str | Path = ".qf-bench", backend: CodegenBackend | None = No
     edited = edit_last_chart(plan)
     edited_codes = generate_all(edited, backend)
     report.timings.append(
-        timed("small_edit", harness, edited, edited_codes, "final chart edited"))
+        timed("small_edit", harness, edited, edited_codes, "final chart edited")
+    )
     naive = ExecutionHarness(qf.adapter, ValueCache(ws / "nocache", enabled=False))
     report.timings.append(
-        timed("no_cache", naive, edited, edited_codes, "same edit, caching disabled"))
+        timed("no_cache", naive, edited, edited_codes, "same edit, caching disabled")
+    )
 
     # ---- determinism ----------------------------------------------------
     a_codes, b_codes = generate_all(plan, backend), generate_all(plan, backend)
-    ra = ExecutionHarness(qf.adapter, ValueCache(ws / "det-a", enabled=False)) \
-        .run(plan, a_codes)
-    rb = ExecutionHarness(qf.adapter, ValueCache(ws / "det-b", enabled=False)) \
-        .run(plan, b_codes)
+    ra = ExecutionHarness(qf.adapter, ValueCache(ws / "det-a", enabled=False)).run(
+        plan, a_codes
+    )
+    rb = ExecutionHarness(qf.adapter, ValueCache(ws / "det-b", enabled=False)).run(
+        plan, b_codes
+    )
     ha, hb = values_hash(ra.frames), values_hash(rb.frames)
     report.determinism = {
         "identical_code": sum(1 for k in a_codes if a_codes[k] == b_codes[k]),
         "identical_values": sum(1 for k in ha if ha[k] == hb.get(k)),
-        "tasks": len(plan.tasks)}
+        "tasks": len(plan.tasks),
+    }
     return report
 
 

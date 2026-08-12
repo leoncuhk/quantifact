@@ -44,11 +44,23 @@ class SeriesSearch:
         self._docs: dict[str, list[str]] = {}
         self._df: dict[str, int] = {}
         for m in store.all_meta():
-            toks = _tokens(" ".join(filter(None, [
-                m.series_id.replace(".", " "), m.name, m.description,
-                " ".join(m.aliases), m.geography or "", m.asset_class or "",
-                m.unit, m.currency or "",
-            ])))
+            toks = _tokens(
+                " ".join(
+                    filter(
+                        None,
+                        [
+                            m.series_id.replace(".", " "),
+                            m.name,
+                            m.description,
+                            " ".join(m.aliases),
+                            m.geography or "",
+                            m.asset_class or "",
+                            m.unit,
+                            m.currency or "",
+                        ],
+                    )
+                )
+            )
             self._docs[m.series_id] = toks
             for t in set(toks):
                 self._df[t] = self._df.get(t, 0) + 1
@@ -67,8 +79,9 @@ class SeriesSearch:
                 continue
             df = self._df.get(q, 0)
             idf = math.log(1 + (self._n - df + 0.5) / (df + 0.5))
-            score += idf * (f * (k1 + 1)) / (
-                f + k1 * (1 - b + b * len(doc) / self._avglen))
+            score += (
+                idf * (f * (k1 + 1)) / (f + k1 * (1 - b + b * len(doc) / self._avglen))
+            )
         return score
 
     def visible(self, m: SeriesMeta) -> bool:
@@ -80,17 +93,26 @@ class SeriesSearch:
         return all(tag in self.entitlements for tag in m.entitlement_tags)
 
     def recall(self, query: str, k: int = 12) -> list[SearchHit]:
-        hits = [SearchHit(meta=m, recall_score=self._bm25(query, m.series_id))
-                for m in self.store.all_meta() if self.visible(m)]
+        hits = [
+            SearchHit(meta=m, recall_score=self._bm25(query, m.series_id))
+            for m in self.store.all_meta()
+            if self.visible(m)
+        ]
         hits = [h for h in hits if h.recall_score > 0]
         hits.sort(key=lambda h: (-h.recall_score, h.meta.series_id))
         return hits[:k]
 
     # --------------------------------------------------------- inspection
-    def inspect(self, hits: list[SearchHit], *, frequency: str | None = None,
-                unit: str | None = None, currency: str | None = None,
-                covers: tuple[str, str] | None = None,
-                prior: tuple[float, float] | None = None) -> list[SearchHit]:
+    def inspect(
+        self,
+        hits: list[SearchHit],
+        *,
+        frequency: str | None = None,
+        unit: str | None = None,
+        currency: str | None = None,
+        covers: tuple[str, str] | None = None,
+        prior: tuple[float, float] | None = None,
+    ) -> list[SearchHit]:
         for h in hits:
             m = h.meta
             if frequency and m.frequency != frequency:
@@ -107,7 +129,8 @@ class SeriesSearch:
                 if not (m.first_obs <= lo and m.last_obs >= hi):
                     h.accepted = False
                     h.reasons.append(
-                        f"coverage {m.first_obs}..{m.last_obs} does not span {lo}..{hi}")
+                        f"coverage {m.first_obs}..{m.last_obs} does not span {lo}..{hi}"
+                    )
             if prior and m.value_stats:
                 lo, hi = prior
                 mn, mx = m.value_stats.get("min"), m.value_stats.get("max")
@@ -115,10 +138,12 @@ class SeriesSearch:
                     h.accepted = False
                     h.reasons.append(
                         f"values [{mn:.4g}, {mx:.4g}] outside prior [{lo:g}, {hi:g}] "
-                        "— likely a level or a different scale, not this concept")
+                        "— likely a level or a different scale, not this concept"
+                    )
             if h.accepted:
                 h.reasons.append(
-                    "frequency, unit, coverage and value range match the requirement")
+                    "frequency, unit, coverage and value range match the requirement"
+                )
         return hits
 
     def search(self, query: str, k: int = 12, **inspection: Any) -> list[SearchHit]:

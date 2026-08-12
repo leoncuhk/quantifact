@@ -10,34 +10,42 @@ import pytest
 
 pytest.importorskip("duckdb")
 
-from quantifact import Quantifact  # noqa: E402
-from quantifact.data.adapters.demo_synthetic import (  # noqa: E402
+from quantifact import Quantifact
+from quantifact.data.adapters.demo_synthetic import (
     episodes_table,
     trading_calendar,
     universe,
 )
-from quantifact.data.adapters.duckdb_local import (  # noqa: E402
+from quantifact.data.adapters.duckdb_local import (
     DuckDBAdapter,
     export_store,
 )
 
-from .conftest import QUESTION  # noqa: E402
+from .conftest import QUESTION
 
 
 @pytest.fixture(scope="module")
 def duck(qf, tmp_path_factory):
     path = tmp_path_factory.mktemp("duck") / "hub.duckdb"
-    export_store(qf.adapter.store, path,
-                 tables={"markets": universe(), "episodes": episodes_table(),
-                         "calendar": trading_calendar()})
-    return DuckDBAdapter(path, tables={"markets": "markets",
-                                       "episodes": "episodes",
-                                       "calendar": "calendar"})
+    export_store(
+        qf.adapter.store,
+        path,
+        tables={
+            "markets": universe(),
+            "episodes": episodes_table(),
+            "calendar": trading_calendar(),
+        },
+    )
+    return DuckDBAdapter(
+        path,
+        tables={"markets": "markets", "episodes": "episodes", "calendar": "calendar"},
+    )
 
 
 def test_catalog_survives_the_round_trip(qf, duck):
-    assert ({m.series_id for m in qf.adapter.catalog()}
-            == {m.series_id for m in duck.catalog()})
+    assert {m.series_id for m in qf.adapter.catalog()} == {
+        m.series_id for m in duck.catalog()
+    }
     meta = next(m for m in duck.catalog() if m.series_id == "US.CPI.HEADLINE.YOY")
     assert meta.unit == "%" and meta.pub_lag_days == 14 and meta.invariants
 

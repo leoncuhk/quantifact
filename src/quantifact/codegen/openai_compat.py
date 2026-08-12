@@ -56,40 +56,61 @@ class Usage:
     per_call: list[float] = field(default_factory=list)
 
     def summary(self) -> str:
-        return (f"{self.calls} calls, {self.retries} retries, "
-                f"{self.prompt_tokens + self.completion_tokens} tokens, "
-                f"{self.seconds:.1f}s of API time")
+        return (
+            f"{self.calls} calls, {self.retries} retries, "
+            f"{self.prompt_tokens + self.completion_tokens} tokens, "
+            f"{self.seconds:.1f}s of API time"
+        )
 
 
 class LLMClient:
-    def __init__(self, api_key: str | None = None, base_url: str | None = None,
-                 model: str | None = None, timeout: int = 240,
-                 max_retries: int = 3, thinking: bool = False):
+    def __init__(
+        self,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        model: str | None = None,
+        timeout: int = 240,
+        max_retries: int = 3,
+        thinking: bool = False,
+    ):
         self.api_key = api_key or os.environ.get("QF_LLM_API_KEY", "")
         if not self.api_key:
             raise RuntimeError("QF_LLM_API_KEY is not set")
-        self.base_url = (base_url or os.environ.get("QF_LLM_BASE_URL")
-                         or DEFAULT_BASE_URL).rstrip("/")
+        self.base_url = (
+            base_url or os.environ.get("QF_LLM_BASE_URL") or DEFAULT_BASE_URL
+        ).rstrip("/")
         self.model = model or os.environ.get("QF_LLM_MODEL") or DEFAULT_MODEL
         self.timeout = timeout
         self.max_retries = max_retries
         self.thinking = thinking
         self.usage = Usage()
 
-    def complete(self, prompt: str, max_tokens: int = 3000,
-                 temperature: float = 0.0, thinking: bool | None = None) -> str:
+    def complete(
+        self,
+        prompt: str,
+        max_tokens: int = 3000,
+        temperature: float = 0.0,
+        thinking: bool | None = None,
+    ) -> str:
         use_thinking = self.thinking if thinking is None else thinking
-        body = {"model": self.model,
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": max_tokens, "temperature": temperature}
+        body = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
         if not use_thinking:
             body["thinking"] = {"type": "disabled"}
         req = urllib.request.Request(
-            f"{self.base_url}/chat/completions", data=json.dumps(body).encode(),
-            headers={"Content-Type": "application/json",
-                     "User-Agent": "quantifact/0.1",
-                     "Accept": "application/json",
-                     "Authorization": f"Bearer {self.api_key}"})
+            f"{self.base_url}/chat/completions",
+            data=json.dumps(body).encode(),
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "quantifact/0.1",
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+            },
+        )
 
         last: Exception | None = None
         for attempt in range(self.max_retries):
@@ -111,8 +132,12 @@ class LLMClient:
                 self.usage.retries += 1
                 time.sleep(1.5 * (attempt + 1))
                 continue
-            except (urllib.error.URLError, OSError, TimeoutError,
-                    json.JSONDecodeError) as e:
+            except (
+                urllib.error.URLError,
+                OSError,
+                TimeoutError,
+                json.JSONDecodeError,
+            ) as e:
                 last = e
                 self.usage.retries += 1
                 time.sleep(1.5 * (attempt + 1))
@@ -130,7 +155,8 @@ class LLMClient:
             if text:
                 return text
             last = RuntimeError(
-                f"empty content (finish_reason={choice.get('finish_reason')})")
+                f"empty content (finish_reason={choice.get('finish_reason')})"
+            )
             self.usage.retries += 1
             if use_thinking:
                 use_thinking = False
@@ -160,8 +186,12 @@ class OpenAICompatCodegen:
     """Free-form pandas from the task contract. Determinism comes from the
     conventions and the validation layers, not from the model."""
 
-    def __init__(self, client: LLMClient | None = None, max_tokens: int = 3000,
-                 runtime_hint: str | None = None):
+    def __init__(
+        self,
+        client: LLMClient | None = None,
+        max_tokens: int = 3000,
+        runtime_hint: str | None = None,
+    ):
         self.client = client or LLMClient()
         self.max_tokens = max_tokens
         # Naming the exact runtime is ordinary context engineering: without it
@@ -169,15 +199,22 @@ class OpenAICompatCodegen:
         self.runtime_hint = runtime_hint
         self.name = f"llm:{self.client.model}"
 
-    def generate(self, task: Task, upstream: dict[str, list[dict]],
-                 as_of: str = "") -> str:
+    def generate(
+        self, task: Task, upstream: dict[str, list[dict]], as_of: str = ""
+    ) -> str:
         extras = ""
         if task.series_inputs:
             shown = task.series_inputs[:60]
-            more = (f", {len(task.series_inputs)} total"
-                    if len(shown) < len(task.series_inputs) else "")
-            extras += (f"SERIES TO LOAD (exact ids{more}):\n"
-                       + "\n".join(f"  - {s}" for s in shown) + "\n\n")
+            more = (
+                f", {len(task.series_inputs)} total"
+                if len(shown) < len(task.series_inputs)
+                else ""
+            )
+            extras += (
+                f"SERIES TO LOAD (exact ids{more}):\n"
+                + "\n".join(f"  - {s}" for s in shown)
+                + "\n\n"
+            )
         if task.chart_spec:
             extras += f"CHART SPEC: {task.chart_spec}\n\n"
         if task.op:
@@ -185,14 +222,23 @@ class OpenAICompatCodegen:
         if task.invariants:
             extras += f"INVARIANTS CHECKED AFTER EXECUTION: {task.invariants}\n\n"
         if self.runtime_hint:
-            extras += (f"TARGET RUNTIME: {self.runtime_hint} — use only APIs that "
-                       "exist in exactly these versions.\n\n")
+            extras += (
+                f"TARGET RUNTIME: {self.runtime_hint} — use only APIs that "
+                "exist in exactly these versions.\n\n"
+            )
         prompt = CODEGEN_PROMPT.format(
-            conventions=CONVENTIONS, name=task.name, type=task.type,
-            description=task.description, as_of=as_of or "unspecified",
-            row_expectation=task.row_expectation, index=task.index,
-            row_order=row_order_line(task), columns=column_lines(task),
-            upstream=upstream_lines(upstream), extras=extras)
+            conventions=CONVENTIONS,
+            name=task.name,
+            type=task.type,
+            description=task.description,
+            as_of=as_of or "unspecified",
+            row_expectation=task.row_expectation,
+            index=task.index,
+            row_order=row_order_line(task),
+            columns=column_lines(task),
+            upstream=upstream_lines(upstream),
+            extras=extras,
+        )
         return strip_fence(self.client.complete(prompt, self.max_tokens))
 
 
@@ -202,12 +248,17 @@ class OpenAICompatValidator:
     def __init__(self, client: LLMClient | None = None):
         self.client = client or LLMClient()
 
-    def validate(self, task: Task, code: str, df: pd.DataFrame,
-                 as_of: str = "") -> Verdict:
+    def validate(
+        self, task: Task, code: str, df: pd.DataFrame, as_of: str = ""
+    ) -> Verdict:
         prompt = SEMANTIC_PROMPT.format(
-            description=task.description, row_expectation=task.row_expectation,
-            columns=task.column_names, code=code, as_of=as_of or "unspecified",
-            sample=df.head(8).to_string(index=False))
+            description=task.description,
+            row_expectation=task.row_expectation,
+            columns=task.column_names,
+            code=code,
+            as_of=as_of or "unspecified",
+            sample=df.head(8).to_string(index=False),
+        )
         text = self.client.complete(prompt, max_tokens=1200).strip()
         line = text.splitlines()[-1].strip() if text else "PROBLEM: empty verdict"
         ok = line.upper().startswith("OK")
@@ -222,31 +273,54 @@ class OpenAICompatDebugger:
     compiling for. Those are what a human looks at before rewriting.
     """
 
-    def __init__(self, client: LLMClient | None = None, max_tokens: int = 4000,
-                 thinking: bool = True, runtime_hint: str | None = None):
+    def __init__(
+        self,
+        client: LLMClient | None = None,
+        max_tokens: int = 4000,
+        thinking: bool = True,
+        runtime_hint: str | None = None,
+    ):
         self.client = client or LLMClient()
         self.max_tokens = max_tokens
         self.thinking = thinking
         self.runtime_hint = runtime_hint
 
-    def edit(self, task: Task, code: str, verdict: Verdict,
-             upstream: dict | None = None, evidence: str = "",
-             as_of: str = "") -> str:
+    def edit(
+        self,
+        task: Task,
+        code: str,
+        verdict: Verdict,
+        upstream: dict | None = None,
+        evidence: str = "",
+        as_of: str = "",
+    ) -> str:
         ups = ""
         if upstream:
-            ups = ("\nUPSTREAM DATAFRAMES (exact columns available to you):\n"
-                   + upstream_lines(upstream) + "\n")
+            ups = (
+                "\nUPSTREAM DATAFRAMES (exact columns available to you):\n"
+                + upstream_lines(upstream)
+                + "\n"
+            )
         conventions = CONVENTIONS + (
             f"\nTARGET RUNTIME: {self.runtime_hint} — the failure above may be an "
             "API that was removed in this version; use only what exists here.\n"
-            if self.runtime_hint else "")
+            if self.runtime_hint
+            else ""
+        )
         prompt = DEBUG_PROMPT.format(
-            name=task.name, description=task.description,
-            columns=task.column_names, row_expectation=task.row_expectation,
-            as_of=as_of or "unspecified", code=code, upstream=ups,
-            evidence=(f"\nWHAT THE DATA ACTUALLY LOOKS LIKE\n{evidence}\n"
-                      if evidence else ""),
+            name=task.name,
+            description=task.description,
+            columns=task.column_names,
+            row_expectation=task.row_expectation,
+            as_of=as_of or "unspecified",
+            code=code,
+            upstream=ups,
+            evidence=(
+                f"\nWHAT THE DATA ACTUALLY LOOKS LIKE\n{evidence}\n" if evidence else ""
+            ),
             problems="\n".join(f"- {p}" for p in verdict.problems),
-            conventions=conventions)
-        return strip_fence(self.client.complete(prompt, self.max_tokens,
-                                                thinking=self.thinking))
+            conventions=conventions,
+        )
+        return strip_fence(
+            self.client.complete(prompt, self.max_tokens, thinking=self.thinking)
+        )

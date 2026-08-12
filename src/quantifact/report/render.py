@@ -31,6 +31,7 @@ PALETTE = ["#3b6fd4", "#d97b28", "#3f9e6a", "#b04a6a", "#7b5bd6", "#2f8f9d"]
 # SVG primitives
 # --------------------------------------------------------------------------
 
+
 @dataclass
 class Scale:
     lo: float
@@ -66,37 +67,62 @@ def _pad(values: list[float]) -> tuple[float, float]:
     return lo - m, hi + m
 
 
-def _axes(x: Scale, y: Scale, w: float, h: float, *, pct_x: bool, pct_y: bool,
-          xlabel: str, ylabel: str) -> str:
-    parts = [f'<rect class="plot-bg" x="{x.px0}" y="{y.px1}" '
-             f'width="{x.px1 - x.px0}" height="{y.px0 - y.px1}"/>']
+def _axes(
+    x: Scale,
+    y: Scale,
+    w: float,
+    h: float,
+    *,
+    pct_x: bool,
+    pct_y: bool,
+    xlabel: str,
+    ylabel: str,
+) -> str:
+    parts = [
+        f'<rect class="plot-bg" x="{x.px0}" y="{y.px1}" '
+        f'width="{x.px1 - x.px0}" height="{y.px0 - y.px1}"/>'
+    ]
     for t in y.ticks():
         py = y(t)
-        parts.append(f'<line class="grid" x1="{x.px0}" y1="{py:.1f}" '
-                     f'x2="{x.px1}" y2="{py:.1f}"/>')
-        parts.append(f'<text class="tick" x="{x.px0 - 6}" y="{py + 3.5:.1f}" '
-                     f'text-anchor="end">{_fmt(t, pct_y)}</text>')
+        parts.append(
+            f'<line class="grid" x1="{x.px0}" y1="{py:.1f}" x2="{x.px1}" y2="{py:.1f}"/>'
+        )
+        parts.append(
+            f'<text class="tick" x="{x.px0 - 6}" y="{py + 3.5:.1f}" '
+            f'text-anchor="end">{_fmt(t, pct_y)}</text>'
+        )
     for t in x.ticks(4):
         px = x(t)
-        parts.append(f'<text class="tick" x="{px:.1f}" y="{y.px0 + 14}" '
-                     f'text-anchor="middle">{_fmt(t, pct_x)}</text>')
+        parts.append(
+            f'<text class="tick" x="{px:.1f}" y="{y.px0 + 14}" '
+            f'text-anchor="middle">{_fmt(t, pct_x)}</text>'
+        )
     if min(y.lo, y.hi) <= 0 and max(y.lo, y.hi) >= 0:
-        parts.append(f'<line class="zero" x1="{x.px0}" y1="{y(0):.1f}" '
-                     f'x2="{x.px1}" y2="{y(0):.1f}"/>')
+        parts.append(
+            f'<line class="zero" x1="{x.px0}" y1="{y(0):.1f}" '
+            f'x2="{x.px1}" y2="{y(0):.1f}"/>'
+        )
     if min(x.lo, x.hi) <= 0 and max(x.lo, x.hi) >= 0:
-        parts.append(f'<line class="zero" x1="{x(0):.1f}" y1="{y.px1}" '
-                     f'x2="{x(0):.1f}" y2="{y.px0}"/>')
-    parts.append(f'<text class="axis-label" x="{(x.px0 + x.px1) / 2:.1f}" '
-                 f'y="{y.px0 + 30}" text-anchor="middle">{html.escape(xlabel)}</text>')
-    parts.append(f'<text class="axis-label" transform="rotate(-90 12 '
-                 f'{(y.px0 + y.px1) / 2:.1f})" x="12" '
-                 f'y="{(y.px0 + y.px1) / 2:.1f}" text-anchor="middle">'
-                 f'{html.escape(ylabel)}</text>')
+        parts.append(
+            f'<line class="zero" x1="{x(0):.1f}" y1="{y.px1}" '
+            f'x2="{x(0):.1f}" y2="{y.px0}"/>'
+        )
+    parts.append(
+        f'<text class="axis-label" x="{(x.px0 + x.px1) / 2:.1f}" '
+        f'y="{y.px0 + 30}" text-anchor="middle">{html.escape(xlabel)}</text>'
+    )
+    parts.append(
+        f'<text class="axis-label" transform="rotate(-90 12 '
+        f'{(y.px0 + y.px1) / 2:.1f})" x="12" '
+        f'y="{(y.px0 + y.px1) / 2:.1f}" text-anchor="middle">'
+        f"{html.escape(ylabel)}</text>"
+    )
     return "".join(parts)
 
 
-def _scatter_panel(df: pd.DataFrame, spec: dict, w: int, h: int,
-                   title: str | None = None) -> str:
+def _scatter_panel(
+    df: pd.DataFrame, spec: dict, w: int, h: int, title: str | None = None
+) -> str:
     xcol, ycol = spec["x"], spec["y"]
     xs = [float(v) for v in df[xcol]]
     ys = [float(v) for v in df[ycol]]
@@ -105,23 +131,43 @@ def _scatter_panel(df: pd.DataFrame, spec: dict, w: int, h: int,
     x = Scale(*_pad(xs), 52, w - 14)
     y = Scale(*_pad(ys), h - 40, 26)
     pct = bool(spec.get("percent", True))
-    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" preserveAspectRatio="xMidYMid meet">']
+    out = [
+        f'<svg viewBox="0 0 {w} {h}" width="100%" preserveAspectRatio="xMidYMid meet">'
+    ]
     if title:
-        out.append(f'<text class="panel-title" x="{w / 2}" y="16" '
-                   f'text-anchor="middle">{html.escape(title)}</text>')
-    out.append(_axes(x, y, w, h, pct_x=pct, pct_y=pct,
-                     xlabel=spec.get("xlabel", xcol), ylabel=spec.get("ylabel", ycol)))
+        out.append(
+            f'<text class="panel-title" x="{w / 2}" y="16" '
+            f'text-anchor="middle">{html.escape(title)}</text>'
+        )
+    out.append(
+        _axes(
+            x,
+            y,
+            w,
+            h,
+            pct_x=pct,
+            pct_y=pct,
+            xlabel=spec.get("xlabel", xcol),
+            ylabel=spec.get("ylabel", ycol),
+        )
+    )
     label = spec.get("label")
     color_by = spec.get("color_by")
     cats = sorted(df[color_by].unique()) if color_by and color_by in df else []
     for i, row in enumerate(df.itertuples(index=False)):
         cx, cy = x(float(getattr(row, xcol))), y(float(getattr(row, ycol)))
-        color = PALETTE[cats.index(getattr(row, color_by)) % len(PALETTE)] if cats else PALETTE[0]
+        color = (
+            PALETTE[cats.index(getattr(row, color_by)) % len(PALETTE)]
+            if cats
+            else PALETTE[0]
+        )
         tip = html.escape(str(getattr(row, label))) if label else f"{i}"
-        out.append(f'<circle class="pt" cx="{cx:.1f}" cy="{cy:.1f}" r="3.4" '
-                   f'fill="{color}"><title>{tip}: '
-                   f'{_fmt(float(getattr(row, xcol)), pct)} → '
-                   f'{_fmt(float(getattr(row, ycol)), pct)}</title></circle>')
+        out.append(
+            f'<circle class="pt" cx="{cx:.1f}" cy="{cy:.1f}" r="3.4" '
+            f'fill="{color}"><title>{tip}: '
+            f"{_fmt(float(getattr(row, xcol)), pct)} → "
+            f"{_fmt(float(getattr(row, ycol)), pct)}</title></circle>"
+        )
     # ols fit line, drawn only when it means something
     if len(xs) > 2:
         n = len(xs)
@@ -133,16 +179,21 @@ def _scatter_panel(df: pd.DataFrame, spec: dict, w: int, h: int,
             sst = sum((v - my) ** 2 for v in ys)
             ssr = sum((ys[i] - (a + b * xs[i])) ** 2 for i in range(n))
             r2 = 1 - ssr / sst if sst else 0.0
-            out.append(f'<line class="fit" x1="{x(x.lo):.1f}" y1="{y(a + b * x.lo):.1f}" '
-                       f'x2="{x(x.hi):.1f}" y2="{y(a + b * x.hi):.1f}"/>')
-            out.append(f'<text class="r2" x="{w - 18}" y="{34}" text-anchor="end">'
-                       f'R² = {r2:.3f}</text>')
+            out.append(
+                f'<line class="fit" x1="{x(x.lo):.1f}" y1="{y(a + b * x.lo):.1f}" '
+                f'x2="{x(x.hi):.1f}" y2="{y(a + b * x.hi):.1f}"/>'
+            )
+            out.append(
+                f'<text class="r2" x="{w - 18}" y="{34}" text-anchor="end">'
+                f"R² = {r2:.3f}</text>"
+            )
     out.append("</svg>")
     return "".join(out)
 
 
-def _line_panel(df: pd.DataFrame, spec: dict, w: int, h: int,
-                title: str | None = None) -> str:
+def _line_panel(
+    df: pd.DataFrame, spec: dict, w: int, h: int, title: str | None = None
+) -> str:
     xcol, ycol, scol = spec["x"], spec["y"], spec.get("series")
     if df.empty:
         return f'<svg width="{w}" height="{h}"></svg>'
@@ -150,20 +201,38 @@ def _line_panel(df: pd.DataFrame, spec: dict, w: int, h: int,
     ys = [float(v) for v in df[ycol]]
     x = Scale(min(xs), max(xs), 52, w - 14)
     y = Scale(*_pad(ys), h - 40, 26)
-    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" preserveAspectRatio="xMidYMid meet">']
+    out = [
+        f'<svg viewBox="0 0 {w} {h}" width="100%" preserveAspectRatio="xMidYMid meet">'
+    ]
     if title:
-        out.append(f'<text class="panel-title" x="{w / 2}" y="16" '
-                   f'text-anchor="middle">{html.escape(title)}</text>')
-    out.append(_axes(x, y, w, h, pct_x=False, pct_y=bool(spec.get("percent", False)),
-                     xlabel=spec.get("xlabel", xcol), ylabel=spec.get("ylabel", ycol)))
+        out.append(
+            f'<text class="panel-title" x="{w / 2}" y="16" '
+            f'text-anchor="middle">{html.escape(title)}</text>'
+        )
+    out.append(
+        _axes(
+            x,
+            y,
+            w,
+            h,
+            pct_x=False,
+            pct_y=bool(spec.get("percent", False)),
+            xlabel=spec.get("xlabel", xcol),
+            ylabel=spec.get("ylabel", ycol),
+        )
+    )
     groups = list(df.groupby(scol, sort=True)) if scol else [(None, df)]
     for i, (name, g) in enumerate(groups):
         g = g.sort_values(xcol)
-        pts = " ".join(f"{x(float(a)):.1f},{y(float(b)):.1f}"
-                       for a, b in zip(g[xcol], g[ycol], strict=False))
+        pts = " ".join(
+            f"{x(float(a)):.1f},{y(float(b)):.1f}"
+            for a, b in zip(g[xcol], g[ycol], strict=False)
+        )
         color = PALETTE[i % len(PALETTE)]
-        out.append(f'<polyline class="ln" points="{pts}" stroke="{color}">'
-                   f'<title>{html.escape(str(name))}</title></polyline>')
+        out.append(
+            f'<polyline class="ln" points="{pts}" stroke="{color}">'
+            f"<title>{html.escape(str(name))}</title></polyline>"
+        )
     out.append("</svg>")
     return "".join(out)
 
@@ -173,39 +242,54 @@ def _bar_panel(df: pd.DataFrame, spec: dict, w: int, h: int) -> str:
     ys = [float(v) for v in df[ycol]]
     if not ys:
         return f'<svg width="{w}" height="{h}"></svg>'
-    y = Scale(*_pad(ys + [0.0]), h - 46, 20)
+    y = Scale(*_pad([*ys, 0.0]), h - 46, 20)
     n = len(df)
     left, right = 52, w - 14
     bw = (right - left) / max(n, 1) * 0.7
-    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" preserveAspectRatio="xMidYMid meet">']
-    out.append(f'<rect class="plot-bg" x="{left}" y="{y.px1}" '
-               f'width="{right - left}" height="{y.px0 - y.px1}"/>')
+    out = [
+        f'<svg viewBox="0 0 {w} {h}" width="100%" preserveAspectRatio="xMidYMid meet">'
+    ]
+    out.append(
+        f'<rect class="plot-bg" x="{left}" y="{y.px1}" '
+        f'width="{right - left}" height="{y.px0 - y.px1}"/>'
+    )
     for t in y.ticks():
         py = y(t)
-        out.append(f'<line class="grid" x1="{left}" y1="{py:.1f}" x2="{right}" y2="{py:.1f}"/>')
-        out.append(f'<text class="tick" x="{left - 6}" y="{py + 3.5:.1f}" '
-                   f'text-anchor="end">{_fmt(t, bool(spec.get("percent", True)))}</text>')
+        out.append(
+            f'<line class="grid" x1="{left}" y1="{py:.1f}" x2="{right}" y2="{py:.1f}"/>'
+        )
+        out.append(
+            f'<text class="tick" x="{left - 6}" y="{py + 3.5:.1f}" '
+            f'text-anchor="end">{_fmt(t, bool(spec.get("percent", True)))}</text>'
+        )
     y0 = y(0)
     for i, row in enumerate(df.itertuples(index=False)):
         v = float(getattr(row, ycol))
         cx = left + (right - left) * (i + 0.5) / n
         top, bot = min(y(v), y0), max(y(v), y0)
         color = PALETTE[2] if v >= 0 else PALETTE[3]
-        out.append(f'<rect class="bar" x="{cx - bw / 2:.1f}" y="{top:.1f}" '
-                   f'width="{bw:.1f}" height="{max(bot - top, 0.5):.1f}" fill="{color}">'
-                   f'<title>{html.escape(str(getattr(row, xcol)))}: '
-                   f'{_fmt(v, True)}</title></rect>')
-        out.append(f'<text class="bar-label" x="{cx:.1f}" y="{h - 20}" '
-                   f'text-anchor="end" transform="rotate(-35 {cx:.1f} {h - 20})">'
-                   f'{html.escape(str(getattr(row, xcol))[:14])}</text>')
+        out.append(
+            f'<rect class="bar" x="{cx - bw / 2:.1f}" y="{top:.1f}" '
+            f'width="{bw:.1f}" height="{max(bot - top, 0.5):.1f}" fill="{color}">'
+            f"<title>{html.escape(str(getattr(row, xcol)))}: "
+            f"{_fmt(v, True)}</title></rect>"
+        )
+        out.append(
+            f'<text class="bar-label" x="{cx:.1f}" y="{h - 20}" '
+            f'text-anchor="end" transform="rotate(-35 {cx:.1f} {h - 20})">'
+            f"{html.escape(str(getattr(row, xcol))[:14])}</text>"
+        )
     out.append("</svg>")
     return "".join(out)
 
 
 def _table_panel(df: pd.DataFrame, spec: dict) -> str:
     color_cols = [c for c in spec.get("color_by", []) if c in df.columns]
-    bounds = {c: (float(df[c].min()), float(df[c].max())) for c in color_cols
-              if len(df) and pd.api.types.is_numeric_dtype(df[c])}
+    bounds = {
+        c: (float(df[c].min()), float(df[c].max()))
+        for c in color_cols
+        if len(df) and pd.api.types.is_numeric_dtype(df[c])
+    }
     head = "".join(f"<th>{html.escape(str(c))}</th>" for c in df.columns)
     rows = []
     for row in df.itertuples(index=False):
@@ -222,8 +306,10 @@ def _table_panel(df: pd.DataFrame, spec: dict) -> str:
                 text = _fmt(float(val), bool(spec.get("percent", True)))
             tds.append(f"<td{style}>{text}</td>")
         rows.append("<tr>" + "".join(tds) + "</tr>")
-    return (f'<div class="tbl-wrap"><table class="data"><thead><tr>{head}</tr></thead>'
-            f'<tbody>{"".join(rows)}</tbody></table></div>')
+    return (
+        f'<div class="tbl-wrap"><table class="data"><thead><tr>{head}</tr></thead>'
+        f"<tbody>{''.join(rows)}</tbody></table></div>"
+    )
 
 
 def render_chart(task: Task, df: pd.DataFrame) -> str:
@@ -316,16 +402,23 @@ def _kpi(label: str, value: str) -> str:
     return f'<div class="kpi"><b>{html.escape(value)}</b><span>{html.escape(label)}</span></div>'
 
 
-def render_report(plan: AnalysisPlan, result: RunResult, findings: list[Finding],
-                  codes: dict[str, str], out_path: str | Path,
-                  meta: dict[str, Any] | None = None) -> Path:
+def render_report(
+    plan: AnalysisPlan,
+    result: RunResult,
+    findings: list[Finding],
+    codes: dict[str, str],
+    out_path: str | Path,
+    meta: dict[str, Any] | None = None,
+) -> Path:
     meta = meta or {}
     parts: list[str] = []
     parts.append(f"<h1>{html.escape(plan.question)}</h1>")
-    parts.append('<p class="sub">quantifact · '
-                 f'{len(plan.tasks)} tasks in {len(result.layers)} layers · '
-                 f'{result.cache_hits}/{len(result.traces)} served from cache · '
-                 f'{result.wall_seconds:.2f}s</p>')
+    parts.append(
+        '<p class="sub">quantifact · '
+        f"{len(plan.tasks)} tasks in {len(result.layers)} layers · "
+        f"{result.cache_hits}/{len(result.traces)} served from cache · "
+        f"{result.wall_seconds:.2f}s</p>"
+    )
     if plan.as_of:
         # The vintage belongs at the top of the page, not in an appendix: a
         # reader should never have to ask what this analysis was allowed to know.
@@ -350,8 +443,10 @@ def render_report(plan: AnalysisPlan, result: RunResult, findings: list[Finding]
     if findings:
         parts.append('<h2>Self review</h2><div class="card"><ul>')
         for f in findings:
-            parts.append(f'<li class="sev-{f.severity}">[{f.severity}] '
-                         f'<code>{html.escape(f.task)}</code> — {html.escape(f.message)}</li>')
+            parts.append(
+                f'<li class="sev-{f.severity}">[{f.severity}] '
+                f"<code>{html.escape(f.task)}</code> — {html.escape(f.message)}</li>"
+            )
         parts.append("</ul></div>")
 
     for i, task in enumerate(plan.charts()):
@@ -359,40 +454,54 @@ def render_report(plan: AnalysisPlan, result: RunResult, findings: list[Finding]
         if df is None:
             continue
         csv_id = f"csv{i}"
-        parts.append('<div class="chart-head">'
-                     f'<h2 style="margin:0">{html.escape(task.chart_spec.get("title", task.name))}</h2>'
-                     f'<button class="dl" onclick="dl(\'{csv_id}\',\'{task.name}.csv\')">'
-                     'Export CSV</button></div>')
+        parts.append(
+            '<div class="chart-head">'
+            f'<h2 style="margin:0">{html.escape(task.chart_spec.get("title", task.name))}</h2>'
+            f"<button class=\"dl\" onclick=\"dl('{csv_id}','{task.name}.csv')\">"
+            "Export CSV</button></div>"
+        )
         if task.description:
-            parts.append(f'<p class="sub" style="margin:0 0 8px">'
-                         f'{html.escape(task.description)}</p>')
+            parts.append(
+                f'<p class="sub" style="margin:0 0 8px">'
+                f"{html.escape(task.description)}</p>"
+            )
         parts.append(render_chart(task, df))
-        parts.append(f'<details><summary>task, code and data — {task.name}</summary>'
-                     f'<pre>{html.escape(codes.get(task.name, ""))}</pre>'
-                     f'<pre id="{csv_id}" style="max-height:220px">'
-                     f'{html.escape(df.to_csv(index=False))}</pre></details>')
+        parts.append(
+            f"<details><summary>task, code and data — {task.name}</summary>"
+            f"<pre>{html.escape(codes.get(task.name, ''))}</pre>"
+            f'<pre id="{csv_id}" style="max-height:220px">'
+            f"{html.escape(df.to_csv(index=False))}</pre></details>"
+        )
 
     parts.append("<h2>Execution trace</h2>")
     rows = "".join(
         f"<tr><td>{html.escape(t.task)}</td>"
         f'<td class="trace">{t.cache_key[:10]}</td>'
         f'<td><span class="tag {"hit" if t.cached else ""}">'
-        f'{"cache" if t.cached else "computed"}</span></td>'
+        f"{'cache' if t.cached else 'computed'}</span></td>"
         f"<td>{t.seconds * 1000:.1f} ms</td><td>{t.rows}</td></tr>"
-        for t in result.traces)
-    parts.append('<div class="tbl-wrap"><table class="data"><thead><tr>'
-                 "<th>task</th><th>cache key</th><th>status</th><th>time</th>"
-                 "<th>rows</th></tr></thead><tbody>" + rows + "</tbody></table></div>")
+        for t in result.traces
+    )
+    parts.append(
+        '<div class="tbl-wrap"><table class="data"><thead><tr>'
+        "<th>task</th><th>cache key</th><th>status</th><th>time</th>"
+        "<th>rows</th></tr></thead><tbody>" + rows + "</tbody></table></div>"
+    )
 
-    parts.append('<details><summary>full plan (json)</summary><pre>'
-                 + html.escape(json.dumps(plan.to_dict(), indent=2, ensure_ascii=False))
-                 + "</pre></details>")
+    parts.append(
+        "<details><summary>full plan (json)</summary><pre>"
+        + html.escape(json.dumps(plan.to_dict(), indent=2, ensure_ascii=False))
+        + "</pre></details>"
+    )
 
-    page = (f"<!doctype html><html><head><meta charset='utf-8'>"
-            f"<meta name='viewport' content='width=device-width,initial-scale=1'>"
-            f"<title>{html.escape(plan.question[:80])}</title>"
-            f"<style>{CSS}</style></head><body><div class='wrap'>"
-            + "".join(parts) + f"</div><script>{JS}</script></body></html>")
+    page = (
+        f"<!doctype html><html><head><meta charset='utf-8'>"
+        f"<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        f"<title>{html.escape(plan.question[:80])}</title>"
+        f"<style>{CSS}</style></head><body><div class='wrap'>"
+        + "".join(parts)
+        + f"</div><script>{JS}</script></body></html>"
+    )
     p = Path(out_path)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(page)

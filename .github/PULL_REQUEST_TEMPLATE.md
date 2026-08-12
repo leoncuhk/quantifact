@@ -6,6 +6,8 @@
 - [ ] a test that fails without this change
 - [ ] `uv run pytest -q` passes
 - [ ] `uv run ruff check .` passes
+- [ ] `uv run ruff format --check src tests examples tools` passes
+- [ ] `uv run qf audit` still reports evidence and gaps accurately
 - [ ] no credentials, licensed data or workspace directories committed
 
 ## If this touches contracts or the harness

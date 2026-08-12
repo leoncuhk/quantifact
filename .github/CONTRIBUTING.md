@@ -28,7 +28,9 @@
 uv sync --extra duckdb
 uv run pytest -q
 uv run ruff check .
+uv run ruff format --check src tests examples tools
 uv run qf bench
+uv run qf audit
 ```
 
 ## Adding an adapter

@@ -1,7 +1,7 @@
 # Quickstart
 
 ```bash
-uv add quantifact          # or pip install quantifact
+uv add git+https://github.com/leoncuhk/quantifact    # PyPI release pending
 qf ask                     # the demo question, synthetic data, no key
 qf ask                     # again — every task from the value cache
 ```

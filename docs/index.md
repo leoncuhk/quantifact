@@ -15,6 +15,8 @@
 - [Write an adapter](guides/write-an-adapter.md)
 - [Evals and benchmarks](guides/evals.md)
 - [Running it for real](guides/production.md)
+- [Quality model and delivery gates](quality-model.md)
+- [Release process and evidence gate](releasing.md)
 
 **See it**
 

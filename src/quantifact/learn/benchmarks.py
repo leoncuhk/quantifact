@@ -47,8 +47,10 @@ class BenchmarkSuite:
         self.root.mkdir(parents=True, exist_ok=True)
 
     def all(self) -> list[Benchmark]:
-        return [Benchmark.from_dict(json.loads(p.read_text()))
-                for p in sorted(self.root.glob("*.json"))]
+        return [
+            Benchmark.from_dict(json.loads(p.read_text()))
+            for p in sorted(self.root.glob("*.json"))
+        ]
 
     def add(self, bench: Benchmark) -> Path:
         p = self.root / f"{bench.id}.json"
@@ -59,8 +61,13 @@ class BenchmarkSuite:
         (self.root / f"{bench_id}.json").unlink(missing_ok=True)
 
     # -------------------------------------------------------------- running
-    def run(self, bench: Benchmark, adapter, lessons: list[Lesson],
-            entitlements: tuple[str, ...] = ()) -> BenchmarkResult:
+    def run(
+        self,
+        bench: Benchmark,
+        adapter,
+        lessons: list[Lesson],
+        entitlements: tuple[str, ...] = (),
+    ) -> BenchmarkResult:
         from ..plan.compile import PlanCompiler
         from ..planner import RulePlanner
 
@@ -69,7 +76,9 @@ class BenchmarkSuite:
         try:
             plan = planner.plan(bench.prompt, bench.answers)
         except Exception as e:
-            return BenchmarkResult(bench, False, [f"planning raised {type(e).__name__}: {e}"])
+            return BenchmarkResult(
+                bench, False, [f"planning raised {type(e).__name__}: {e}"]
+            )
 
         for a in bench.assertions:
             t = a["type"]
@@ -80,44 +89,56 @@ class BenchmarkSuite:
                 if plan.task(a["name"]) is not None:
                     failures.append(f"plan unexpectedly contains task '{a['name']}'")
             elif t == "chart_has_facet":
-                ok = any((c.chart_spec or {}).get("facet") == a["facet"]
-                         for c in plan.charts())
+                ok = any(
+                    (c.chart_spec or {}).get("facet") == a["facet"] for c in plan.charts()
+                )
                 if not ok:
                     failures.append(f"no chart faceted by '{a['facet']}'")
             elif t == "task_count_min":
                 if len(plan.tasks) < a["value"]:
-                    failures.append(f"plan has {len(plan.tasks)} tasks, "
-                                    f"expected >= {a['value']}")
+                    failures.append(
+                        f"plan has {len(plan.tasks)} tasks, expected >= {a['value']}"
+                    )
             elif t == "plan_valid":
                 problems = PlanCompiler(
                     known_series={m.series_id for m in adapter.catalog()},
-                    known_tables=set(adapter.tables())).validate(plan)
+                    known_tables=set(adapter.tables()),
+                ).validate(plan)
                 failures.extend(f"plan invalid: {p}" for p in problems)
             elif t == "series_bound":
-                b = next((x for x in planner.bindings
-                          if x.requirement == a["requirement"]), None)
+                b = next(
+                    (x for x in planner.bindings if x.requirement == a["requirement"]),
+                    None,
+                )
                 if b is None:
                     failures.append(f"requirement '{a['requirement']}' was never bound")
                 elif b.chosen != a["series_id"]:
-                    failures.append(f"requirement '{a['requirement']}' bound to "
-                                    f"{b.chosen}, expected {a['series_id']}")
+                    failures.append(
+                        f"requirement '{a['requirement']}' bound to "
+                        f"{b.chosen}, expected {a['series_id']}"
+                    )
             elif t == "series_rejected":
-                b = next((x for x in planner.bindings
-                          if x.requirement == a["requirement"]), None)
+                b = next(
+                    (x for x in planner.bindings if x.requirement == a["requirement"]),
+                    None,
+                )
                 considered = {c["series_id"]: c for c in (b.considered if b else [])}
                 c = considered.get(a["series_id"])
                 if c is None:
-                    failures.append(f"'{a['series_id']}' was never even considered for "
-                                    f"'{a['requirement']}'")
+                    failures.append(
+                        f"'{a['series_id']}' was never even considered for "
+                        f"'{a['requirement']}'"
+                    )
                 elif c["accepted"]:
-                    failures.append(f"'{a['series_id']}' was accepted for "
-                                    f"'{a['requirement']}' but should be rejected")
+                    failures.append(
+                        f"'{a['series_id']}' was accepted for "
+                        f"'{a['requirement']}' but should be rejected"
+                    )
             else:
                 failures.append(f"unknown assertion type '{t}'")
         return BenchmarkResult(bench, not failures, failures)
 
-    def run_all(self, adapter, lessons: list[Lesson],
-                entitlements: tuple[str, ...] = ()) -> list[BenchmarkResult]:
+    def run_all(
+        self, adapter, lessons: list[Lesson], entitlements: tuple[str, ...] = ()
+    ) -> list[BenchmarkResult]:
         return [self.run(b, adapter, lessons, entitlements) for b in self.all()]
-
-

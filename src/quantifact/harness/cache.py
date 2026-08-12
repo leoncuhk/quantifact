@@ -29,15 +29,23 @@ from ..staticanalysis.ast_checks import CodeFacts
 RUNTIME_ID = f"pd{pd.__version__}-np{np.__version__}"
 
 
-def cache_key(task: Task, facts: CodeFacts, upstream_keys: dict[str, str],
-              data_fingerprint: str, as_of: str) -> str:
-    payload = json.dumps({
-        "ast": facts.ast_digest,
-        "upstream": [upstream_keys[d] for d in task.depends_on],
-        "data": data_fingerprint,
-        "as_of": as_of,
-        "runtime": RUNTIME_ID,
-    }, sort_keys=True)
+def cache_key(
+    task: Task,
+    facts: CodeFacts,
+    upstream_keys: dict[str, str],
+    data_fingerprint: str,
+    as_of: str,
+) -> str:
+    payload = json.dumps(
+        {
+            "ast": facts.ast_digest,
+            "upstream": [upstream_keys[d] for d in task.depends_on],
+            "data": data_fingerprint,
+            "as_of": as_of,
+            "runtime": RUNTIME_ID,
+        },
+        sort_keys=True,
+    )
     return hashlib.sha256(payload.encode()).hexdigest()[:20]
 
 

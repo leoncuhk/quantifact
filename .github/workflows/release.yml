@@ -17,5 +17,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --extra duckdb
       - run: uv run pytest -q
+      - name: Require audited operating evidence
+        run: test -f benchmarks/quality-evidence.json
+      - name: PAT-level release gate
+        run: uv run qf audit --evidence benchmarks/quality-evidence.json --strict
       - run: uv build
       - uses: pypa/gh-action-pypi-publish@release/v1

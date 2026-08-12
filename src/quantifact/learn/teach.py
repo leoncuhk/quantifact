@@ -18,9 +18,11 @@ KNOWN_EFFECTS = {
     "per_asset_class_panels": {
         "when": "multi_episode",
         "keywords": ["asset class", "per-asset", "by asset", "资产类别", "分资产"],
-        "assertions": [{"type": "plan_has_task", "name": "market_scatter_by_asset_class"},
-                       {"type": "chart_has_facet", "facet": "asset_class"},
-                       {"type": "plan_valid"}],
+        "assertions": [
+            {"type": "plan_has_task", "name": "market_scatter_by_asset_class"},
+            {"type": "chart_has_facet", "facet": "asset_class"},
+            {"type": "plan_valid"},
+        ],
     },
 }
 
@@ -63,20 +65,31 @@ def draft_lesson(complaint: str) -> tuple[str, str, str | None]:
             return effect, effect.replace("_", "-"), spec["when"]
     raise ValueError(
         "no known planner effect matches this complaint; add one to "
-        "KNOWN_EFFECTS (a lesson that maps to no effect cannot be verified)")
+        "KNOWN_EFFECTS (a lesson that maps to no effect cannot be verified)"
+    )
 
 
-def teach(complaint: str, prompt: str, *, adapter, repo: LessonRepo,
-          suite: BenchmarkSuite, entitlements: tuple[str, ...] = (),
-          answers: dict[str, Any] | None = None,
-          bench_id: str | None = None) -> TeachResult:
+def teach(
+    complaint: str,
+    prompt: str,
+    *,
+    adapter,
+    repo: LessonRepo,
+    suite: BenchmarkSuite,
+    entitlements: tuple[str, ...] = (),
+    answers: dict[str, Any] | None = None,
+    bench_id: str | None = None,
+) -> TeachResult:
     effect, lesson_id, when = draft_lesson(complaint)
     spec = KNOWN_EFFECTS[effect]
     bench = Benchmark(
         id=bench_id or f"teach-{lesson_id}",
-        prompt=prompt, answers=answers or {},
-        assertions=spec["assertions"], origin="teach",
-        note=textwrap.shorten(complaint, 200))
+        prompt=prompt,
+        answers=answers or {},
+        assertions=spec["assertions"],
+        origin="teach",
+        note=textwrap.shorten(complaint, 200),
+    )
 
     # 1. reproduce: the benchmark must fail against the context *as it is today*
     baseline = repo.all()
@@ -100,6 +113,12 @@ def teach(complaint: str, prompt: str, *, adapter, repo: LessonRepo,
     if accepted:
         files.append(str(repo.add(lesson)))
         files.append(str(suite.add(bench)))
-    return TeachResult(lesson=lesson, benchmark=bench, failed_before=failed_before,
-                       passes_after=after.passed, regressions=regressions,
-                       files=files, accepted=accepted)
+    return TeachResult(
+        lesson=lesson,
+        benchmark=bench,
+        failed_before=failed_before,
+        passes_after=after.passed,
+        regressions=regressions,
+        files=files,
+        accepted=accepted,
+    )

@@ -19,22 +19,31 @@ class CodegenBackend(Protocol):
 
     name: str
 
-    def generate(self, task: Task, upstream: dict[str, list[dict]],
-                 as_of: str = "") -> str: ...
+    def generate(
+        self, task: Task, upstream: dict[str, list[dict]], as_of: str = ""
+    ) -> str: ...
 
 
 def schemas_of(plan: AnalysisPlan, task: Task) -> dict[str, list[dict]]:
     out: dict[str, list[dict]] = {}
     for dep in task.depends_on:
         t = plan[dep]
-        out[dep] = [{"name": c.name, "dtype": c.dtype, "unit": c.unit,
-                     "role": c.role, "description": c.description}
-                    for c in t.columns]
+        out[dep] = [
+            {
+                "name": c.name,
+                "dtype": c.dtype,
+                "unit": c.unit,
+                "role": c.role,
+                "description": c.description,
+            }
+            for c in t.columns
+        ]
     return out
 
 
-def generate_all(plan: AnalysisPlan, backend: CodegenBackend,
-                 max_workers: int = 16) -> dict[str, str]:
+def generate_all(
+    plan: AnalysisPlan, backend: CodegenBackend, max_workers: int = 16
+) -> dict[str, str]:
     def one(task: Task) -> tuple[str, str]:
         return task.name, backend.generate(task, schemas_of(plan, task), plan.as_of)
 
@@ -44,5 +53,6 @@ def generate_all(plan: AnalysisPlan, backend: CodegenBackend,
 
 def generate_serially(plan: AnalysisPlan, backend: CodegenBackend) -> dict[str, str]:
     """Only used to measure what the parallelism buys."""
-    return {t.name: backend.generate(t, schemas_of(plan, t), plan.as_of)
-            for t in plan.tasks}
+    return {
+        t.name: backend.generate(t, schemas_of(plan, t), plan.as_of) for t in plan.tasks
+    }

@@ -40,8 +40,7 @@ class LookAheadError(RuntimeError):
     """Raised when data later than the knowledge date reaches a result."""
 
 
-def no_future_observations(task: Task, df: pd.DataFrame,
-                           as_of: str | date) -> Verdict:
+def no_future_observations(task: Task, df: pd.DataFrame, as_of: str | date) -> Verdict:
     """L1-pit: no dated column may post-date the knowledge date."""
     cut = pd.Timestamp(parse_date(as_of))
     problems: list[str] = []
@@ -55,11 +54,14 @@ def no_future_observations(task: Task, df: pd.DataFrame,
             worst = col[future].max()
             problems.append(
                 f"column '{spec.name}' (role={spec.role}) has {n} row(s) after the "
-                f"knowledge date {cut.date()}, latest {worst.date()} — look-ahead")
+                f"knowledge date {cut.date()}, latest {worst.date()} — look-ahead"
+            )
     return Verdict(task.name, "L1-pit", not problems, problems)
 
 
 def describe(as_of: str | date) -> str:
     """One line for the report header, so a reader always sees the vintage."""
-    return (f"knowledge date {parse_date(as_of)} — every input was filtered to what "
-            "had been published on or before this date")
+    return (
+        f"knowledge date {parse_date(as_of)} — every input was filtered to what "
+        "had been published on or before this date"
+    )

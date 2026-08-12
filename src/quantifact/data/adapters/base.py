@@ -58,3 +58,25 @@ class Adapter(Protocol):
     def fingerprint(self, series_ids: Iterable[str], *, as_of: str | date) -> str:
         """Stable identity of the visible slice, for cache keys."""
         ...
+
+
+@runtime_checkable
+class DocumentSource(Protocol):
+    """Optional: an adapter that also serves written research.
+
+    Separate from ``Adapter`` because plenty of useful sources have numbers and
+    no documents, and because a document corpus usually lives behind a different
+    system. The knowledge date applies identically — a note that had not been
+    written cannot be retrieved.
+    """
+
+    def search_documents(
+        self,
+        query: str,
+        *,
+        as_of: str | date,
+        k: int = 6,
+        entitlements: Iterable[str] = (),
+    ) -> list[Any]: ...
+
+    def read_document(self, doc_id: str) -> Any: ...

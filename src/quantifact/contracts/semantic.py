@@ -55,11 +55,18 @@ Return ONLY the corrected function source."""
 
 
 class SemanticValidator(Protocol):
-    def validate(self, task: Task, code: str, df: pd.DataFrame,
-                 as_of: str = "") -> Verdict: ...
+    def validate(
+        self, task: Task, code: str, df: pd.DataFrame, as_of: str = ""
+    ) -> Verdict: ...
 
 
 class Debugger(Protocol):
-    def edit(self, task: Task, code: str, verdict: Verdict,
-             upstream: dict | None = None, evidence: str = "",
-             as_of: str = "") -> str: ...
+    def edit(
+        self,
+        task: Task,
+        code: str,
+        verdict: Verdict,
+        upstream: dict | None = None,
+        evidence: str = "",
+        as_of: str = "",
+    ) -> str: ...

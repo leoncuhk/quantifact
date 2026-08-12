@@ -39,16 +39,21 @@ from .conftest import AS_OF, QUESTION, toy_task
 
 # ---------------------------------------------------------- plan compiler
 
+
 def test_rejects_a_cycle():
-    p = AnalysisPlan("q", [toy_task(name="a", depends_on=["b"]),
-                           toy_task(name="b", depends_on=["a"])], as_of=AS_OF)
+    p = AnalysisPlan(
+        "q",
+        [toy_task(name="a", depends_on=["b"]), toy_task(name="b", depends_on=["a"])],
+        as_of=AS_OF,
+    )
     with pytest.raises(PlanError, match="cycle"):
         PlanCompiler().compile(p)
 
 
 def test_rejects_unknown_dependency():
     problems = PlanCompiler().validate(
-        AnalysisPlan("q", [toy_task(depends_on=["nope"])], as_of=AS_OF))
+        AnalysisPlan("q", [toy_task(depends_on=["nope"])], as_of=AS_OF)
+    )
     assert any("unknown task 'nope'" in x for x in problems)
 
 
@@ -64,26 +69,41 @@ def test_rejects_a_plan_without_a_knowledge_date():
 
 
 def test_rejects_a_date_role_on_a_non_date_column():
-    t = toy_task(columns=[ColumnSpec("d", "when", "float64",
-                                     role="observation_date")], index=["d"])
+    t = toy_task(
+        columns=[ColumnSpec("d", "when", "float64", role="observation_date")], index=["d"]
+    )
     problems = PlanCompiler().validate(AnalysisPlan("q", [t], as_of=AS_OF))
     assert any("date roles must be datetime64" in x for x in problems)
 
 
 def test_rejects_a_column_nobody_produces():
-    up = toy_task(name="u", depends_on=[], type="data_ingestion",
-                  series_inputs=["S"], columns=[ColumnSpec("x", "x")], index=["x"])
-    down = toy_task(name="d", depends_on=["u"],
-                    op={"kind": "union", "consumes": ["missing"]})
+    up = toy_task(
+        name="u",
+        depends_on=[],
+        type="data_ingestion",
+        series_inputs=["S"],
+        columns=[ColumnSpec("x", "x")],
+        index=["x"],
+    )
+    down = toy_task(
+        name="d", depends_on=["u"], op={"kind": "union", "consumes": ["missing"]}
+    )
     problems = PlanCompiler().validate(AnalysisPlan("q", [up, down], as_of=AS_OF))
     assert any("consumes column 'missing'" in x for x in problems)
 
 
 def test_rejects_conflicting_units():
-    a = toy_task(name="a", depends_on=["b"],
-                 columns=[ColumnSpec("v", "v", unit="%")], index=["v"])
-    b = toy_task(name="b", depends_on=[], type="data_ingestion", series_inputs=["S"],
-                 columns=[ColumnSpec("v", "v", unit="bp")], index=["v"])
+    a = toy_task(
+        name="a", depends_on=["b"], columns=[ColumnSpec("v", "v", unit="%")], index=["v"]
+    )
+    b = toy_task(
+        name="b",
+        depends_on=[],
+        type="data_ingestion",
+        series_inputs=["S"],
+        columns=[ColumnSpec("v", "v", unit="bp")],
+        index=["v"],
+    )
     problems = PlanCompiler().validate(AnalysisPlan("q", [a, b], as_of=AS_OF))
     assert any("conflicting units" in x for x in problems)
 
@@ -91,7 +111,8 @@ def test_rejects_conflicting_units():
 def test_the_real_plan_compiles(plan, qf):
     layers = PlanCompiler(
         known_series={m.series_id for m in qf.adapter.catalog()},
-        known_tables=set(qf.adapter.tables())).compile(plan)
+        known_tables=set(qf.adapter.tables()),
+    ).compile(plan)
     assert len(plan.tasks) >= 14
     assert len(layers) >= 4
     # ingestion is all in the first layer: nothing to wait for
@@ -99,6 +120,7 @@ def test_the_real_plan_compiles(plan, qf):
 
 
 # -------------------------------------------------------- static analysis
+
 
 def test_blocks_io_and_nondeterminism():
     facts = analyse("t", "import os\ndef t():\n    open('x')\n    return 1\n")
@@ -132,6 +154,7 @@ def test_generated_code_passes_static_analysis(plan, codes):
 
 # ---------------------------------------------------------------- harness
 
+
 def test_cache_hit_and_selective_recompute(qf, plan, codes, tmp_path):
     h = ExecutionHarness(qf.adapter, ValueCache(tmp_path / "c"))
     cold = h.run(plan, codes)
@@ -156,14 +179,14 @@ def test_execution_is_deterministic(qf, plan, tmp_path):
 def test_harness_blocks_filesystem_access(qf, tmp_path):
     t = toy_task(name="evil", depends_on=[])
     p = AnalysisPlan("q", [t], as_of=AS_OF)
-    src = ("def evil():\n    open('/etc/passwd')\n"
-           "    return pd.DataFrame({'a': [1]})\n")
+    src = "def evil():\n    open('/etc/passwd')\n    return pd.DataFrame({'a': [1]})\n"
     h = ExecutionHarness(qf.adapter, ValueCache(tmp_path / "e"))
     with pytest.raises(TaskExecutionError):
         h.run(p, {"evil": src})
 
 
 # ------------------------------------------------------------- contracts
+
 
 def test_schema_validation_catches_wrong_columns():
     t = toy_task(columns=[ColumnSpec("a", "a"), ColumnSpec("b", "b")])
@@ -172,8 +195,7 @@ def test_schema_validation_catches_wrong_columns():
 
 
 def test_declared_row_order_is_enforced():
-    t = toy_task(columns=[ColumnSpec("a", "a")], index=["a"],
-                 sort=[["a", False]])
+    t = toy_task(columns=[ColumnSpec("a", "a")], index=["a"], sort=[["a", False]])
     v = l1_schema(t, pd.DataFrame({"a": [1.0, 2.0]}))
     assert not v.ok and "not ordered" in v.problems[0]
 
@@ -186,6 +208,7 @@ def test_invariants_catch_out_of_range():
 
 # ------------------------------------------------------------- entitlements
 
+
 def test_entitlements_are_enforced_in_the_index(qf):
     analyst = SeriesSearch(_as_store(qf.adapter), ANALYST.entitlements)
     pm = SeriesSearch(_as_store(qf.adapter), PM.entitlements)
@@ -196,13 +219,15 @@ def test_entitlements_are_enforced_in_the_index(qf):
 
 # ------------------------------------------------------------------ search
 
+
 def test_inspection_rejects_wrong_scale_and_frequency(qf):
     search = SeriesSearch(_as_store(qf.adapter), ())
-    hits = search.search("US headline CPI year over year", k=8, frequency="M",
-                         unit="%", prior=(-6.0, 20.0))
+    hits = search.search(
+        "US headline CPI year over year", k=8, frequency="M", unit="%", prior=(-6.0, 20.0)
+    )
     by_id = {h.meta.series_id: h for h in hits}
     assert by_id["US.CPI.HEADLINE.YOY"].accepted
-    assert not by_id["US.CPI.HEADLINE.YOY.BPS"].accepted   # right unit, wrong scale
+    assert not by_id["US.CPI.HEADLINE.YOY.BPS"].accepted  # right unit, wrong scale
     assert "outside prior" in by_id["US.CPI.HEADLINE.YOY.BPS"].reasons[0]
 
 
@@ -219,11 +244,14 @@ def test_catalog_cards_carry_what_binding_needs(qf):
 
 # --------------------------------------------------------------- flywheel
 
+
 def test_teach_requires_a_reproducible_failure_then_fixes_it(ws, qf):
     repo = LessonRepo(ws / "ctx-lessons")
     suite = BenchmarkSuite(ws / "benchmarks")
-    complaint = ("When comparing multiple historical episodes, break the scatter out "
-                 "by asset class instead of pooling every market into one panel.")
+    complaint = (
+        "When comparing multiple historical episodes, break the scatter out "
+        "by asset class instead of pooling every market into one panel."
+    )
     res = teach(complaint, QUESTION, adapter=qf.adapter, repo=repo, suite=suite)
     assert res.failed_before, "the benchmark must fail before the lesson exists"
     assert res.passes_after and not res.regressions and res.accepted
@@ -231,12 +259,19 @@ def test_teach_requires_a_reproducible_failure_then_fixes_it(ws, qf):
     p = RulePlanner(qf.adapter, lessons=repo.all()).plan(QUESTION)
     assert p.task("market_scatter_by_asset_class") is not None
 
-    again = teach(complaint, QUESTION, adapter=qf.adapter, repo=repo, suite=suite,
-                  bench_id="teach-again")
+    again = teach(
+        complaint,
+        QUESTION,
+        adapter=qf.adapter,
+        repo=repo,
+        suite=suite,
+        bench_id="teach-again",
+    )
     assert not again.failed_before and not again.accepted
 
 
 # ------------------------------------------------------------- end to end
+
 
 def test_end_to_end_produces_a_report_and_writes_back(ws, tmp_path):
     qf = Quantifact(ws)
@@ -247,6 +282,11 @@ def test_end_to_end_produces_a_report_and_writes_back(ws, tmp_path):
     assert art.written_series
     meta = qf.adapter.store.meta(art.written_series[0])
     assert meta.source == "quantifact-analysis" and meta.lineage
+    receipt = art.receipt(backend="reference", user="analyst")
+    assert receipt["schema_version"] == 1 and len(receipt["plan_sha256"]) == 64
+    assert set(receipt["code_sha256"]) == set(art.plan.names)
+    assert receipt["execution"] and receipt["verdicts"]
+    assert receipt["planning_trace"]["planner"] == "RulePlanner"
 
 
 def test_plan_round_trips_through_json(plan, tmp_path):
@@ -254,4 +294,5 @@ def test_plan_round_trips_through_json(plan, tmp_path):
     plan.save(p)
     again = AnalysisPlan.load(p)
     assert json.dumps(again.to_dict(), sort_keys=True) == json.dumps(
-        plan.to_dict(), sort_keys=True)
+        plan.to_dict(), sort_keys=True
+    )

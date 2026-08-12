@@ -51,8 +51,7 @@ already in scope."""
 def row_order_line(task: Task) -> str:
     if not task.sort:
         return ""
-    parts = ", ".join(f"{c} {'ascending' if a else 'descending'}"
-                      for c, a in task.sort)
+    parts = ", ".join(f"{c} {'ascending' if a else 'descending'}" for c, a in task.sort)
     return f"required row order (checked after execution): {parts}"
 
 
@@ -73,4 +72,5 @@ def upstream_lines(upstream: dict[str, list[dict]]) -> str:
         return "  (none)"
     return "\n".join(
         f"  {dep}: " + ", ".join(f"{c['name']}:{c['dtype']}" for c in schema)
-        for dep, schema in upstream.items())
+        for dep, schema in upstream.items()
+    )

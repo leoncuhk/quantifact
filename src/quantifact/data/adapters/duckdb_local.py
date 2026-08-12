@@ -51,7 +51,8 @@ def _connect(path: str | Path, read_only: bool = True):
         import duckdb
     except ImportError as e:  # pragma: no cover - optional dependency
         raise RuntimeError(
-            'duckdb is not installed; pip install "quantifact[duckdb]"') from e
+            'duckdb is not installed; pip install "quantifact[duckdb]"'
+        ) from e
     return duckdb.connect(str(path), read_only=read_only)
 
 
@@ -91,21 +92,28 @@ class DuckDBAdapter:
             return json.loads(v) if isinstance(v, str) else v
 
         return SeriesMeta(
-            series_id=r["series_id"], name=r["name"], description=r["description"],
-            frequency=r["frequency"], unit=r["unit"], source=r["source"],
+            series_id=r["series_id"],
+            name=r["name"],
+            description=r["description"],
+            frequency=r["frequency"],
+            unit=r["unit"],
+            source=r["source"],
             license_tag=txt(r.get("license_tag"), "unspecified"),
-            currency=txt(r.get("currency")), geography=txt(r.get("geography")),
+            currency=txt(r.get("currency")),
+            geography=txt(r.get("geography")),
             asset_class=txt(r.get("asset_class")),
             owner=txt(r.get("owner"), "unknown"),
             pub_lag_days=int(r.get("pub_lag_days") or 0),
             entitlement_tags=js(r.get("entitlement_tags"), []),
-            aliases=js(r.get("aliases"), []), lineage=js(r.get("lineage"), []),
+            aliases=js(r.get("aliases"), []),
+            lineage=js(r.get("lineage"), []),
             invariants=js(r.get("invariants"), []),
             content_hash=txt(r.get("content_hash"), ""),
             first_obs=str(r["first_obs"]) if r.get("first_obs") is not None else None,
             last_obs=str(r["last_obs"]) if r.get("last_obs") is not None else None,
             n_obs=int(r.get("n_obs") or 0),
-            value_stats=js(r.get("value_stats"), {}))
+            value_stats=js(r.get("value_stats"), {}),
+        )
 
     # -------------------------------------------------------------- reads
     def read_series(self, series_id: str, *, as_of: str | date) -> pd.Series:
@@ -114,11 +122,15 @@ class DuckDBAdapter:
             df = con.execute(
                 "SELECT obs_date, value FROM series_observations "
                 "WHERE series_id = ? AND pub_date <= ? ORDER BY obs_date",
-                [series_id, str(parse_date(as_of))]).fetchdf()
+                [series_id, str(parse_date(as_of))],
+            ).fetchdf()
         finally:
             con.close()
-        s = pd.Series(df["value"].to_numpy(dtype="float64"),
-                      index=pd.to_datetime(df["obs_date"]), name=series_id)
+        s = pd.Series(
+            df["value"].to_numpy(dtype="float64"),
+            index=pd.to_datetime(df["obs_date"]),
+            name=series_id,
+        )
         s.index.name = "obs_date"
         return s
 
@@ -145,8 +157,9 @@ class DuckDBAdapter:
         return df.reset_index(drop=True)
 
     def invariants(self, series_id: str) -> list[dict[str, Any]]:
-        return next((m.invariants for m in self.catalog()
-                     if m.series_id == series_id), [])
+        return next(
+            (m.invariants for m in self.catalog() if m.series_id == series_id), []
+        )
 
     def fingerprint(self, series_ids: Iterable[str], *, as_of: str | date) -> str:
         by_id = {m.series_id: m for m in self.catalog()}
@@ -158,8 +171,9 @@ class DuckDBAdapter:
         return h.hexdigest()[:16]
 
 
-def export_store(store, path: str | Path,
-                 tables: dict[str, pd.DataFrame] | None = None) -> Path:
+def export_store(
+    store, path: str | Path, tables: dict[str, pd.DataFrame] | None = None
+) -> Path:
     """Write a ``SeriesStore`` into a DuckDB file in the layout above.
 
     Used by the examples and tests so the DuckDB path is exercised without a
@@ -175,27 +189,38 @@ def export_store(store, path: str | Path,
         con.execute(OBSERVATIONS_DDL)
         cat_rows, obs_frames = [], []
         for meta in store.all_meta():
-            cat_rows.append({
-                "series_id": meta.series_id, "name": meta.name,
-                "description": meta.description, "frequency": meta.frequency,
-                "unit": meta.unit, "source": meta.source,
-                "license_tag": meta.license_tag, "currency": meta.currency,
-                "geography": meta.geography, "asset_class": meta.asset_class,
-                "owner": meta.owner, "pub_lag_days": meta.pub_lag_days,
-                "entitlement_tags": json.dumps(meta.entitlement_tags),
-                "aliases": json.dumps(meta.aliases),
-                "lineage": json.dumps(meta.lineage),
-                "invariants": json.dumps(meta.invariants),
-                "content_hash": meta.content_hash,
-                "first_obs": meta.first_obs, "last_obs": meta.last_obs,
-                "n_obs": meta.n_obs, "value_stats": json.dumps(meta.value_stats)})
+            cat_rows.append(
+                {
+                    "series_id": meta.series_id,
+                    "name": meta.name,
+                    "description": meta.description,
+                    "frequency": meta.frequency,
+                    "unit": meta.unit,
+                    "source": meta.source,
+                    "license_tag": meta.license_tag,
+                    "currency": meta.currency,
+                    "geography": meta.geography,
+                    "asset_class": meta.asset_class,
+                    "owner": meta.owner,
+                    "pub_lag_days": meta.pub_lag_days,
+                    "entitlement_tags": json.dumps(meta.entitlement_tags),
+                    "aliases": json.dumps(meta.aliases),
+                    "lineage": json.dumps(meta.lineage),
+                    "invariants": json.dumps(meta.invariants),
+                    "content_hash": meta.content_hash,
+                    "first_obs": meta.first_obs,
+                    "last_obs": meta.last_obs,
+                    "n_obs": meta.n_obs,
+                    "value_stats": json.dumps(meta.value_stats),
+                }
+            )
             frame = store.read_frame(meta.series_id).reset_index()
             frame.insert(0, "series_id", meta.series_id)
             obs_frames.append(frame[["series_id", "obs_date", "pub_date", "value"]])
-        catalog = pd.DataFrame(cat_rows)                      # noqa: F841
-        observations = pd.concat(obs_frames, ignore_index=True)  # noqa: F841
-        con.execute("INSERT INTO series_catalog SELECT * FROM catalog")
-        con.execute("INSERT INTO series_observations SELECT * FROM observations")
+        con.register("_catalog_export", pd.DataFrame(cat_rows))
+        con.register("_observations_export", pd.concat(obs_frames, ignore_index=True))
+        con.execute("INSERT INTO series_catalog SELECT * FROM _catalog_export")
+        con.execute("INSERT INTO series_observations SELECT * FROM _observations_export")
         for name, df in (tables or {}).items():
             con.register(f"_tbl_{name}", df)
             con.execute(f"CREATE OR REPLACE TABLE {name} AS SELECT * FROM _tbl_{name}")

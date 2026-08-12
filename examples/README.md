@@ -5,7 +5,7 @@
 | [04_point_in_time](04_point_in_time/) | six ways look-ahead is stopped | nothing |
 | `01_quickstart/run.py` | plan → contracts → execute → report, then the cached second run | nothing |
 | `02_bring_your_own_data/build_hub.py` | the same plan against a DuckDB hub you build ([guide](../docs/guides/byo-data.md)) | `quantifact[duckdb]` |
-| `03_llm_backend` | a real model writing every task | an API key |
+| 03 below | a real model writing every task | an API key |
 
 Start with 04 if you are evaluating whether this is serious.
 

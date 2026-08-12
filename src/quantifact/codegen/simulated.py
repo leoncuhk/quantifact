@@ -21,7 +21,8 @@ class SimulatedLatencyCodegen:
         self.inner = inner or ReferenceCodegen()
         self.name = f"simulated({seconds}s/task)"
 
-    def generate(self, task: Task, upstream: dict[str, list[dict]],
-                 as_of: str = "") -> str:
+    def generate(
+        self, task: Task, upstream: dict[str, list[dict]], as_of: str = ""
+    ) -> str:
         time.sleep(self.seconds)
         return self.inner.generate(task, upstream, as_of)

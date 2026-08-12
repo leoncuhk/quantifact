@@ -4,9 +4,9 @@
 The model writes the code; the contract decides whether the number counts.
 
 [![CI](https://github.com/leoncuhk/quantifact/actions/workflows/ci.yml/badge.svg)](https://github.com/leoncuhk/quantifact/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/quantifact.svg)](https://pypi.org/project/quantifact/)
-[![Python](https://img.shields.io/pypi/pyversions/quantifact.svg)](https://pypi.org/project/quantifact/)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Secret scan](https://github.com/leoncuhk/quantifact/actions/workflows/secrets.yml/badge.svg)](https://github.com/leoncuhk/quantifact/actions/workflows/secrets.yml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
+[![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 ---
 
@@ -61,7 +61,7 @@ No API key, no credentials, no data licence — the demo adapter is synthetic an
 deterministic.
 
 ```bash
-uv add quantifact          # or: pip install quantifact
+uv add git+https://github.com/leoncuhk/quantifact    # PyPI release pending
 qf ask                     # plan → codegen → contracts → execute → report
 qf ask                     # again: every task served from the value cache
 ```
@@ -88,7 +88,7 @@ art = qf.analyse("How did markets respond to the oil supply shock?",
 
 | Property | Enforced by | How you can check |
 |---|---|---|
-| A bad plan never reaches codegen | `plan/compile.py` — 30 checks in 9 categories | `test_architecture.py::test_rejects_*` |
+| A bad plan never reaches codegen | `plan/compile.py` — typed structural and semantic checks | `test_architecture.py::test_rejects_*` |
 | Generated code cannot do IO, use the clock, or reach the network | `staticanalysis/ast_checks.py` + restricted globals | `test_architecture.py::test_blocks_*` |
 | Code cannot read data published after the knowledge date | loaders bound by the harness; dated columns checked; `as_of` in the cache key | `test_point_in_time.py` (10 tests) |
 | Undeclared dependencies are caught | AST graph vs declared graph | `test_architecture.py::test_undeclared_upstream_is_caught` |
@@ -97,6 +97,25 @@ art = qf.analyse("How did markets respond to the oil supply shock?",
 | The same plan produces the same values | reference backend + determinism test | `test_architecture.py::test_execution_is_deterministic` |
 | The same plan runs unchanged on another adapter | six-method adapter protocol | `test_duckdb_adapter.py` |
 | A lesson is only accepted if it first fails | `learn/teach.py` | `test_architecture.py::test_teach_requires_*` |
+
+## Is it PAT-level yet?
+
+The compiler architecture is a validated prototype; the whole product has not
+yet earned that claim. `qf audit` separates repository proof from evidence that
+only real experts, licensed data and production operation can supply:
+
+```bash
+qf audit --out audit.md --json audit.json
+qf audit --evidence benchmarks/quality-evidence.json --strict
+```
+
+The score cannot hide a weak critical dimension. Real-task accuracy, diverse
+planning, tool coverage, isolation, reliability and expert adoption are gates,
+not optional polish. See [the quality model and delivery plan](docs/quality-model.md).
+
+The LLM planner broadens the question set only within the series, tables and
+operations exposed to it. It is fail-closed, not an unrestricted claim to
+answer any investment question.
 
 ## Point-in-time, by construction
 

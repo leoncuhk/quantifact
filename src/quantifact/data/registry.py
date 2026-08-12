@@ -43,7 +43,7 @@ class SeriesMeta:
     description: str
     frequency: Frequency
     unit: str
-    source: str                       # vendor | internal-model | quantifact-analysis
+    source: str  # vendor | internal-model | quantifact-analysis
     entitlement_tags: list[str] = field(default_factory=list)
     license_tag: str = "unspecified"  # travels with every derived output
     aliases: list[str] = field(default_factory=list)
@@ -52,7 +52,7 @@ class SeriesMeta:
     asset_class: str | None = None
     owner: str = "unknown"
     lineage: list[str] = field(default_factory=list)
-    pub_lag_days: int = 0             # typical publication lag, for documentation
+    pub_lag_days: int = 0  # typical publication lag, for documentation
     first_obs: str | None = None
     last_obs: str | None = None
     last_pub: str | None = None
@@ -75,8 +75,11 @@ class SeriesMeta:
         needs to *choose* is identity, unit, grain, coverage and plausibility.
         """
         stats = self.value_stats
-        rng = (f"{stats['min']:.4g}..{stats['max']:.4g}"
-               if {"min", "max"} <= stats.keys() else "n/a")
+        rng = (
+            f"{stats['min']:.4g}..{stats['max']:.4g}"
+            if {"min", "max"} <= stats.keys()
+            else "n/a"
+        )
         bits = [
             f"{self.series_id} — {self.name}",
             f"  {self.description}",
@@ -104,8 +107,13 @@ def _stats(s: pd.Series) -> dict[str, float]:
     v = s.dropna()
     if v.empty:
         return {}
-    return {"mean": float(v.mean()), "std": float(v.std() or 0.0),
-            "min": float(v.min()), "max": float(v.max()), "last": float(v.iloc[-1])}
+    return {
+        "mean": float(v.mean()),
+        "std": float(v.std() or 0.0),
+        "min": float(v.min()),
+        "max": float(v.max()),
+        "last": float(v.iloc[-1]),
+    }
 
 
 class SeriesStore:
@@ -127,28 +135,38 @@ class SeriesStore:
         return self.data_dir / f"{safe}.parquet"
 
     def flush(self) -> None:
-        self.index_path.write_text(json.dumps(
-            {k: v.to_dict() for k, v in self._meta.items()}, indent=1,
-            ensure_ascii=False))
+        self.index_path.write_text(
+            json.dumps(
+                {k: v.to_dict() for k, v in self._meta.items()},
+                indent=1,
+                ensure_ascii=False,
+            )
+        )
 
-    def write(self, meta: SeriesMeta, values: pd.Series,
-              pub_dates: pd.Series | None = None) -> SeriesMeta:
+    def write(
+        self, meta: SeriesMeta, values: pd.Series, pub_dates: pd.Series | None = None
+    ) -> SeriesMeta:
         """Write a series. ``pub_dates`` defaults to obs_date + pub_lag_days."""
         values = values.sort_index()
         values.index = pd.to_datetime(values.index)
         if pub_dates is None:
-            pub = pd.Series(values.index, index=values.index) \
-                + pd.Timedelta(days=meta.pub_lag_days)
+            pub = pd.Series(values.index, index=values.index) + pd.Timedelta(
+                days=meta.pub_lag_days
+            )
         else:
             pub = pd.Series(pd.to_datetime(pub_dates.to_numpy()), index=values.index)
-        df = pd.DataFrame({"value": values.astype("float64").to_numpy(),
-                           "pub_date": pub.to_numpy()}, index=values.index)
+        df = pd.DataFrame(
+            {"value": values.astype("float64").to_numpy(), "pub_date": pub.to_numpy()},
+            index=values.index,
+        )
         df.index.name = "obs_date"
 
         meta.n_obs = int(df["value"].notna().sum())
         meta.first_obs = str(df.index.min().date()) if len(df) else None
         meta.last_obs = str(df.index.max().date()) if len(df) else None
-        meta.last_pub = str(pd.Timestamp(df["pub_date"].max()).date()) if len(df) else None
+        meta.last_pub = (
+            str(pd.Timestamp(df["pub_date"].max()).date()) if len(df) else None
+        )
         meta.value_stats = _stats(df["value"])
         meta.content_hash = _content_hash(df)
         df.to_parquet(self._path(meta.series_id))

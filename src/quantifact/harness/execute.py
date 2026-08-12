@@ -29,11 +29,38 @@ from ..staticanalysis.dag import cross_check, dependency_graph
 from .cache import ValueCache, cache_key, frame_fingerprint
 
 SAFE_BUILTINS = {
-    n: getattr(builtins, n) for n in (
-        "abs", "all", "any", "bool", "dict", "enumerate", "float", "int", "len",
-        "list", "max", "min", "range", "round", "set", "sorted", "str", "sum",
-        "tuple", "zip", "isinstance", "getattr", "print", "ValueError",
-        "KeyError", "TypeError", "Exception", "reversed", "map", "filter",
+    n: getattr(builtins, n)
+    for n in (
+        "abs",
+        "all",
+        "any",
+        "bool",
+        "dict",
+        "enumerate",
+        "float",
+        "int",
+        "len",
+        "list",
+        "max",
+        "min",
+        "range",
+        "round",
+        "set",
+        "sorted",
+        "str",
+        "sum",
+        "tuple",
+        "zip",
+        "isinstance",
+        "getattr",
+        "print",
+        "ValueError",
+        "KeyError",
+        "TypeError",
+        "Exception",
+        "reversed",
+        "map",
+        "filter",
     )
 }
 
@@ -93,13 +120,19 @@ class ExecutionHarness:
         def load_table(name: str) -> pd.DataFrame:
             return adapter.read_table(name, as_of=as_of)
 
-        return {"__builtins__": SAFE_BUILTINS, "pd": pd, "np": np,
-                "load_series": load_series, "load_table": load_table}
+        return {
+            "__builtins__": SAFE_BUILTINS,
+            "pd": pd,
+            "np": np,
+            "load_series": load_series,
+            "load_table": load_table,
+        }
 
-    def _compile(self, task_name: str, source: str,
-                 as_of: str) -> Callable[..., pd.DataFrame]:
+    def _compile(
+        self, task_name: str, source: str, as_of: str
+    ) -> Callable[..., pd.DataFrame]:
         ns = self._namespace(as_of)
-        exec(compile(source, f"<task:{task_name}>", "exec"), ns)  # noqa: S102
+        exec(compile(source, f"<task:{task_name}>", "exec"), ns)
         fn = ns.get(task_name)
         if not callable(fn):
             raise RuntimeError(f"generated code defines no function '{task_name}'")
@@ -115,21 +148,27 @@ class ExecutionHarness:
         return ""
 
     # ------------------------------------------------------------- one task
-    def run_one(self, task: Task, source: str, frames: dict[str, pd.DataFrame],
-                as_of: str) -> pd.DataFrame:
+    def run_one(
+        self, task: Task, source: str, frames: dict[str, pd.DataFrame], as_of: str
+    ) -> pd.DataFrame:
         """Execute a single task against already-materialised upstream frames.
         Used by the repair loop and by graders; no caching, no layering."""
         fn = self._compile(task.name, source, as_of)
         df = fn(*[frames[d] for d in task.depends_on])
         if not isinstance(df, pd.DataFrame):
-            raise TypeError(f"{task.name} returned {type(df).__name__}, "
-                            "expected DataFrame")
+            raise TypeError(
+                f"{task.name} returned {type(df).__name__}, expected DataFrame"
+            )
         return df.reset_index(drop=True)
 
     # ----------------------------------------------------------------- run
-    def run(self, plan: AnalysisPlan, codes: dict[str, str],
-            facts: dict[str, CodeFacts] | None = None,
-            on_task: Callable[[TaskTrace], None] | None = None) -> RunResult:
+    def run(
+        self,
+        plan: AnalysisPlan,
+        codes: dict[str, str],
+        facts: dict[str, CodeFacts] | None = None,
+        on_task: Callable[[TaskTrace], None] | None = None,
+    ) -> RunResult:
         facts = facts or {n: analyse(n, src) for n, src in codes.items()}
         as_of = plan.as_of
 
@@ -146,36 +185,58 @@ class ExecutionHarness:
         for layer in layers:
             for name in layer:
                 task = plan[name]
-                key = cache_key(task, facts[name], keys,
-                                self._fingerprint(task, as_of), as_of)
+                key = cache_key(
+                    task, facts[name], keys, self._fingerprint(task, as_of), as_of
+                )
                 keys[name] = key
 
                 t0 = time.perf_counter()
                 cached = self.cache.get(key)
                 if cached is not None:
                     frames[name] = cached
-                    tr = TaskTrace(name, key, True, time.perf_counter() - t0,
-                                   len(cached), list(cached.columns))
+                    tr = TaskTrace(
+                        name,
+                        key,
+                        True,
+                        time.perf_counter() - t0,
+                        len(cached),
+                        list(cached.columns),
+                    )
                 else:
                     fn = self._compile(name, codes[name], as_of)
                     try:
                         df = fn(*[frames[d] for d in task.depends_on])
                     except Exception as e:
-                        tr = TaskTrace(name, key, False, time.perf_counter() - t0,
-                                       0, [], error=f"{type(e).__name__}: {e}")
+                        tr = TaskTrace(
+                            name,
+                            key,
+                            False,
+                            time.perf_counter() - t0,
+                            0,
+                            [],
+                            error=f"{type(e).__name__}: {e}",
+                        )
                         traces.append(tr)
                         if on_task:
                             on_task(tr)
                         raise TaskExecutionError(name, str(e), traces) from e
                     if not isinstance(df, pd.DataFrame):
                         raise TaskExecutionError(
-                            name, f"returned {type(df).__name__}, expected DataFrame",
-                            traces)
+                            name,
+                            f"returned {type(df).__name__}, expected DataFrame",
+                            traces,
+                        )
                     df = df.reset_index(drop=True)
                     self.cache.put(key, df)
                     frames[name] = df
-                    tr = TaskTrace(name, key, False, time.perf_counter() - t0,
-                                   len(df), list(df.columns))
+                    tr = TaskTrace(
+                        name,
+                        key,
+                        False,
+                        time.perf_counter() - t0,
+                        len(df),
+                        list(df.columns),
+                    )
                 traces.append(tr)
                 if on_task:
                     on_task(tr)

@@ -18,13 +18,39 @@ import hashlib
 from dataclasses import dataclass, field
 
 FORBIDDEN_CALLS = {
-    "open", "eval", "exec", "compile", "input", "__import__",
-    "read_csv", "read_parquet", "to_csv", "to_parquet", "to_pickle",
-    "system", "popen", "run", "check_output", "urlopen", "get", "post",
+    "open",
+    "eval",
+    "exec",
+    "compile",
+    "input",
+    "__import__",
+    "read_csv",
+    "read_parquet",
+    "to_csv",
+    "to_parquet",
+    "to_pickle",
+    "system",
+    "popen",
+    "run",
+    "check_output",
+    "urlopen",
+    "get",
+    "post",
 }
 FORBIDDEN_MODULES = {
-    "os", "sys", "subprocess", "socket", "requests", "urllib", "pathlib",
-    "random", "secrets", "shutil", "pickle", "time", "datetime",
+    "os",
+    "sys",
+    "subprocess",
+    "socket",
+    "requests",
+    "urllib",
+    "pathlib",
+    "random",
+    "secrets",
+    "shutil",
+    "pickle",
+    "time",
+    "datetime",
 }
 ALLOWED_MODULES = {"pandas", "numpy", "math"}
 NONDETERMINISTIC = {"now", "today", "rand", "randn", "random", "sample", "shuffle"}
@@ -45,12 +71,16 @@ class CodeFacts:
 def _norm_source(tree: ast.AST) -> str:
     """Docstring-stripped, re-unparsed source: stable under comments/spacing."""
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Module,
-                             ast.ClassDef)):
+        if isinstance(
+            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Module, ast.ClassDef)
+        ):
             body = getattr(node, "body", [])
-            if (body and isinstance(body[0], ast.Expr)
-                    and isinstance(body[0].value, ast.Constant)
-                    and isinstance(body[0].value.value, str)):
+            if (
+                body
+                and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)
+            ):
                 node.body = body[1:] or [ast.Pass()]
     return ast.unparse(ast.fix_missing_locations(tree))
 
@@ -67,14 +97,16 @@ def analyse(task_name: str, source: str) -> CodeFacts:
     try:
         tree = ast.parse(source)
     except SyntaxError as e:
-        return CodeFacts(task=task_name, func_name="", params=[],
-                         violations=[f"syntax error: {e}"])
+        return CodeFacts(
+            task=task_name, func_name="", params=[], violations=[f"syntax error: {e}"]
+        )
 
     facts = CodeFacts(task=task_name, func_name="", params=[])
     funcs = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
     if len(funcs) != 1:
         facts.violations.append(
-            f"expected exactly one top-level function, found {len(funcs)}")
+            f"expected exactly one top-level function, found {len(funcs)}"
+        )
         if not funcs:
             return facts
     fn = funcs[0]
@@ -82,7 +114,8 @@ def analyse(task_name: str, source: str) -> CodeFacts:
     facts.params = [a.arg for a in fn.args.args]
     if fn.name != task_name:
         facts.violations.append(
-            f"function name '{fn.name}' does not match task name '{task_name}'")
+            f"function name '{fn.name}' does not match task name '{task_name}'"
+        )
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -108,12 +141,14 @@ def analyse(task_name: str, source: str) -> CodeFacts:
                     # to choose its own would be choosing what it may know.
                     facts.violations.append(
                         f"{fname}() takes no keyword arguments; the knowledge date "
-                        "is fixed by the plan and bound by the harness")
+                        "is fixed by the plan and bound by the harness"
+                    )
                 if node.args and isinstance(node.args[0], ast.Constant):
                     sink.append(str(node.args[0].value))
                 elif not any(isinstance(a, ast.Name) for a in node.args):
                     facts.violations.append(
-                        f"{fname}() must be called with a literal identifier")
+                        f"{fname}() must be called with a literal identifier"
+                    )
             for kw in node.keywords:
                 if kw.arg == "inplace" and getattr(kw.value, "value", False) is True:
                     facts.violations.append("inplace=True is not allowed")

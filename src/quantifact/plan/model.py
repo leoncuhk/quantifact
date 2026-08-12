@@ -30,14 +30,19 @@ from pathlib import Path
 from typing import Any, Literal
 
 TaskType = Literal["data_ingestion", "table_logic", "chart"]
-ColumnRole = Literal["observation_date", "publication_date", "entity",
-                     "dimension", "measure"]
+ColumnRole = Literal[
+    "observation_date", "publication_date", "entity", "dimension", "measure"
+]
 
 ALLOWED_DTYPES = {
-    "float64", "int64", "bool", "string", "category", "datetime64[ns]",
+    "float64",
+    "int64",
+    "bool",
+    "string",
+    "category",
+    "datetime64[ns]",
 }
-ALLOWED_ROLES = {"observation_date", "publication_date", "entity",
-                 "dimension", "measure"}
+ALLOWED_ROLES = {"observation_date", "publication_date", "entity", "dimension", "measure"}
 
 
 class PlanError(Exception):

@@ -21,17 +21,42 @@ def _summarise_trial(path: Path) -> dict | None:
     if not path.exists():
         return None
     d = json.loads(path.read_text())
-    rounds = [{k: r[k] for k in ("codegen_seconds", "l0_pass", "l1_pass", "l2_pass",
-                                 "runtime_errors", "values_match", "fix_rounds")}
-              for r in d["rounds"]]
-    return {"model": d["model"], "tasks": d["tasks"], "fix_enabled": d.get("fix_enabled"),
-            "runtime_hint": d.get("runtime_hint"), "rounds": rounds,
-            "determinism": d.get("determinism"), "usage": d.get("usage"),
-            "failures": [{"task": x["task"], "l1": x["l1"], "l2": x["l2"],
-                          "error": x["error"], "values_match": x["values_match"],
-                          "problems": (x.get("l1_problems") or x.get("l2_problems") or [])[:1]}
-                         for x in d["rounds"][0]["rows"]
-                         if not x["values_match"]]}
+    rounds = [
+        {
+            k: r[k]
+            for k in (
+                "codegen_seconds",
+                "l0_pass",
+                "l1_pass",
+                "l2_pass",
+                "runtime_errors",
+                "values_match",
+                "fix_rounds",
+            )
+        }
+        for r in d["rounds"]
+    ]
+    return {
+        "model": d["model"],
+        "tasks": d["tasks"],
+        "fix_enabled": d.get("fix_enabled"),
+        "runtime_hint": d.get("runtime_hint"),
+        "rounds": rounds,
+        "determinism": d.get("determinism"),
+        "usage": d.get("usage"),
+        "failures": [
+            {
+                "task": x["task"],
+                "l1": x["l1"],
+                "l2": x["l2"],
+                "error": x["error"],
+                "values_match": x["values_match"],
+                "problems": (x.get("l1_problems") or x.get("l2_problems") or [])[:1],
+            }
+            for x in d["rounds"][0]["rows"]
+            if not x["values_match"]
+        ],
+    }
 
 
 def _collect_llm(root: Path) -> dict:
@@ -50,8 +75,11 @@ def _collect_llm(root: Path) -> dict:
     return {k: v for k, v in out.items() if v}
 
 
-def main(template: str = "site/template.html", data: str = "site/data.json",
-         out: str = "site/blueprint.html") -> int:
+def main(
+    template: str = "site/template.html",
+    data: str = "site/data.json",
+    out: str = "site/blueprint.html",
+) -> int:
     tpl = (ROOT / template).read_text()
     payload_obj = json.loads((ROOT / data).read_text())
     llm = _collect_llm(ROOT)

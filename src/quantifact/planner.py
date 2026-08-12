@@ -53,6 +53,7 @@ class Clarification:
 @dataclass
 class BindingTrace:
     """What the search looked at, and why it accepted or rejected it."""
+
     requirement: str
     query: str
     chosen: str | None
@@ -68,13 +69,18 @@ MACRO_REQUIREMENTS = [
     ("us_net_energy_trade", "US net energy trade balance", "% of GDP", (-15.0, 15.0)),
 ]
 
-DATE_COL = ColumnSpec("date", "observation date", "datetime64[ns]",
-                      role="observation_date")
+DATE_COL = ColumnSpec(
+    "date", "observation date", "datetime64[ns]", role="observation_date"
+)
 
 
 class RulePlanner:
-    def __init__(self, adapter: Any, entitlements: tuple[str, ...] = (),
-                 lessons: list[Lesson] | None = None):
+    def __init__(
+        self,
+        adapter: Any,
+        entitlements: tuple[str, ...] = (),
+        lessons: list[Lesson] | None = None,
+    ):
         self.adapter = adapter
         self.search = SeriesSearch(_as_store(adapter), entitlements)
         self.lessons = lessons or []
@@ -82,92 +88,137 @@ class RulePlanner:
 
     # ------------------------------------------------------------- clarify
     def clarify(self, prompt: str) -> list[Clarification]:
-        episodes = [row["episode"] for _, row in
-                    self.adapter.read_table("episodes", as_of=DEFAULT_AS_OF).iterrows()]
+        episodes = [
+            row["episode"]
+            for _, row in self.adapter.read_table(
+                "episodes", as_of=DEFAULT_AS_OF
+            ).iterrows()
+        ]
         return [
             Clarification(
                 id="as_of",
                 question="As of when should this be answered?",
                 why="The knowledge date decides what the analysis is allowed to "
-                    "know. Answering 'today' for a historical question is how "
-                    "look-ahead gets into research.",
+                "know. Answering 'today' for a historical question is how "
+                "look-ahead gets into research.",
                 options=[
-                    {"label": f"Today ({DEFAULT_AS_OF})", "value": DEFAULT_AS_OF,
-                     "recommended": True},
-                    {"label": "The eve of the 2026 escalation (2026-06-14)",
-                     "value": "2026-06-14"},
+                    {
+                        "label": f"Today ({DEFAULT_AS_OF})",
+                        "value": DEFAULT_AS_OF,
+                        "recommended": True,
+                    },
+                    {
+                        "label": "The eve of the 2026 escalation (2026-06-14)",
+                        "value": "2026-06-14",
+                    },
                     {"label": "Year-end 2025 (2025-12-31)", "value": "2025-12-31"},
-                ]),
+                ],
+            ),
             Clarification(
                 id="episodes",
                 question="Which historical episodes should today's shock be "
-                         "compared against?",
+                "compared against?",
                 why="The episode set defines every downstream comparison; choosing "
-                    "it after seeing results is what makes research unreproducible.",
+                "it after seeing results is what makes research unreproducible.",
                 options=[
-                    {"label": f"All known oil supply shocks ({len(episodes)})",
-                     "value": episodes, "recommended": True},
-                    {"label": "Only the two most commonly cited precedents",
-                     "value": episodes[:2]},
+                    {
+                        "label": f"All known oil supply shocks ({len(episodes)})",
+                        "value": episodes,
+                        "recommended": True,
+                    },
+                    {
+                        "label": "Only the two most commonly cited precedents",
+                        "value": episodes[:2],
+                    },
                     {"label": "Post-2020 episodes only", "value": episodes[1:]},
-                ]),
+                ],
+            ),
             Clarification(
                 id="window_days",
                 question="Over what window should the market response be measured?",
                 why="Five days measures the impact reaction; a quarter measures the "
-                    "regime. Mixing them across episodes is the classic error here.",
+                "regime. Mixing them across episodes is the classic error here.",
                 options=[
-                    {"label": "20 calendar days after the episode start",
-                     "value": 20, "recommended": True},
+                    {
+                        "label": "20 calendar days after the episode start",
+                        "value": 20,
+                        "recommended": True,
+                    },
                     {"label": "5 calendar days (impact only)", "value": 5},
                     {"label": "90 calendar days (full transmission)", "value": 90},
-                ]),
+                ],
+            ),
             Clarification(
                 id="indicators",
                 question="Which macro conditions should be compared going into "
-                         "each episode?",
+                "each episode?",
                 why="'Macro conditions' is under-specified: real yields, output gap, "
-                    "trade balances, inflation, or a dozen other things.",
+                "trade balances, inflation, or a dozen other things.",
                 options=[
-                    {"label": "Real yield, output gap, headline CPI, core CPI, "
-                              "net energy trade (5 indicators)",
-                     "value": [r[0] for r in MACRO_REQUIREMENTS], "recommended": True},
-                    {"label": "Three classics: real yield, headline CPI, output gap",
-                     "value": ["us_real_yield", "us_headline_cpi", "us_output_gap"]},
-                ]),
+                    {
+                        "label": "Real yield, output gap, headline CPI, core CPI, "
+                        "net energy trade (5 indicators)",
+                        "value": [r[0] for r in MACRO_REQUIREMENTS],
+                        "recommended": True,
+                    },
+                    {
+                        "label": "Three classics: real yield, headline CPI, output gap",
+                        "value": ["us_real_yield", "us_headline_cpi", "us_output_gap"],
+                    },
+                ],
+            ),
         ]
 
     def defaults(self) -> dict[str, Any]:
         return {c.id: c.recommended for c in self.clarify("")}
 
     # ------------------------------------------------------------- binding
-    def bind_series(self, requirement: str, query: str, unit: str,
-                    prior: tuple[float, float], as_of: str,
-                    frequency: str = "M",
-                    covers: tuple[str, str] | None = None) -> str:
+    def bind_series(
+        self,
+        requirement: str,
+        query: str,
+        unit: str,
+        prior: tuple[float, float],
+        as_of: str,
+        frequency: str = "M",
+        covers: tuple[str, str] | None = None,
+    ) -> str:
         if covers is None:
             slack = timedelta(days=STALENESS_DAYS.get(frequency, 95))
             covers = ("1990-01-01", str(parse_date(as_of) - slack))
         hits: list[SearchHit] = self.search.search(
-            query, k=8, frequency=frequency, unit=unit, prior=prior, covers=covers)
+            query, k=8, frequency=frequency, unit=unit, prior=prior, covers=covers
+        )
         trace = BindingTrace(requirement=requirement, query=query, chosen=None)
         for h in hits:
-            trace.considered.append({
-                "series_id": h.meta.series_id, "score": round(h.recall_score, 3),
-                "accepted": h.accepted, "reasons": h.reasons})
+            trace.considered.append(
+                {
+                    "series_id": h.meta.series_id,
+                    "score": round(h.recall_score, 3),
+                    "accepted": h.accepted,
+                    "reasons": h.reasons,
+                }
+            )
         # Outputs of earlier analyses are searchable on purpose, but a vendor or
         # internally-modelled series wins a tie: binding an input to a previous
         # run's output silently chains analyses together.
-        accepted = sorted((h for h in hits if h.accepted),
-                          key=lambda h: (h.meta.source == "quantifact-analysis",
-                                         -h.recall_score))
+        accepted = sorted(
+            (h for h in hits if h.accepted),
+            key=lambda h: (h.meta.source == "quantifact-analysis", -h.recall_score),
+        )
         if not accepted:
             self.bindings.append(trace)
             raise LookupError(
                 f"no series satisfies requirement '{requirement}' (query={query!r}); "
-                + ("candidates rejected: " + "; ".join(
-                    f"{c['series_id']}: {c['reasons'][0]}" for c in trace.considered)
-                   if trace.considered else "nothing was recalled"))
+                + (
+                    "candidates rejected: "
+                    + "; ".join(
+                        f"{c['series_id']}: {c['reasons'][0]}" for c in trace.considered
+                    )
+                    if trace.considered
+                    else "nothing was recalled"
+                )
+            )
         trace.chosen = accepted[0].meta.series_id
         self.bindings.append(trace)
         return trace.chosen
@@ -180,8 +231,7 @@ class RulePlanner:
         name that had not yet listed is not.
         """
         markets = self.adapter.read_table("markets", as_of=as_of)
-        catalog = {m.series_id for m in self.adapter.catalog()
-                   if self.search.visible(m)}
+        catalog = {m.series_id for m in self.adapter.catalog() if self.search.visible(m)}
         out = {}
         for market_id in markets["market_id"]:
             sid = f"MKT.{market_id}.TRI"
@@ -207,7 +257,8 @@ class RulePlanner:
             if unknown:
                 raise LookAheadError(
                     f"episode(s) {unknown} had not begun as of {as_of}; asking for "
-                    "them would be look-ahead")
+                    "them would be look-ahead"
+                )
         else:
             episodes = visible
         indicators: list[str] = list(a["indicators"])
@@ -218,68 +269,124 @@ class RulePlanner:
         # return in older episodes. The expected cell count therefore comes
         # from listing dates, not from a rectangle.
         market_rows = self.adapter.read_table("markets", as_of=as_of)
-        starts = {r["episode"]: r["start_date"]
-                  for _, r in episode_rows.iterrows() if r["episode"] in episodes}
+        starts = {
+            r["episode"]: r["start_date"]
+            for _, r in episode_rows.iterrows()
+            if r["episode"] in episodes
+        }
         listed = {r["market_id"]: r["listed_from"] for _, r in market_rows.iterrows()}
-        n_cells = sum(1 for mid in markets.values() for ep in episodes
-                      if listed.get(mid) is not None and listed[mid] <= starts[ep])
+        n_cells = sum(
+            1
+            for mid in markets.values()
+            for ep in episodes
+            if listed.get(mid) is not None and listed[mid] <= starts[ep]
+        )
         tasks: list[Task] = []
 
-        tasks.append(Task(
-            name="spine_episodes", type="data_ingestion",
-            description="Episode spine: one row per oil supply shock under study.",
-            op={"kind": "table", "table": "episodes"},
-            index=["episode"], row_expectation="one row per episode",
-            sort=[["episode", True]],
-            columns=[
-                ColumnSpec("episode", "stable episode key", "string", role="entity"),
-                ColumnSpec("label", "human readable episode label", "string",
-                           role="dimension"),
-                ColumnSpec("start_date", "first day of the episode",
-                           "datetime64[ns]", role="observation_date"),
-                ColumnSpec("oil_shock", "size of the oil supply shock", "float64",
-                           "ratio", role="measure"),
-            ],
-            invariants=[{"kind": "unique", "columns": ["episode"]},
-                        {"kind": "row_count", "min": 2},
-                        {"kind": "no_future_observations"}]))
+        tasks.append(
+            Task(
+                name="spine_episodes",
+                type="data_ingestion",
+                description="Episode spine: one row per oil supply shock under study.",
+                op={"kind": "table", "table": "episodes"},
+                index=["episode"],
+                row_expectation="one row per episode",
+                sort=[["episode", True]],
+                columns=[
+                    ColumnSpec("episode", "stable episode key", "string", role="entity"),
+                    ColumnSpec(
+                        "label",
+                        "human readable episode label",
+                        "string",
+                        role="dimension",
+                    ),
+                    ColumnSpec(
+                        "start_date",
+                        "first day of the episode",
+                        "datetime64[ns]",
+                        role="observation_date",
+                    ),
+                    ColumnSpec(
+                        "oil_shock",
+                        "size of the oil supply shock",
+                        "float64",
+                        "ratio",
+                        role="measure",
+                    ),
+                ],
+                invariants=[
+                    {"kind": "unique", "columns": ["episode"]},
+                    {"kind": "row_count", "min": 2},
+                    {"kind": "no_future_observations"},
+                ],
+            )
+        )
 
-        tasks.append(Task(
-            name="spine_markets", type="data_ingestion",
-            description="Market spine as of the knowledge date: survivorship-free "
-                        "universe with each market's asset class.",
-            op={"kind": "table", "table": "markets"},
-            index=["market_id"], row_expectation="one row per listed market",
-            sort=[["market_id", True]],
-            columns=[
-                ColumnSpec("market_id", "stable market key", "string", role="entity"),
-                ColumnSpec("asset_class", "equity/bond/fx/commodity/credit/inflation",
-                           "string", role="dimension"),
-                ColumnSpec("listed_from", "first date this market existed",
-                           "datetime64[ns]", role="dimension"),
-            ],
-            invariants=[{"kind": "unique", "columns": ["market_id"]},
-                        {"kind": "row_count", "min": len(markets),
-                         "max": len(markets)}]))
+        tasks.append(
+            Task(
+                name="spine_markets",
+                type="data_ingestion",
+                description="Market spine as of the knowledge date: survivorship-free "
+                "universe with each market's asset class.",
+                op={"kind": "table", "table": "markets"},
+                index=["market_id"],
+                row_expectation="one row per listed market",
+                sort=[["market_id", True]],
+                columns=[
+                    ColumnSpec("market_id", "stable market key", "string", role="entity"),
+                    ColumnSpec(
+                        "asset_class",
+                        "equity/bond/fx/commodity/credit/inflation",
+                        "string",
+                        role="dimension",
+                    ),
+                    ColumnSpec(
+                        "listed_from",
+                        "first date this market existed",
+                        "datetime64[ns]",
+                        role="dimension",
+                    ),
+                ],
+                invariants=[
+                    {"kind": "unique", "columns": ["market_id"]},
+                    {"kind": "row_count", "min": len(markets), "max": len(markets)},
+                ],
+            )
+        )
 
-        tasks.append(Task(
-            name="market_prices", type="data_ingestion",
-            description="Daily total-return index for every market in the universe.",
-            series_inputs=list(markets),
-            op={"kind": "load_panel", "entity_col": "market_id",
-                "value_col": "price", "entities": markets},
-            index=["market_id", "date"],
-            row_expectation="one row per market per trading day",
-            sort=[["market_id", True], ["date", True]],
-            columns=[
-                DATE_COL,
-                ColumnSpec("market_id", "market key", "string", role="entity"),
-                ColumnSpec("price", "total return index level", "float64", "index",
-                           role="measure"),
-            ],
-            invariants=[{"kind": "nonnull", "column": "price", "min": 0.999},
-                        {"kind": "range", "column": "price", "min": 0.0, "max": 1e9},
-                        {"kind": "no_future_observations"}]))
+        tasks.append(
+            Task(
+                name="market_prices",
+                type="data_ingestion",
+                description="Daily total-return index for every market in the universe.",
+                series_inputs=list(markets),
+                op={
+                    "kind": "load_panel",
+                    "entity_col": "market_id",
+                    "value_col": "price",
+                    "entities": markets,
+                },
+                index=["market_id", "date"],
+                row_expectation="one row per market per trading day",
+                sort=[["market_id", True], ["date", True]],
+                columns=[
+                    DATE_COL,
+                    ColumnSpec("market_id", "market key", "string", role="entity"),
+                    ColumnSpec(
+                        "price",
+                        "total return index level",
+                        "float64",
+                        "index",
+                        role="measure",
+                    ),
+                ],
+                invariants=[
+                    {"kind": "nonnull", "column": "price", "min": 0.999},
+                    {"kind": "range", "column": "price", "min": 0.0, "max": 1e9},
+                    {"kind": "no_future_observations"},
+                ],
+            )
+        )
 
         macro_tasks: list[str] = []
         for label, query, unit, prior in MACRO_REQUIREMENTS:
@@ -287,150 +394,277 @@ class RulePlanner:
                 continue
             sid = self.bind_series(label, query, unit, prior, as_of)
             macro_tasks.append(label)
-            tasks.append(Task(
-                name=label, type="data_ingestion",
-                description=f"Monthly {label.replace('_', ' ')} from {sid}.",
-                series_inputs=[sid],
-                op={"kind": "load_panel", "entity_col": "indicator",
-                    "value_col": "value", "entities": {sid: label}},
-                index=["indicator", "date"], row_expectation="one row per month",
+            tasks.append(
+                Task(
+                    name=label,
+                    type="data_ingestion",
+                    description=f"Monthly {label.replace('_', ' ')} from {sid}.",
+                    series_inputs=[sid],
+                    op={
+                        "kind": "load_panel",
+                        "entity_col": "indicator",
+                        "value_col": "value",
+                        "entities": {sid: label},
+                    },
+                    index=["indicator", "date"],
+                    row_expectation="one row per month",
+                    sort=[["indicator", True], ["date", True]],
+                    columns=[
+                        DATE_COL,
+                        ColumnSpec("indicator", "indicator key", "string", role="entity"),
+                        ColumnSpec(
+                            "value",
+                            "indicator value, percent-family unit (see indicator)",
+                            "float64",
+                            "%",
+                            role="measure",
+                        ),
+                    ],
+                    invariants=[
+                        {"kind": "nonnull", "column": "value", "min": 0.99},
+                        {"kind": "no_future_observations"},
+                    ],
+                )
+            )
+
+        tasks.append(
+            Task(
+                name="macro_panel",
+                type="table_logic",
+                description="Long panel of every macro indicator used by the dashboard.",
+                depends_on=macro_tasks,
+                op={"kind": "union"},
+                index=["indicator", "date"],
+                row_expectation="one row per indicator per month",
                 sort=[["indicator", True], ["date", True]],
                 columns=[
                     DATE_COL,
                     ColumnSpec("indicator", "indicator key", "string", role="entity"),
-                    ColumnSpec("value", "indicator value, percent-family unit "
-                                        "(see indicator)", "float64", "%",
-                               role="measure"),
+                    ColumnSpec(
+                        "value",
+                        "indicator value, percent-family unit (see indicator)",
+                        "float64",
+                        "%",
+                        role="measure",
+                    ),
                 ],
-                invariants=[{"kind": "nonnull", "column": "value", "min": 0.99},
-                            {"kind": "no_future_observations"}]))
+                invariants=[
+                    {"kind": "unique", "columns": ["indicator", "date"]},
+                    {"kind": "no_future_observations"},
+                ],
+            )
+        )
 
-        tasks.append(Task(
-            name="macro_panel", type="table_logic",
-            description="Long panel of every macro indicator used by the dashboard.",
-            depends_on=macro_tasks, op={"kind": "union"},
-            index=["indicator", "date"],
-            row_expectation="one row per indicator per month",
-            sort=[["indicator", True], ["date", True]],
-            columns=[
-                DATE_COL,
-                ColumnSpec("indicator", "indicator key", "string", role="entity"),
-                ColumnSpec("value", "indicator value, percent-family unit "
-                                    "(see indicator)", "float64", "%", role="measure"),
-            ],
-            invariants=[{"kind": "unique", "columns": ["indicator", "date"]},
-                        {"kind": "no_future_observations"}]))
+        tasks.append(
+            Task(
+                name="market_episode_returns",
+                type="table_logic",
+                description=(
+                    f"Total return of each market over the {window} calendar "
+                    "days following each episode start."
+                ),
+                depends_on=["market_prices", "spine_episodes"],
+                op={
+                    "kind": "event_window_return",
+                    "entity_col": "market_id",
+                    "price_col": "price",
+                    "window_days": window,
+                    "out_col": "return_pct",
+                },
+                index=["market_id", "episode"],
+                row_expectation="one row per market per episode",
+                sort=[["market_id", True], ["episode", True]],
+                columns=[
+                    ColumnSpec("market_id", "market key", "string", role="entity"),
+                    ColumnSpec("episode", "episode key", "string", role="entity"),
+                    ColumnSpec(
+                        "return_pct",
+                        f"return over the {window}d window after the episode start",
+                        "float64",
+                        "ratio",
+                        role="measure",
+                    ),
+                ],
+                invariants=[
+                    {"kind": "unique", "columns": ["market_id", "episode"]},
+                    {"kind": "range", "column": "return_pct", "min": -0.95, "max": 3.0},
+                    {"kind": "nonnull", "column": "return_pct", "min": 1.0},
+                    # every market appears in every episode: a join or window
+                    # that silently drops one is the classic failure here
+                    {"kind": "row_count", "min": n_cells, "max": n_cells},
+                ],
+            )
+        )
 
-        tasks.append(Task(
-            name="market_episode_returns", type="table_logic",
-            description=(f"Total return of each market over the {window} calendar "
-                         "days following each episode start."),
-            depends_on=["market_prices", "spine_episodes"],
-            op={"kind": "event_window_return", "entity_col": "market_id",
-                "price_col": "price", "window_days": window, "out_col": "return_pct"},
-            index=["market_id", "episode"],
-            row_expectation="one row per market per episode",
-            sort=[["market_id", True], ["episode", True]],
-            columns=[
-                ColumnSpec("market_id", "market key", "string", role="entity"),
-                ColumnSpec("episode", "episode key", "string", role="entity"),
-                ColumnSpec("return_pct", f"return over the {window}d window after "
-                                         "the episode start", "float64", "ratio",
-                           role="measure"),
-            ],
-            invariants=[{"kind": "unique", "columns": ["market_id", "episode"]},
-                        {"kind": "range", "column": "return_pct", "min": -0.95,
-                         "max": 3.0},
-                        {"kind": "nonnull", "column": "return_pct", "min": 1.0},
-                        # every market appears in every episode: a join or window
-                        # that silently drops one is the classic failure here
-                        {"kind": "row_count", "min": n_cells, "max": n_cells}]))
-
-        tasks.append(Task(
-            name="market_action_data", type="table_logic",
-            description="Episode returns joined to the asset class of each market.",
-            depends_on=["market_episode_returns", "spine_markets"],
-            op={"kind": "join", "on": ["market_id"], "how": "inner"},
-            index=["market_id", "episode"],
-            row_expectation="one row per market per episode",
-            sort=[["market_id", True], ["episode", True]],
-            columns=[
-                ColumnSpec("market_id", "market key", "string", role="entity"),
-                ColumnSpec("episode", "episode key", "string", role="entity"),
-                ColumnSpec("asset_class", "asset class of the market", "string",
-                           role="dimension"),
-                ColumnSpec("return_pct", "episode window return", "float64", "ratio",
-                           role="measure"),
-            ],
-            invariants=[{"kind": "unique", "columns": ["market_id", "episode"]},
-                        {"kind": "row_count", "min": n_cells, "max": n_cells}]))
+        tasks.append(
+            Task(
+                name="market_action_data",
+                type="table_logic",
+                description="Episode returns joined to the asset class of each market.",
+                depends_on=["market_episode_returns", "spine_markets"],
+                op={"kind": "join", "on": ["market_id"], "how": "inner"},
+                index=["market_id", "episode"],
+                row_expectation="one row per market per episode",
+                sort=[["market_id", True], ["episode", True]],
+                columns=[
+                    ColumnSpec("market_id", "market key", "string", role="entity"),
+                    ColumnSpec("episode", "episode key", "string", role="entity"),
+                    ColumnSpec(
+                        "asset_class",
+                        "asset class of the market",
+                        "string",
+                        role="dimension",
+                    ),
+                    ColumnSpec(
+                        "return_pct",
+                        "episode window return",
+                        "float64",
+                        "ratio",
+                        role="measure",
+                    ),
+                ],
+                invariants=[
+                    {"kind": "unique", "columns": ["market_id", "episode"]},
+                    {"kind": "row_count", "min": n_cells, "max": n_cells},
+                ],
+            )
+        )
 
         # nullable on purpose: a market that had not listed yet has no return
         # for an older episode, and pretending otherwise would be a lie the
         # contract layer would have to accept
-        ret_cols = [ColumnSpec(f"ret_{e}", f"window return during {e}", "float64",
-                               "ratio", role="measure", nullable=True)
-                    for e in episodes]
-        tasks.append(Task(
-            name="market_pairwise_returns", type="table_logic",
-            description=("Wide pivot of market_action_data: one row per market with "
-                         "its return in every episode, used by the scatter grid."),
-            depends_on=["market_action_data"],
-            op={"kind": "pivot", "index": ["market_id"], "columns": "episode",
-                "values": "return_pct", "prefix": "ret_", "keep": ["asset_class"]},
-            index=["market_id"], row_expectation="one row per market",
-            sort=[["market_id", True]],
-            columns=[ColumnSpec("market_id", "market key", "string", role="entity"),
-                     ColumnSpec("asset_class", "asset class of the market", "string",
-                                role="dimension"),
-                     *ret_cols],
-            invariants=[{"kind": "unique", "columns": ["market_id"]},
-                        {"kind": "row_count", "min": len(markets),
-                         "max": len(markets)}]))
+        ret_cols = [
+            ColumnSpec(
+                f"ret_{e}",
+                f"window return during {e}",
+                "float64",
+                "ratio",
+                role="measure",
+                nullable=True,
+            )
+            for e in episodes
+        ]
+        tasks.append(
+            Task(
+                name="market_pairwise_returns",
+                type="table_logic",
+                description=(
+                    "Wide pivot of market_action_data: one row per market with "
+                    "its return in every episode, used by the scatter grid."
+                ),
+                depends_on=["market_action_data"],
+                op={
+                    "kind": "pivot",
+                    "index": ["market_id"],
+                    "columns": "episode",
+                    "values": "return_pct",
+                    "prefix": "ret_",
+                    "keep": ["asset_class"],
+                },
+                index=["market_id"],
+                row_expectation="one row per market",
+                sort=[["market_id", True]],
+                columns=[
+                    ColumnSpec("market_id", "market key", "string", role="entity"),
+                    ColumnSpec(
+                        "asset_class",
+                        "asset class of the market",
+                        "string",
+                        role="dimension",
+                    ),
+                    *ret_cols,
+                ],
+                invariants=[
+                    {"kind": "unique", "columns": ["market_id"]},
+                    {"kind": "row_count", "min": len(markets), "max": len(markets)},
+                ],
+            )
+        )
 
-        tasks.append(Task(
-            name="macro_event_time_overlay", type="table_logic",
-            description=("Macro indicators aligned in event time around each episode "
-                         "start, from 18 months before to 18 months after."),
-            depends_on=["macro_panel", "spine_episodes"],
-            op={"kind": "event_time_overlay", "entity_col": "indicator",
-                "value_col": "value", "pre_months": 18, "post_months": 18},
-            index=["indicator", "episode", "month_offset"],
-            row_expectation="one row per indicator per episode per month offset",
-            sort=[["indicator", True], ["episode", True], ["month_offset", True]],
-            columns=[
-                ColumnSpec("indicator", "indicator key", "string", role="entity"),
-                ColumnSpec("episode", "episode key", "string", role="entity"),
-                ColumnSpec("month_offset", "months relative to episode start",
-                           "int64", "months", role="dimension"),
-                ColumnSpec("value", "indicator value, percent-family unit "
-                                    "(see indicator)", "float64", "%", role="measure"),
-            ],
-            invariants=[{"kind": "unique",
-                         "columns": ["indicator", "episode", "month_offset"]},
-                        {"kind": "range", "column": "month_offset", "min": -18,
-                         "max": 18}]))
+        tasks.append(
+            Task(
+                name="macro_event_time_overlay",
+                type="table_logic",
+                description=(
+                    "Macro indicators aligned in event time around each episode "
+                    "start, from 18 months before to 18 months after."
+                ),
+                depends_on=["macro_panel", "spine_episodes"],
+                op={
+                    "kind": "event_time_overlay",
+                    "entity_col": "indicator",
+                    "value_col": "value",
+                    "pre_months": 18,
+                    "post_months": 18,
+                },
+                index=["indicator", "episode", "month_offset"],
+                row_expectation="one row per indicator per episode per month offset",
+                sort=[["indicator", True], ["episode", True], ["month_offset", True]],
+                columns=[
+                    ColumnSpec("indicator", "indicator key", "string", role="entity"),
+                    ColumnSpec("episode", "episode key", "string", role="entity"),
+                    ColumnSpec(
+                        "month_offset",
+                        "months relative to episode start",
+                        "int64",
+                        "months",
+                        role="dimension",
+                    ),
+                    ColumnSpec(
+                        "value",
+                        "indicator value, percent-family unit (see indicator)",
+                        "float64",
+                        "%",
+                        role="measure",
+                    ),
+                ],
+                invariants=[
+                    {
+                        "kind": "unique",
+                        "columns": ["indicator", "episode", "month_offset"],
+                    },
+                    {"kind": "range", "column": "month_offset", "min": -18, "max": 18},
+                ],
+            )
+        )
 
         # ---- charts ------------------------------------------------------
-        tasks.append(Task(
-            name="market_action_table", type="chart",
-            description="Returns by market during each episode, largest moves first.",
-            depends_on=["market_action_data"],
-            op={"kind": "select", "limit": 30},
-            index=["market_id", "episode"],
-            row_expectation="one row per market per episode, top 30 by return",
-            sort=[["return_pct", False]],
-            columns=[
-                ColumnSpec("market_id", "market key", "string", role="entity"),
-                ColumnSpec("asset_class", "asset class of the market", "string",
-                           role="dimension"),
-                ColumnSpec("episode", "episode key", "string", role="entity"),
-                ColumnSpec("return_pct", "episode window return", "float64", "ratio",
-                           role="measure"),
-            ],
-            chart_spec={"kind": "table", "title": "Market action table",
-                        "color_by": ["return_pct"], "percent": True},
-            invariants=[{"kind": "row_count", "min": 1, "max": 30}]))
+        tasks.append(
+            Task(
+                name="market_action_table",
+                type="chart",
+                description="Returns by market during each episode, largest moves first.",
+                depends_on=["market_action_data"],
+                op={"kind": "select", "limit": 30},
+                index=["market_id", "episode"],
+                row_expectation="one row per market per episode, top 30 by return",
+                sort=[["return_pct", False]],
+                columns=[
+                    ColumnSpec("market_id", "market key", "string", role="entity"),
+                    ColumnSpec(
+                        "asset_class",
+                        "asset class of the market",
+                        "string",
+                        role="dimension",
+                    ),
+                    ColumnSpec("episode", "episode key", "string", role="entity"),
+                    ColumnSpec(
+                        "return_pct",
+                        "episode window return",
+                        "float64",
+                        "ratio",
+                        role="measure",
+                    ),
+                ],
+                chart_spec={
+                    "kind": "table",
+                    "title": "Market action table",
+                    "color_by": ["return_pct"],
+                    "percent": True,
+                },
+                invariants=[{"kind": "row_count", "min": 1, "max": 30}],
+            )
+        )
 
         latest = episodes[-1]
         prior_ep = episodes[1] if len(episodes) > 1 else episodes[0]
@@ -438,71 +672,128 @@ class RulePlanner:
         # are dropped here — declared, not silently
         scatter_cols = [
             ColumnSpec("market_id", "market key", "string", role="entity"),
-            ColumnSpec("asset_class", "asset class of the market", "string",
-                       role="dimension"),
-            ColumnSpec(f"ret_{prior_ep}", f"window return during {prior_ep}",
-                       "float64", "ratio", role="measure"),
-            ColumnSpec(f"ret_{latest}", f"window return during {latest}",
-                       "float64", "ratio", role="measure")]
+            ColumnSpec(
+                "asset_class", "asset class of the market", "string", role="dimension"
+            ),
+            ColumnSpec(
+                f"ret_{prior_ep}",
+                f"window return during {prior_ep}",
+                "float64",
+                "ratio",
+                role="measure",
+            ),
+            ColumnSpec(
+                f"ret_{latest}",
+                f"window return during {latest}",
+                "float64",
+                "ratio",
+                role="measure",
+            ),
+        ]
 
-        tasks.append(Task(
-            name="market_pairwise_scatter", type="chart",
-            description=(f"Each market's {prior_ep} response against its {latest} "
-                         "response; a steep positive slope would mean today rhymes."),
-            depends_on=["market_pairwise_returns"],
-            op={"kind": "select", "dropna": True}, index=["market_id"],
-            row_expectation="one point per market present in both episodes",
-            sort=[["market_id", True]],
-            columns=list(scatter_cols),
-            chart_spec={"kind": "scatter", "x": f"ret_{prior_ep}",
-                        "y": f"ret_{latest}", "label": "market_id",
-                        "color_by": "asset_class",
-                        "title": f"{prior_ep} vs {latest} — all markets",
-                        "xlabel": f"{prior_ep} return",
-                        "ylabel": f"{latest} return", "percent": True}))
+        tasks.append(
+            Task(
+                name="market_pairwise_scatter",
+                type="chart",
+                description=(
+                    f"Each market's {prior_ep} response against its {latest} "
+                    "response; a steep positive slope would mean today rhymes."
+                ),
+                depends_on=["market_pairwise_returns"],
+                op={"kind": "select", "dropna": True},
+                index=["market_id"],
+                row_expectation="one point per market present in both episodes",
+                sort=[["market_id", True]],
+                columns=list(scatter_cols),
+                chart_spec={
+                    "kind": "scatter",
+                    "x": f"ret_{prior_ep}",
+                    "y": f"ret_{latest}",
+                    "label": "market_id",
+                    "color_by": "asset_class",
+                    "title": f"{prior_ep} vs {latest} — all markets",
+                    "xlabel": f"{prior_ep} return",
+                    "ylabel": f"{latest} return",
+                    "percent": True,
+                },
+            )
+        )
 
-        tasks.append(Task(
-            name="macro_conditions_dashboard", type="chart",
-            description=("Macro conditions leading into each episode, aligned on the "
-                         "episode start date."),
-            depends_on=["macro_event_time_overlay"],
-            op={"kind": "select"},
-            index=["indicator", "episode", "month_offset"],
-            row_expectation="one row per indicator per episode per month offset",
-            sort=[["indicator", True], ["episode", True], ["month_offset", True]],
-            columns=[
-                ColumnSpec("indicator", "indicator key", "string", role="entity"),
-                ColumnSpec("episode", "episode key", "string", role="entity"),
-                ColumnSpec("month_offset", "months relative to episode start",
-                           "int64", "months", role="dimension"),
-                ColumnSpec("value", "indicator value, percent-family unit "
-                                    "(see indicator)", "float64", "%", role="measure"),
-            ],
-            chart_spec={"kind": "line", "x": "month_offset", "y": "value",
-                        "series": "episode", "facet": "indicator",
-                        "title": "US macro conditions — event-time overlay",
-                        "xlabel": "months from episode start", "ylabel": "level"}))
+        tasks.append(
+            Task(
+                name="macro_conditions_dashboard",
+                type="chart",
+                description=(
+                    "Macro conditions leading into each episode, aligned on the "
+                    "episode start date."
+                ),
+                depends_on=["macro_event_time_overlay"],
+                op={"kind": "select"},
+                index=["indicator", "episode", "month_offset"],
+                row_expectation="one row per indicator per episode per month offset",
+                sort=[["indicator", True], ["episode", True], ["month_offset", True]],
+                columns=[
+                    ColumnSpec("indicator", "indicator key", "string", role="entity"),
+                    ColumnSpec("episode", "episode key", "string", role="entity"),
+                    ColumnSpec(
+                        "month_offset",
+                        "months relative to episode start",
+                        "int64",
+                        "months",
+                        role="dimension",
+                    ),
+                    ColumnSpec(
+                        "value",
+                        "indicator value, percent-family unit (see indicator)",
+                        "float64",
+                        "%",
+                        role="measure",
+                    ),
+                ],
+                chart_spec={
+                    "kind": "line",
+                    "x": "month_offset",
+                    "y": "value",
+                    "series": "episode",
+                    "facet": "indicator",
+                    "title": "US macro conditions — event-time overlay",
+                    "xlabel": "months from episode start",
+                    "ylabel": "level",
+                },
+            )
+        )
 
         # ---- lesson-gated tasks -----------------------------------------
-        if self.lesson_active("per_asset_class_panels",
-                              multi_episode=len(episodes) > 1):
-            tasks.append(Task(
-                name="market_scatter_by_asset_class", type="chart",
-                description=("The same comparison broken out by asset class: FX, "
-                             "rates, equities and commodities transmit an oil shock "
-                             "through different channels, so one pooled scatter "
-                             "hides more than it reveals."),
-                depends_on=["market_pairwise_returns"],
-                op={"kind": "select", "dropna": True}, index=["market_id"],
-                row_expectation="one point per market present in both episodes",
-                sort=[["asset_class", True], ["market_id", True]],
-                columns=list(scatter_cols),
-                chart_spec={"kind": "scatter", "x": f"ret_{prior_ep}",
-                            "y": f"ret_{latest}", "facet": "asset_class",
-                            "label": "market_id",
-                            "title": f"{prior_ep} vs {latest} — by asset class",
-                            "xlabel": f"{prior_ep} return",
-                            "ylabel": f"{latest} return", "percent": True}))
+        if self.lesson_active("per_asset_class_panels", multi_episode=len(episodes) > 1):
+            tasks.append(
+                Task(
+                    name="market_scatter_by_asset_class",
+                    type="chart",
+                    description=(
+                        "The same comparison broken out by asset class: FX, "
+                        "rates, equities and commodities transmit an oil shock "
+                        "through different channels, so one pooled scatter "
+                        "hides more than it reveals."
+                    ),
+                    depends_on=["market_pairwise_returns"],
+                    op={"kind": "select", "dropna": True},
+                    index=["market_id"],
+                    row_expectation="one point per market present in both episodes",
+                    sort=[["asset_class", True], ["market_id", True]],
+                    columns=list(scatter_cols),
+                    chart_spec={
+                        "kind": "scatter",
+                        "x": f"ret_{prior_ep}",
+                        "y": f"ret_{latest}",
+                        "facet": "asset_class",
+                        "label": "market_id",
+                        "title": f"{prior_ep} vs {latest} — by asset class",
+                        "xlabel": f"{prior_ep} return",
+                        "ylabel": f"{latest} return",
+                        "percent": True,
+                    },
+                )
+            )
 
         assumptions = [
             f"Knowledge date (as_of): {as_of} — nothing published later was read",
@@ -516,8 +807,9 @@ class RulePlanner:
         for lesson in self.lessons:
             assumptions.append(f"Applied lesson: {lesson.id}")
 
-        return AnalysisPlan(question=prompt, tasks=tasks, as_of=as_of,
-                            resolved_assumptions=assumptions)
+        return AnalysisPlan(
+            question=prompt, tasks=tasks, as_of=as_of, resolved_assumptions=assumptions
+        )
 
     # -------------------------------------------------------------- lessons
     def lesson_active(self, effect: str, **features: bool) -> bool:

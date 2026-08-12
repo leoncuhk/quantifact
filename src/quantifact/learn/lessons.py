@@ -18,14 +18,18 @@ HEADER_RE = re.compile(r"^---\n(.*?)\n---\n(.*)$", re.S)
 @dataclass
 class Lesson:
     id: str
-    effect: str                 # machine-readable hook the planner checks
-    when: str | None            # feature flag that must hold, e.g. multi_episode
-    text: str                   # the human-readable lesson
+    effect: str  # machine-readable hook the planner checks
+    when: str | None  # feature flag that must hold, e.g. multi_episode
+    text: str  # the human-readable lesson
     origin: str = "teach"
 
     def to_markdown(self) -> str:
-        head = {"id": self.id, "effect": self.effect,
-                "when": self.when or "", "origin": self.origin}
+        head = {
+            "id": self.id,
+            "effect": self.effect,
+            "when": self.when or "",
+            "origin": self.origin,
+        }
         lines = "\n".join(f"{k}: {v}" for k, v in head.items())
         return f"---\n{lines}\n---\n{self.text.strip()}\n"
 
@@ -34,13 +38,19 @@ class Lesson:
         m = HEADER_RE.match(src)
         if not m:
             raise ValueError("lesson file has no header block")
-        head = dict(
-            (k.strip(), v.strip())
-            for k, v in (line.split(":", 1) for line in m.group(1).splitlines() if ":" in line)
+        head = {
+            k.strip(): v.strip()
+            for k, v in (
+                line.split(":", 1) for line in m.group(1).splitlines() if ":" in line
+            )
+        }
+        return Lesson(
+            id=head["id"],
+            effect=head["effect"],
+            when=head.get("when") or None,
+            text=m.group(2).strip(),
+            origin=head.get("origin", "teach"),
         )
-        return Lesson(id=head["id"], effect=head["effect"],
-                      when=head.get("when") or None, text=m.group(2).strip(),
-                      origin=head.get("origin", "teach"))
 
 
 class LessonRepo:
@@ -49,8 +59,9 @@ class LessonRepo:
         self.root.mkdir(parents=True, exist_ok=True)
 
     def all(self) -> list[Lesson]:
-        return [Lesson.from_markdown(p.read_text())
-                for p in sorted(self.root.glob("*.md"))]
+        return [
+            Lesson.from_markdown(p.read_text()) for p in sorted(self.root.glob("*.md"))
+        ]
 
     def add(self, lesson: Lesson) -> Path:
         p = self.root / f"{lesson.id}.md"
@@ -59,5 +70,3 @@ class LessonRepo:
 
     def remove(self, lesson_id: str) -> None:
         (self.root / f"{lesson_id}.md").unlink(missing_ok=True)
-
-
