@@ -19,8 +19,8 @@ from datetime import date
 import pandas as pd
 
 from ..plan.model import AnalysisPlan, Task
-from ..staticanalysis.ast_checks import CodeFacts, analyse
-from .pointintime import no_future_observations
+from ..static_analysis.ast_checks import CodeFacts, analyse
+from .point_in_time import no_future_observations
 from .verdict import TaskUnfixable, Verdict
 
 DTYPE_CHECK = {

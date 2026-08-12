@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Explore a real Quantifact run: its typed plan, point-in-time controls, contracts, cache, and evidence.">
-<title>Quantifact — explore a verified research run</title>
+<meta name="description" content="See how Quantifact turns an ambiguous investment question into point-in-time, falsifiable, reviewable evidence through four bounded subsystems.">
+<title>Quantifact — compile investment questions into reviewable evidence</title>
 <style>
 :root{--bg:#f5f7fa;--paper:#fff;--ink:#111827;--copy:#465467;--muted:#718096;
 --line:#dce3ec;--blue:#2555d9;--blue2:#eaf0ff;--green:#147a55;--green2:#e8f7f0;
 --red:#b33a35;--serif:"Iowan Old Style",Palatino,Georgia,serif;
+--violet:#7657d6;--violet2:#f1edff;
 --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
 @media(prefers-color-scheme:dark){:root{--bg:#0b1017;--paper:#111923;--ink:#eef3f8;
 --copy:#b7c3d1;--muted:#8492a5;--line:#263241;--blue:#83a6ff;--blue2:#172647;
---green:#68d5a7;--green2:#123127;--red:#ff8a82}}
+--green:#68d5a7;--green2:#123127;--red:#ff8a82;--violet:#b69cff;--violet2:#251f40}}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);
 color:var(--ink);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:var(--blue);text-underline-offset:3px}.wrap{max-width:1160px;margin:auto;padding:0 28px}
@@ -52,34 +53,75 @@ grid-template-columns:120px 1fr 80px;gap:12px;align-items:center;font:12px var(-
 background:var(--blue);border-radius:4px}.fill.green{background:var(--green)}.right{text-align:right}
 .callout{padding:26px;border:1px solid var(--line);border-radius:12px;background:var(--paper);
 display:flex;justify-content:space-between;gap:30px;align-items:center}.callout p{color:var(--copy);margin:5px 0 0}
+.architecture{border-radius:16px;overflow:hidden;background:#0b1424;line-height:0;
+box-shadow:0 18px 50px rgba(15,23,42,.12)}.architecture svg{display:block;width:100%;height:auto}
+.systems{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}.system{padding:22px;
+background:var(--paper);border:1px solid var(--line);border-radius:12px}.system:nth-child(4){border-color:var(--violet)}
+.system h3{font-size:18px;margin:10px 0}.system p{color:var(--copy);font-size:13px;margin:0 0 12px}
+.system ul{padding-left:18px;margin:0;color:var(--copy);font-size:13px}.system-output{font:11px/1.5 var(--mono);
+color:var(--blue);margin-top:14px}.pipeline{display:grid;grid-template-columns:repeat(8,1fr);gap:16px}
+.pipe{position:relative;padding:17px 13px;background:var(--paper);border:1px solid var(--line);border-radius:10px;
+min-height:124px}.pipe:not(:last-child):after{content:"→";position:absolute;right:-14px;top:43px;color:var(--muted);
+font:19px var(--mono);z-index:2}.pipe b{display:block;font-size:13px;margin:8px 0 5px}.pipe span{color:var(--copy);font-size:11px;line-height:1.4;display:block}
+.learning-note{margin-top:17px;padding:14px 17px;border-left:3px solid var(--violet);background:var(--violet2);
+color:var(--copy);font-size:13px}.design-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.claim{padding:17px 0;border-bottom:1px solid var(--line)}.claim:last-child{border-bottom:0}.claim b{display:block;margin-bottom:6px}
 footer{padding:45px 0 70px;color:var(--muted);font-size:13px}@media(max-width:800px){
-.head,.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}
+.head,.grid2,.design-grid{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}
+.systems{grid-template-columns:1fr 1fr}.pipeline{grid-template-columns:1fr 1fr}
 .step:not(:last-child):after{content:"↓";right:50%;top:auto;bottom:-29px}.tasks{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.kpis,.tasks{grid-template-columns:1fr}.bar{grid-template-columns:90px 1fr 65px}}
+@media(max-width:500px){.kpis,.tasks,.systems,.pipeline{grid-template-columns:1fr}.pipe:not(:last-child):after{content:"↓";right:50%;top:auto;bottom:-17px}.bar{grid-template-columns:90px 1fr 65px}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <div class="meta">Quantifact · an open-source evidence compiler for investment research</div>
-  <h1>Inspect the evidence,<br>not just the answer.</h1>
-  <p class="lede">This page is built from a real Quantifact run. Follow one research
-  question through its typed plan, generated code, point-in-time controls, contract
-  verdicts, and cache—then reproduce it locally without an API key.</p>
+  <h1>Compile investment questions into evidence that can be challenged.</h1>
+  <p class="lede">Quantifact limits the error space around model-generated investment
+  analysis. Follow a real question through research definition, point-in-time data,
+  typed compilation, controlled execution, falsification-aware review, and safe learning.</p>
   <div class="actions"><a class="button primary" href="https://github.com/leoncuhk/quantifact">View on GitHub</a>
+  <a class="button" href="#architecture">See the system</a>
   <a class="button" href="#plan">Explore the run</a></div>
   <div class="kpis" id="kpis"></div>
 </div></header>
 
-<section><div class="wrap">
-  <div class="head"><div><div class="label">The product</div><h2>One question in. A reviewable evidence package out.</h2></div>
-  <p>The model can propose code, but it cannot waive the plan, override the knowledge
-  date, skip a contract, or decide that its own output is good enough.</p></div>
-  <div class="flow">
-    <div class="step"><div class="label">01 · clarify</div><h3>Bind the question</h3><p>Definitions, universe, horizon, and knowledge date become explicit.</p></div>
-    <div class="step"><div class="label">02 · specify</div><h3>Compile a typed plan</h3><p>Every task declares schemas, units, row grain, dependencies, and invariants.</p></div>
-    <div class="step"><div class="label">03 · verify</div><h3>Generate and execute</h3><p>Functions fan out in parallel; the harness owns data access, checks, and cache.</p></div>
-    <div class="step result"><div class="label">04 · deliver</div><h3>Ship the evidence</h3><p>Report, code, verdicts, repairs, fingerprints, and lineage travel together.</p></div>
+<section id="architecture"><div class="wrap">
+  <div class="head"><div><div class="label">System architecture</div><h2>Four bounded systems contain four different research risks.</h2></div>
+  <p>This is not one general agent with a long prompt. Each subsystem has one
+  accountable hand-off, and models cannot bypass the deterministic boundaries.</p></div>
+  <div class="architecture">__ARCHITECTURE__</div>
+  <div class="systems">
+    <article class="system"><div class="label">01 · research understanding</div><h3>Make the question admissible</h3><p>Prevents precise answers to vague or hindsight-defined questions.</p><ul><li>communicate and clarify</li><li>retrieve context, documents and data</li><li>fix definitions, claims, rivals and falsifiers</li></ul><div class="system-output">OUT → ResearchDesign + AnalysisPlan</div></article>
+    <article class="system"><div class="label">02 · analysis compiler</div><h3>Constrain implementation</h3><p>Prevents generated code from silently changing the research design.</p><ul><li>compile the typed plan</li><li>split tasks and generate functions in parallel</li><li>derive and cross-check the actual DAG</li></ul><div class="system-output">OUT → checked functions + DAG</div></article>
+    <article class="system"><div class="label">03 · controlled execution</div><h3>Materialise verified values</h3><p>Prevents terminal autonomy, look-ahead, skipped checks and wasteful reruns.</p><ul><li>static inspection and PIT loaders</li><li>cache, layered validation and repair</li><li>self-review, report and receipt</li></ul><div class="system-output">OUT → evidence package or failure</div></article>
+    <article class="system"><div class="label">04 · organisation learning</div><h3>Improve without silent drift</h3><p>Prevents user feedback from becoming an untested production mutation.</p><ul><li>capture and reproduce a missed failure</li><li>create a benchmark and candidate change</li><li>full regression and human approval</li></ul><div class="system-output">OUT → versioned lesson + benchmark</div></article>
   </div>
+</div></section>
+
+<section id="workflow"><div class="wrap">
+  <div class="head"><div><div class="label">Investment research workflow</div><h2>From expert question to compounding research memory.</h2></div>
+  <p>The success path produces evidence. Learning is a separate governed loop:
+  only an audited failure or expert correction enters it.</p></div>
+  <div class="pipeline">
+    <div class="pipe"><div class="label">01</div><b>Expert context</b><span>identity, permissions, workflows</span></div>
+    <div class="pipe"><div class="label">02</div><b>Clarify</b><span>definition, horizon, as_of</span></div>
+    <div class="pipe"><div class="label">03</div><b>Fix the design</b><span>claims, rivals, evidence tasks</span></div>
+    <div class="pipe"><div class="label">04</div><b>Compile</b><span>typed tasks, schemas, DAG</span></div>
+    <div class="pipe"><div class="label">05</div><b>Execute</b><span>PIT loaders, cache, traces</span></div>
+    <div class="pipe"><div class="label">06</div><b>Verify</b><span>contracts, repair, self-review</span></div>
+    <div class="pipe"><div class="label">07</div><b>Deliver</b><span>report, code, receipt, lineage</span></div>
+    <div class="pipe"><div class="label">08</div><b>Learn safely</b><span>failure → benchmark → review</span></div>
+  </div>
+  <div class="learning-note"><b>Governance boundary:</b> lessons never merge themselves.
+  A candidate change must reproduce the failure, fix it, pass the full suite, and receive human approval.</div>
+</div></section>
+
+<section id="design"><div class="wrap">
+  <div class="head"><div><div class="label">Critical investment reasoning</div><h2>The plan states what the evidence may—and may not—support.</h2></div>
+  <p>Reproducible code can still answer the wrong question. Claims, rival explanations,
+  falsifiers, and limitations are registered before results are known.</p></div>
+  <div class="design-grid"><div class="card" id="claims"></div><div class="card" id="alternatives"></div></div>
 </div></section>
 
 <section id="pit"><div class="wrap">
@@ -139,6 +181,13 @@ const cold=D.bench.timings.find(x=>x.label==='cold'),warm=D.bench.timings.find(x
  ['warm run',(warm.seconds*1000).toFixed(1)+' ms','all '+warm.tasks_cached+' task values cached'],
  ['determinism',D.bench.determinism.identical_values+'/'+D.bench.determinism.tasks,'identical values across two builds']
 ].forEach(([l,v,s])=>{const n=E('div','kpi');n.append(E('b','',String(v)),E('span','',l+' · '+s));$('#kpis').append(n)});
+
+const RD=D.plan.research_design,claims=$('#claims'),alternatives=$('#alternatives');
+claims.append(E('div','label','claims this analysis may support'),E('h3','',RD.question_type+' research'));
+RD.claims.forEach(c=>{const n=E('div','claim');n.append(E('b','',c.statement),E('p','note','Evidence · '+c.evidence_tasks.join(', ')),E('p','note','Would weaken it · '+c.falsifiers.join(' ')));claims.append(n)});
+alternatives.append(E('div','label','rivals and limits'),E('h3','','What could make the analogy fail'));
+RD.alternatives.forEach(a=>{const n=E('div','claim');n.append(E('b','',a.statement),E('p','note','Discriminating evidence · '+a.discriminating_tasks.join(', ')));alternatives.append(n)});
+const limits=E('div','claim');limits.append(E('b','','Known inference limits'));RD.limitations.forEach(x=>limits.append(E('p','note','• '+x)));alternatives.append(limits);
 
 const P=D.point_in_time,t=$('#pitTable');t.innerHTML='<thead><tr><th>knowledge date</th><th>episodes visible</th><th>return cells</th><th>cache key</th></tr></thead>';
 const tb=E('tbody');[P.early,P.late].forEach(r=>{const tr=E('tr');tr.append(E('td','',r.as_of),E('td','num',String(r.episodes.length)),E('td','num',String(r.return_cells)),E('td','num',r.cache_key));tb.append(tr)});t.append(tb);

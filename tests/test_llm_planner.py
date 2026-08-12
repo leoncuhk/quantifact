@@ -26,6 +26,21 @@ def _valid_plan(as_of: str = AS_OF) -> dict:
         "question": "how many episodes are there",
         "as_of": as_of,
         "resolved_assumptions": ["Episodes taken from the spine"],
+        "research_design": {
+            "question_type": "descriptive",
+            "decision_context": "Inventory visible historical episodes for review.",
+            "claims": [
+                {
+                    "id": "episodes_visible",
+                    "statement": "The table lists episodes knowable by the knowledge date.",
+                    "kind": "descriptive",
+                    "evidence_tasks": ["episode_table"],
+                    "falsifiers": ["A listed episode starts after the knowledge date."],
+                }
+            ],
+            "alternatives": [],
+            "limitations": ["This does not estimate market impact or causality."],
+        },
         "tasks": [
             {
                 "name": "spine_episodes",

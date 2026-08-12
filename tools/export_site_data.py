@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 from quantifact import ANALYST, Quantifact
@@ -110,6 +111,9 @@ def main(out: str = "site/data.json") -> int:
         "plan": {
             "layers": art_taught.layers,
             "assumptions": plan.resolved_assumptions,
+            "research_design": (
+                asdict(plan.research_design) if plan.research_design else None
+            ),
             "tasks": [
                 {
                     "name": t.name,

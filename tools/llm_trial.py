@@ -31,7 +31,7 @@ from quantifact.contracts.layers import l0_static, l1_schema, l2_invariants
 from quantifact.harness.cache import ValueCache
 from quantifact.harness.execute import ExecutionHarness
 from quantifact.review.checks import review_frame
-from quantifact.staticanalysis.ast_checks import analyse
+from quantifact.static_analysis.ast_checks import analyse
 
 QUESTION = (
     "How have markets responded to the conflict in the Middle East and the "

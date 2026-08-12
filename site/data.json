@@ -2,8 +2,8 @@
  "question": "How have markets responded to the conflict in the Middle East and the resulting oil supply shortage, and how does today compare to similar historical episodes?",
  "as_of": "2026-08-01",
  "contracts": {
-  "passed": 68,
-  "total": 68
+  "passed": 72,
+  "total": 72
  },
  "point_in_time": {
   "late": {
@@ -501,6 +501,60 @@
    "Macro conditions aligned in event time, -18 to +18 months",
    "Applied lesson: per-asset-class-panels"
   ],
+  "research_design": {
+   "question_type": "comparative",
+   "decision_context": "Assess whether the latest oil-supply episode is a useful historical analogue; this analysis informs further investigation, not a trade.",
+   "claims": [
+    {
+     "id": "market_responses_rhyme",
+     "statement": "Cross-market responses in iran_hormuz_2026 can be compared with russia_ukraine_2022 under one declared event-window definition.",
+     "kind": "associational",
+     "evidence_tasks": [
+      "market_pairwise_returns",
+      "market_pairwise_scatter"
+     ],
+     "falsifiers": [
+      "The relationship is unstable across asset classes or driven by a few markets.",
+      "Changing the event window materially reverses the comparison."
+     ]
+    },
+    {
+     "id": "starting_conditions_differ",
+     "statement": "Differences in pre-event macro conditions are visible and may limit the usefulness of a simple historical analogy.",
+     "kind": "descriptive",
+     "evidence_tasks": [
+      "macro_event_time_overlay",
+      "macro_conditions_dashboard"
+     ],
+     "falsifiers": [
+      "The selected macro indicators show no material pre-event difference."
+     ]
+    }
+   ],
+   "alternatives": [
+    {
+     "id": "asset_class_composition",
+     "statement": "An apparent cross-episode relationship may be a pooled asset-class composition effect rather than a common market response.",
+     "discriminating_tasks": [
+      "market_pairwise_returns"
+     ]
+    },
+    {
+     "id": "different_starting_regime",
+     "statement": "Different inflation, real-yield, output-gap and trade regimes may explain why superficially similar oil shocks transmit differently.",
+     "discriminating_tasks": [
+      "macro_event_time_overlay"
+     ]
+    }
+   ],
+   "limitations": [
+    "Historical analogy is observational and does not identify the causal effect of oil supply.",
+    "Episode selection and window choice can embed hindsight not detectable by point-in-time loaders.",
+    "A small number of episodes cannot establish a stable forecasting relationship."
+   ],
+   "identification_strategy": null,
+   "out_of_sample_test": null
+  },
   "tasks": [
    {
     "name": "spine_episodes",
@@ -1671,111 +1725,112 @@
  "runs": {
   "cold": {
    "stages": {
-    "plan": 0.003550749970600009,
-    "codegen": 0.0006470829830504954,
-    "static": 0.004124250030145049,
-    "execute": 0.198701000015717,
-    "validate": 0.02666600001975894,
-    "review": 0.024951917002908885,
-    "writeback": 0.016026958997827023,
-    "report": 0.006022875022608787
+    "plan": 0.0037247079890221357,
+    "codegen": 0.0007068330305628479,
+    "static": 0.0039042499847710133,
+    "execute": 0.18244300002697855,
+    "critical_thinking": 1.3417040463536978e-05,
+    "validate": 0.026167958974838257,
+    "review": 0.023523125040810555,
+    "writeback": 0.015618333010934293,
+    "report": 0.005743750021792948
    },
    "cached": 0,
    "tasks": 16,
    "traces": [
     {
      "task": "market_prices",
-     "ms": 133.08,
+     "ms": 117.57,
      "cached": false,
      "rows": 555045
     },
     {
      "task": "spine_episodes",
-     "ms": 1.35,
+     "ms": 1.21,
      "cached": false,
      "rows": 4
     },
     {
      "task": "spine_markets",
-     "ms": 0.98,
+     "ms": 1.05,
      "cached": false,
      "rows": 56
     },
     {
      "task": "us_core_cpi",
-     "ms": 2.05,
+     "ms": 2.33,
      "cached": false,
      "rows": 498
     },
     {
      "task": "us_headline_cpi",
-     "ms": 1.92,
+     "ms": 1.96,
      "cached": false,
      "rows": 498
     },
     {
      "task": "us_net_energy_trade",
-     "ms": 1.98,
+     "ms": 2.01,
      "cached": false,
      "rows": 497
     },
     {
      "task": "us_output_gap",
-     "ms": 1.59,
+     "ms": 1.77,
      "cached": false,
      "rows": 497
     },
     {
      "task": "us_real_yield",
-     "ms": 1.57,
+     "ms": 1.72,
      "cached": false,
      "rows": 499
     },
     {
      "task": "macro_panel",
-     "ms": 1.19,
+     "ms": 1.34,
      "cached": false,
      "rows": 2489
     },
     {
      "task": "market_episode_returns",
-     "ms": 25.98,
+     "ms": 26.9,
      "cached": false,
      "rows": 223
     },
     {
      "task": "macro_event_time_overlay",
-     "ms": 10.42,
+     "ms": 10.89,
      "cached": false,
      "rows": 608
     },
     {
      "task": "market_action_data",
-     "ms": 2.13,
+     "ms": 2.25,
      "cached": false,
      "rows": 223
     },
     {
      "task": "macro_conditions_dashboard",
-     "ms": 1.0,
+     "ms": 1.13,
      "cached": false,
      "rows": 608
     },
     {
      "task": "market_action_table",
-     "ms": 0.88,
+     "ms": 0.98,
      "cached": false,
      "rows": 30
     },
     {
      "task": "market_pairwise_returns",
-     "ms": 7.38,
+     "ms": 5.05,
      "cached": false,
      "rows": 56
     },
     {
      "task": "market_pairwise_scatter",
-     "ms": 0.86,
+     "ms": 0.8,
      "cached": false,
      "rows": 56
     }
@@ -1783,28 +1838,30 @@
   },
   "warm": {
    "stages": {
-    "plan": 0.003693958977237344,
-    "codegen": 0.0006659160135313869,
-    "static": 0.004004916991107166,
-    "execute": 0.001859750016592443,
-    "validate": 0.02488804195309058,
-    "review": 0.021951665985397995,
-    "writeback": 0.016672083002049476,
-    "report": 0.004997999989427626
+    "plan": 0.003682499984279275,
+    "codegen": 0.0006769170286133885,
+    "static": 0.0038137920200824738,
+    "execute": 0.0019257920212112367,
+    "critical_thinking": 8.624978363513947e-06,
+    "validate": 0.025801958981901407,
+    "review": 0.02274183405097574,
+    "writeback": 0.015586333000101149,
+    "report": 0.005143666989170015
    },
    "cached": 16,
    "tasks": 16
   },
   "after_teach": {
    "stages": {
-    "plan": 0.0034232920152135193,
-    "codegen": 0.0007035839953459799,
-    "static": 0.00412587501341477,
-    "execute": 0.002855750033631921,
-    "validate": 0.025281041976995766,
-    "review": 0.023092874966096133,
-    "writeback": 0.015418542025145143,
-    "report": 0.006270332960411906
+    "plan": 0.0034080829937011003,
+    "codegen": 0.0007367920479737222,
+    "static": 0.003942166978958994,
+    "execute": 0.0031069170217961073,
+    "critical_thinking": 8.167000487446785e-06,
+    "validate": 0.02523341600317508,
+    "review": 0.022926790989004076,
+    "writeback": 0.015364332997705787,
+    "report": 0.0067223330261185765
    },
    "cached": 16,
    "tasks": 17
@@ -1844,28 +1901,28 @@
   "timings": [
    {
     "label": "cold",
-    "seconds": 0.13159508298849687,
+    "seconds": 0.12580104201333597,
     "tasks_executed": 16,
     "tasks_cached": 0,
     "note": "empty cache"
    },
    {
     "label": "warm",
-    "seconds": 0.005535500007681549,
+    "seconds": 0.005497917009051889,
     "tasks_executed": 0,
     "tasks_cached": 16,
     "note": "nothing changed"
    },
    {
     "label": "small_edit",
-    "seconds": 0.006596290972083807,
+    "seconds": 0.006668207992333919,
     "tasks_executed": 1,
     "tasks_cached": 15,
     "note": "final chart edited"
    },
    {
     "label": "no_cache",
-    "seconds": 0.09607675002189353,
+    "seconds": 0.09628154098754749,
     "tasks_executed": 16,
     "tasks_cached": 0,
     "note": "same edit, caching disabled"
@@ -1878,10 +1935,10 @@
   },
   "codegen": {
    "simulated_latency_per_task": 0.4,
-   "parallel": 0.40815591701539233,
-   "serial": 6.464235832972918,
-   "speedup": 15.837662921175143,
-   "parallel_3_tasks": 0.4062420420232229,
+   "parallel": 0.4066254170029424,
+   "serial": 6.466160458046943,
+   "speedup": 15.902007566831841,
+   "parallel_3_tasks": 0.40575941698625684,
    "tasks": 16
   },
   "environment": {
@@ -1890,9 +1947,9 @@
    "adapter": "demo-synthetic"
   },
   "speedups": {
-   "warm_vs_cold": 23.7729352011352,
-   "small_edit_vs_no_cache": 14.565268637860335,
-   "small_edit_vs_cold": 19.949860238946556
+   "warm_vs_cold": 22.881582571401935,
+   "small_edit_vs_no_cache": 14.43889289269879,
+   "small_edit_vs_cold": 18.865794551993982
   }
  },
  "review": [

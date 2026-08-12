@@ -43,6 +43,23 @@ PLAN_SCHEMA = """\
   "question": "<the user's question, restated precisely>",
   "as_of": "<YYYY-MM-DD knowledge date, given to you — do not change it>",
   "resolved_assumptions": ["<every choice you made that a reviewer must see>"],
+  "research_design": {
+    "question_type": "descriptive | comparative | causal | predictive",
+    "decision_context": "<what decision this evidence informs; never imply a trade>",
+    "claims": [{
+      "id": "snake_case", "statement": "<bounded claim>",
+      "kind": "descriptive | associational | causal | predictive",
+      "evidence_tasks": ["<task names>"],
+      "falsifiers": ["<observable result that would weaken or defeat the claim>"]
+    }],
+    "alternatives": [{
+      "id": "snake_case", "statement": "<rival explanation>",
+      "discriminating_tasks": ["<task names that distinguish it>" ]
+    }],
+    "limitations": ["<what this design cannot establish>"],
+    "identification_strategy": "<required for causal questions, otherwise null>",
+    "out_of_sample_test": "<required for predictive questions, otherwise null>"
+  },
   "tasks": [
     {
       "name": "snake_case_identifier",           // == the python function name
@@ -76,6 +93,10 @@ PLAN_SCHEMA = """\
 RULES = """\
 Hard rules, each one checked by the compiler before any code is written:
 
+- pre-register bounded claims, falsifiers, rival explanations and evidence tasks
+- comparative/causal/predictive work must test at least one rival explanation
+- never label a claim causal without a causal question and identification strategy
+- never label a claim predictive without a stated out-of-sample test
 - every task declares index, row_expectation, sort and at least one column, and
   every column carries a description, a dtype and a role
 - date columns use dtype datetime64[ns]; a column that holds an observation date
@@ -315,6 +336,7 @@ class LLMPlanner:
                 name: set(self.adapter.read_table(name, as_of=as_of).columns)
                 for name in self.adapter.tables()
             },
+            require_research_design=True,
         )
 
         self.trace = PlanningTrace()

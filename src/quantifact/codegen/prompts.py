@@ -1,7 +1,7 @@
 """Prompts and conventions shared by every code-generating backend.
 
 The conventions are not style advice. Each line maps to a check in
-``staticanalysis.ast_checks``, so a model that ignores one fails the build
+``static_analysis.ast_checks``, so a model that ignores one fails the build
 rather than producing something plausible.
 """
 

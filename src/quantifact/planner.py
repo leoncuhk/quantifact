@@ -23,11 +23,19 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Any
 
-from .contracts.pointintime import LookAheadError
+from .contracts.point_in_time import LookAheadError
 from .data.registry import SeriesMeta
 from .data.search import SearchHit, SeriesSearch, SeriesStore
 from .learn.lessons import Lesson
-from .plan.model import AnalysisPlan, ColumnSpec, Task, parse_date
+from .plan.model import (
+    AlternativeExplanation,
+    AnalysisPlan,
+    ColumnSpec,
+    ResearchClaim,
+    ResearchDesign,
+    Task,
+    parse_date,
+)
 
 DEFAULT_AS_OF = "2026-08-01"
 
@@ -807,8 +815,72 @@ class RulePlanner:
         for lesson in self.lessons:
             assumptions.append(f"Applied lesson: {lesson.id}")
 
+        design = ResearchDesign(
+            question_type="comparative",
+            decision_context=(
+                "Assess whether the latest oil-supply episode is a useful historical "
+                "analogue; this analysis informs further investigation, not a trade."
+            ),
+            claims=[
+                ResearchClaim(
+                    id="market_responses_rhyme",
+                    statement=(
+                        f"Cross-market responses in {latest} can be compared with "
+                        f"{prior_ep} under one declared event-window definition."
+                    ),
+                    kind="associational",
+                    evidence_tasks=["market_pairwise_returns", "market_pairwise_scatter"],
+                    falsifiers=[
+                        "The relationship is unstable across asset classes or driven by a few markets.",
+                        "Changing the event window materially reverses the comparison.",
+                    ],
+                ),
+                ResearchClaim(
+                    id="starting_conditions_differ",
+                    statement=(
+                        "Differences in pre-event macro conditions are visible and may "
+                        "limit the usefulness of a simple historical analogy."
+                    ),
+                    kind="descriptive",
+                    evidence_tasks=[
+                        "macro_event_time_overlay",
+                        "macro_conditions_dashboard",
+                    ],
+                    falsifiers=[
+                        "The selected macro indicators show no material pre-event difference."
+                    ],
+                ),
+            ],
+            alternatives=[
+                AlternativeExplanation(
+                    id="asset_class_composition",
+                    statement=(
+                        "An apparent cross-episode relationship may be a pooled asset-class "
+                        "composition effect rather than a common market response."
+                    ),
+                    discriminating_tasks=["market_pairwise_returns"],
+                ),
+                AlternativeExplanation(
+                    id="different_starting_regime",
+                    statement=(
+                        "Different inflation, real-yield, output-gap and trade regimes may "
+                        "explain why superficially similar oil shocks transmit differently."
+                    ),
+                    discriminating_tasks=["macro_event_time_overlay"],
+                ),
+            ],
+            limitations=[
+                "Historical analogy is observational and does not identify the causal effect of oil supply.",
+                "Episode selection and window choice can embed hindsight not detectable by point-in-time loaders.",
+                "A small number of episodes cannot establish a stable forecasting relationship.",
+            ],
+        )
         return AnalysisPlan(
-            question=prompt, tasks=tasks, as_of=as_of, resolved_assumptions=assumptions
+            question=prompt,
+            tasks=tasks,
+            as_of=as_of,
+            resolved_assumptions=assumptions,
+            research_design=design,
         )
 
     # -------------------------------------------------------------- lessons

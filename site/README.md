@@ -1,9 +1,11 @@
 # Interactive run explorer
 
 [`index.html`](index.html) is a self-contained view of a real Quantifact run:
-its compiled plan, generated code, point-in-time comparison, contract evidence,
-and reproducible benchmarks. The page has no runtime dependencies and can be
-served directly by GitHub Pages.
+its four bounded subsystems, end-to-end investment research workflow, critical
+thinking contract, compiled plan, point-in-time comparison, contract evidence,
+and reproducible benchmarks. The architecture SVG is inlined from the same
+source used by the repository README, so arrow semantics cannot drift. The page
+has no runtime dependencies and can be served directly by GitHub Pages.
 
 ```bash
 uv run python tools/export_site_data.py site/data.json   # run the system, export artefacts

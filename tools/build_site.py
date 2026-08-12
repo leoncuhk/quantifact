@@ -81,6 +81,7 @@ def main(
     out: str = "site/index.html",
 ) -> int:
     tpl = (ROOT / template).read_text()
+    architecture = (ROOT / "docs/assets/architecture.svg").read_text()
     payload_obj = json.loads((ROOT / data).read_text())
     llm = _collect_llm(ROOT)
     if llm:
@@ -88,7 +89,11 @@ def main(
     payload = json.dumps(payload_obj, separators=(",", ":"))
     if "__DATA__" not in tpl:
         raise SystemExit("template has no __DATA__ placeholder")
-    page = tpl.replace("__DATA__", payload)
+    if "__ARCHITECTURE__" not in tpl:
+        raise SystemExit("template has no __ARCHITECTURE__ placeholder")
+    # Inline the SVG so the published page remains one portable file and the
+    # README and site cannot drift to different architecture diagrams.
+    page = tpl.replace("__ARCHITECTURE__", architecture).replace("__DATA__", payload)
     p = ROOT / out
     p.write_text(page)
     print(f"wrote {p} ({p.stat().st_size / 1024:.0f} KB)")

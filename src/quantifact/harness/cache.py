@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 
 from ..plan.model import Task
-from ..staticanalysis.ast_checks import CodeFacts
+from ..static_analysis.ast_checks import CodeFacts
 
 RUNTIME_ID = f"pd{pd.__version__}-np{np.__version__}"
 

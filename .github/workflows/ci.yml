@@ -41,11 +41,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv build
+      - name: Build clean distributions
+        run: |
+          rm -rf dist
+          uv build
       - name: Smoke-test the installed wheel
         run: |
           uv venv --python 3.12 /tmp/qf-wheel-test
-          uv pip install --python /tmp/qf-wheel-test/bin/python dist/*.whl
+          uv pip install --python /tmp/qf-wheel-test/bin/python dist/quantifact-*.whl
           cd /tmp
           /tmp/qf-wheel-test/bin/qf audit --json /tmp/qf-wheel-audit.json
       - uses: actions/upload-artifact@v4

@@ -20,6 +20,12 @@ contracts, traces, caching, self-review, writeback and a benchmark-gated learnin
 loop. quantifact's goal is an independent, point-in-time-safe implementation of
 that architecture that can be measured rather than trusted.
 
+Quantifact additionally compiles a critical-thinking contract before execution:
+bounded claims, rival explanations, falsifiers, evidence tasks and inference
+limits. This prevents unsupported conclusions from reaching a report, but it
+does not count as evidence that the declared design is scientifically adequate;
+that remains an expert-held-out evaluation problem.
+
 ## What “highest quality” means
 
 Highest quality is an outcome, not a feature count. A system must demonstrate:

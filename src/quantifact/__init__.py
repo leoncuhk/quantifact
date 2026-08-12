@@ -27,11 +27,20 @@ from .learn.benchmarks import Benchmark, BenchmarkSuite
 from .learn.lessons import Lesson, LessonRepo
 from .learn.teach import teach
 from .plan.compile import PlanCompiler
-from .plan.model import AnalysisPlan, ColumnSpec, PlanError, Task
+from .plan.model import (
+    AlternativeExplanation,
+    AnalysisPlan,
+    ColumnSpec,
+    PlanError,
+    ResearchClaim,
+    ResearchDesign,
+    Task,
+)
 from .planner import RulePlanner
 
 __all__ = [
     "ANALYST",
+    "AlternativeExplanation",
     "PM",
     "Adapter",
     "AnalysisPlan",
@@ -48,6 +57,8 @@ __all__ = [
     "PlanError",
     "Quantifact",
     "ReferenceCodegen",
+    "ResearchClaim",
+    "ResearchDesign",
     "RulePlanner",
     "SeriesMeta",
     "SeriesSearch",

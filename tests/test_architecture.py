@@ -32,8 +32,8 @@ from quantifact.learn.benchmarks import BenchmarkSuite
 from quantifact.learn.lessons import LessonRepo
 from quantifact.learn.teach import teach
 from quantifact.planner import RulePlanner, _as_store
-from quantifact.staticanalysis.ast_checks import analyse
-from quantifact.staticanalysis.dag import cross_check, dependency_graph
+from quantifact.static_analysis.ast_checks import analyse
+from quantifact.static_analysis.dag import cross_check, dependency_graph
 
 from .conftest import AS_OF, QUESTION, toy_task
 

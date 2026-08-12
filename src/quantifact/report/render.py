@@ -19,7 +19,7 @@ from typing import Any
 
 import pandas as pd
 
-from ..contracts.pointintime import describe
+from ..contracts.point_in_time import describe
 from ..harness.execute import RunResult
 from ..plan.model import AnalysisPlan, Task
 from ..review.checks import Finding
@@ -438,6 +438,34 @@ def render_report(
     if plan.resolved_assumptions:
         parts.append('<div class="card"><h3>Resolved assumptions</h3><ul>')
         parts += [f"<li>{html.escape(a)}</li>" for a in plan.resolved_assumptions]
+        parts.append("</ul></div>")
+
+    if plan.research_design:
+        design = plan.research_design
+        parts.append("<h2>Research design and inference limits</h2>")
+        parts.append('<div class="card">')
+        parts.append(
+            f"<p><b>Question type:</b> {html.escape(design.question_type)}<br>"
+            f"<b>Decision context:</b> {html.escape(design.decision_context)}</p>"
+        )
+        parts.append("<h3>Claims this analysis is allowed to support</h3><ul>")
+        for claim in design.claims:
+            tasks = ", ".join(claim.evidence_tasks)
+            falsifiers = "; ".join(claim.falsifiers)
+            parts.append(
+                f"<li><b>{html.escape(claim.statement)}</b> "
+                f"[{html.escape(claim.kind)}]<br>"
+                f"Evidence: <code>{html.escape(tasks)}</code><br>"
+                f"Would weaken or falsify: {html.escape(falsifiers)}</li>"
+            )
+        parts.append("</ul><h3>Alternative explanations tested</h3><ul>")
+        for alt in design.alternatives:
+            parts.append(
+                f"<li>{html.escape(alt.statement)}<br>Discriminating evidence: "
+                f"<code>{html.escape(', '.join(alt.discriminating_tasks))}</code></li>"
+            )
+        parts.append("</ul><h3>Known limits</h3><ul>")
+        parts += [f"<li>{html.escape(x)}</li>" for x in design.limitations]
         parts.append("</ul></div>")
 
     if findings:

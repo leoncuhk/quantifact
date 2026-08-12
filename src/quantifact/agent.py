@@ -28,6 +28,7 @@ import pandas as pd
 from .codegen.base import CodegenBackend, generate_all, schemas_of
 from .codegen.reference import ReferenceCodegen
 from .contracts.layers import validate_result, validate_static
+from .contracts.reasoning import validate_claim_evidence
 from .contracts.verdict import TaskUnfixable, Verdict
 from .data.adapters.demo_synthetic import DemoSyntheticAdapter
 from .data.registry import SeriesMeta
@@ -40,7 +41,7 @@ from .plan.model import AnalysisPlan, Task
 from .planner import Clarification, RulePlanner
 from .report.render import render_report
 from .review.checks import Finding, blocking, review, review_frame
-from .staticanalysis.ast_checks import CodeFacts, analyse
+from .static_analysis.ast_checks import CodeFacts, analyse
 
 
 @dataclass
@@ -199,6 +200,7 @@ class Quantifact:
             known_series={m.series_id for m in self.adapter.catalog()},
             known_tables=set(self.adapter.tables()),
             table_columns=self._table_columns(plan.as_of),
+            require_research_design=True,
         ).compile(plan)
         return plan, p
 
@@ -284,6 +286,14 @@ class Quantifact:
                     rounds += 1
 
         result: RunResult = stage("execute", execute)
+
+        reasoning_verdicts = stage(
+            "critical_thinking", lambda: validate_claim_evidence(plan, result.frames)
+        )
+        verdicts += reasoning_verdicts
+        failed_reasoning = [v for v in reasoning_verdicts if not v.ok]
+        if failed_reasoning:
+            raise TaskUnfixable(failed_reasoning[0])
 
         frame_verdicts = stage(
             "validate",

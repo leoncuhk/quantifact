@@ -45,6 +45,61 @@ ALLOWED_DTYPES = {
 ALLOWED_ROLES = {"observation_date", "publication_date", "entity", "dimension", "measure"}
 
 
+@dataclass
+class ResearchClaim:
+    """A conclusion the analysis is allowed to support, declared before execution."""
+
+    id: str
+    statement: str
+    kind: Literal["descriptive", "associational", "causal", "predictive"]
+    evidence_tasks: list[str]
+    falsifiers: list[str]
+
+    @staticmethod
+    def from_dict(d: dict[str, Any]) -> ResearchClaim:
+        return ResearchClaim(**d)
+
+
+@dataclass
+class AlternativeExplanation:
+    """A rival account and the planned evidence that could distinguish it."""
+
+    id: str
+    statement: str
+    discriminating_tasks: list[str]
+
+    @staticmethod
+    def from_dict(d: dict[str, Any]) -> AlternativeExplanation:
+        return AlternativeExplanation(**d)
+
+
+@dataclass
+class ResearchDesign:
+    """Critical-thinking contract: what may be inferred, and what could defeat it.
+
+    This is deliberately part of the plan rather than prose generated after the
+    results are known.  It makes rival explanations and falsification criteria
+    reviewable before code generation, when changing the research design is cheap.
+    """
+
+    question_type: Literal["descriptive", "comparative", "causal", "predictive"]
+    decision_context: str
+    claims: list[ResearchClaim]
+    alternatives: list[AlternativeExplanation]
+    limitations: list[str]
+    identification_strategy: str | None = None
+    out_of_sample_test: str | None = None
+
+    @staticmethod
+    def from_dict(d: dict[str, Any]) -> ResearchDesign:
+        d = dict(d)
+        d["claims"] = [ResearchClaim.from_dict(x) for x in d.get("claims", [])]
+        d["alternatives"] = [
+            AlternativeExplanation.from_dict(x) for x in d.get("alternatives", [])
+        ]
+        return ResearchDesign(**d)
+
+
 class PlanError(Exception):
     """Raised when a plan fails compile-time validation."""
 
@@ -125,6 +180,7 @@ class AnalysisPlan:
     # Knowledge date: nothing published after this may enter the analysis.
     as_of: str = ""
     resolved_assumptions: list[str] = field(default_factory=list)
+    research_design: ResearchDesign | None = None
 
     # ---------------------------------------------------------------- lookup
     def __getitem__(self, name: str) -> Task:
@@ -166,6 +222,11 @@ class AnalysisPlan:
             tasks=[Task.from_dict(t) for t in d["tasks"]],
             as_of=d.get("as_of", ""),
             resolved_assumptions=list(d.get("resolved_assumptions", [])),
+            research_design=(
+                ResearchDesign.from_dict(d["research_design"])
+                if d.get("research_design")
+                else None
+            ),
         )
 
     @staticmethod

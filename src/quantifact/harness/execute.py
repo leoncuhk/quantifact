@@ -24,8 +24,8 @@ import pandas as pd
 
 from ..plan.layers import topo_layers
 from ..plan.model import AnalysisPlan, PlanError, Task
-from ..staticanalysis.ast_checks import CodeFacts, analyse
-from ..staticanalysis.dag import cross_check, dependency_graph
+from ..static_analysis.ast_checks import CodeFacts, analyse
+from ..static_analysis.dag import cross_check, dependency_graph
 from .cache import ValueCache, cache_key, frame_fingerprint
 
 SAFE_BUILTINS = {

@@ -11,10 +11,10 @@ import pytest
 
 from quantifact import AnalysisPlan, ColumnSpec, Quantifact, Task
 from quantifact.contracts.layers import validate_result
-from quantifact.contracts.pointintime import LookAheadError, no_future_observations
+from quantifact.contracts.point_in_time import LookAheadError, no_future_observations
 from quantifact.harness.cache import ValueCache, cache_key
 from quantifact.harness.execute import ExecutionHarness
-from quantifact.staticanalysis.ast_checks import analyse
+from quantifact.static_analysis.ast_checks import analyse
 
 from .conftest import QUESTION, toy_task
 

@@ -21,5 +21,8 @@ jobs:
         run: test -f benchmarks/quality-evidence.json
       - name: PAT-level release gate
         run: uv run qf audit --evidence benchmarks/quality-evidence.json --strict
-      - run: uv build
+      - name: Build clean distributions
+        run: |
+          rm -rf dist
+          uv build
       - uses: pypa/gh-action-pypi-publish@release/v1

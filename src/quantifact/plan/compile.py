@@ -19,6 +19,7 @@ charts         chart fields exist among the task's own output columns
 
 from __future__ import annotations
 
+from ..contracts.reasoning import validate_research_design
 from .layers import topo_layers
 from .model import ALLOWED_DTYPES, ALLOWED_ROLES, AnalysisPlan, PlanError, parse_date
 
@@ -70,15 +71,20 @@ class PlanCompiler:
         known_series: set[str] | None = None,
         known_tables: set[str] | None = None,
         table_columns: dict[str, set[str]] | None = None,
+        require_research_design: bool = False,
     ):
         self.known_series = known_series
         self.known_tables = known_tables
         self.table_columns = table_columns or {}
+        self.require_research_design = require_research_design
 
     # ------------------------------------------------------------ validate
     def validate(self, plan: AnalysisPlan) -> list[str]:
         p: list[str] = []
         names = plan.names
+
+        if plan.research_design is not None or self.require_research_design:
+            p.extend(validate_research_design(plan))
 
         if not plan.tasks:
             p.append("plan has no tasks")

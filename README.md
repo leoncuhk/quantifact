@@ -8,23 +8,32 @@
 [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-6B7280.svg)](LICENSE)
 [![Explore a run](https://img.shields.io/badge/explore-a_live_run-14B8A6.svg)](https://leoncuhk.github.io/quantifact/)
 
-Quantifact is an open-source investment-research agent built as an evidence
-compiler. It turns an ambiguous question into a typed analysis plan, generates
-the analysis in parallel, runs it against point-in-time data, and returns the
-answer with the code, checks, lineage, and assumptions needed to review it.
+Quantifact is an open-source investment-research system built as an evidence
+compiler. Four bounded subsystems turn an ambiguous question into a typed
+research design, generated analysis, verified execution, and benchmark-gated
+organisational learning. The result carries the code, checks, lineage,
+assumptions, rival explanations, and inference limits needed to challenge it.
 
 > The model proposes the analysis. The system decides whether the evidence is
 > fit to use.
 
 <p align="center">
-  <img src="docs/assets/architecture.svg" alt="Quantifact turns a research question into a typed plan, verified execution, and a reviewable evidence package" width="100%">
+  <img src="docs/assets/architecture.svg" alt="Quantifact uses four bounded subsystems: research understanding, analysis compiler, controlled execution, and organisation learning" width="100%">
 </p>
+
+Blue arrows are control and evidence flow, dashed grey arrows are permissioned
+point-in-time data access, and violet arrows are learning that may return only
+after a failing benchmark, full regression, and human approval. Models sit
+above these boundaries as replaceable planners, code generators, or critics;
+no model owns orchestration or can bypass a required gate.
 
 ## What you get
 
 A successful run produces more than a chart:
 
 - a plan that fixes definitions, schemas, units, row grain, and knowledge date;
+- a pre-registered research design that binds claims to evidence, rival
+  explanations, falsifiers, and explicit inference limits;
 - generated pandas functions and their actual dependency graph;
 - contract verdicts from static checks through point-in-time and semantic checks;
 - a self-contained HTML report with charts, data exports, and source code;
@@ -48,7 +57,7 @@ qf ask --receipt .qf/run.json
 ```text
 as_of      2026-08-01 (nothing published later was read)
 plan       16 tasks in 5 layers
-contracts  64/64 verdicts passed
+contracts  68/68 verdicts passed
 report     .qf/report.html
 receipt    .qf/run.json
 ```
@@ -85,27 +94,45 @@ Quantifact makes those failure modes explicit:
 | Ambiguous question | Clarifications compile into a typed plan before code generation |
 | Look-ahead and survivorship bias | Loaders, universes, outputs, and cache keys share one knowledge date |
 | Plausible but wrong output | Schemas, invariants, semantic checks, and self-review gate the report |
+| Confirmation bias or overclaiming | Claims, rivals, falsifiers and inference limits compile before code generation |
 | Hidden dependencies | Static analysis derives the DAG from generated code and compares it with the plan |
 | Slow review | Every result carries code, inputs, checks, repairs, and lineage |
 | Expensive iteration | Content-addressed caching recomputes only the affected subgraph |
 | Unsafe learning | A lesson must reproduce a failure, fix it, and pass regression before acceptance |
 
-## How it works
+## Four bounded subsystems
 
-Quantifact treats a research workflow as a compilation pipeline, rather than
-giving one model an open-ended loop and hoping it remembers every control.
+The public PAT presentation is best understood as four cooperating subsystems,
+not four Python modules. Quantifact implements the same separation because each
+boundary limits a different class of error.
 
-1. **Clarify** — bind the research definition, universe, horizon, and `as_of` date.
-2. **Plan** — compile the question into typed tasks with declared inputs and outputs.
-3. **Generate** — write one pandas function per task, concurrently.
-4. **Inspect** — reject unsafe code and derive its real dependency graph.
-5. **Execute** — run through harness-owned, point-in-time-bound data loaders.
-6. **Verify** — enforce layered contracts and repair only from concrete failures.
-7. **Deliver** — render the report and persist a complete evidence receipt.
+| Subsystem | Value and responsibility | Quantifact implementation | Current boundary |
+|---|---|---|---|
+| **1. Research understanding** | Turn a vague request into an admissible research question: permissions, definitions, knowledge date, data binding, claims, rivals and falsifiers | `planner.py`, `planner_llm.py`, `data/`, `learn/workflows.py`, `ResearchDesign` | Executable core; no persistent LangGraph chat, live web search, or broad expert context yet |
+| **2. Analysis compiler** | Convert the reviewed design into a typed IR and constrain implementation before execution | `plan/`, `codegen/`, `static_analysis/`; `PlanCompiler` and parallel task codegen | Strongest subsystem; operation vocabulary and real-model research breadth remain limited |
+| **3. Controlled execution** | Materialise values without giving the model terminal control; enforce PIT, contracts, repair, cache, report and receipt | `harness/`, `contracts/`, `review/`, `report/`, `Quantifact.analyse()` | Fully executable prototype; process isolation and same-layer parallel execution are not production complete |
+| **4. Organisation learning** | Convert a real missed failure into a reproducible benchmark and an approved, regression-safe system change | `learn/teach.py`, `LessonRepo`, `BenchmarkSuite` | Minimum safe loop; one registered effect, no automatic conversation mining or PR service |
 
-The default reference backend makes the entire example reproducible offline. An
-OpenAI-compatible backend can generate, debug, and semantically validate code
-without weakening the deterministic gates around it.
+These responsibilities deliberately do not collapse into one generic agent:
+
+1. **Understand** — bind the definition, universe, horizon, `as_of`, data IDs,
+   bounded claims, rival explanations, and falsifiers.
+2. **Compile** — validate the plan, generate one pandas function per task in
+   parallel, statically inspect it, and derive the actual dependency DAG.
+3. **Execute** — run through harness-owned point-in-time loaders, enforce all
+   mandatory verdicts, repair only a named failure, and emit a report or stop.
+4. **Learn** — reproduce an expert correction as a failing benchmark, propose a
+   versioned change, run the full regression suite, and leave acceptance to a
+   human reviewer.
+
+The hand-off contracts are the architecture: subsystem 1 emits
+`ResearchDesign + AnalysisPlan`; subsystem 2 emits checked functions plus an
+actual DAG; subsystem 3 emits a report and receipt or a named failure; subsystem
+4 emits a candidate lesson and benchmark, never a silent runtime mutation.
+
+The default reference backend makes the example reproducible offline. An
+OpenAI-compatible backend may plan, generate, debug, and semantically inspect
+code without weakening the deterministic boundaries around it.
 
 ## Point-in-time by construction
 
@@ -201,6 +228,7 @@ one of the most valuable contributions this project can receive.
 ## Documentation
 
 - [Quickstart](docs/guides/quickstart.md)
+- [Four-subsystem architecture](docs/architecture.md)
 - [Concepts](docs/concepts/) — plan as IR, contracts, point-in-time, caching, learning
 - [Guides](docs/guides/) — data adapters, evaluations, and production
 - [Public API](docs/index.md#public-api)
