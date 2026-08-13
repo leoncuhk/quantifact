@@ -44,3 +44,32 @@ must work across independently supplied data systems:
   usable.
 - **Bitemporal modelling**: valid time versus knowledge time, from temporal
   databases, which is exactly the distinction finance calls point-in-time.
+
+## Open-source systems reviewed
+
+The relevant projects solve different layers; popularity is not evidence that
+their trust model should be copied.
+
+| Project | Strength to learn from | What Quantifact should not infer |
+|---|---|---|
+| [Qlib](https://github.com/microsoft/qlib) | broad quant workflow, datasets, models and experiment infrastructure | a backtest/model platform by itself makes generated research admissible |
+| [RD-Agent](https://github.com/microsoft/RD-Agent) | experiment generation, feedback and iterative R&D | autonomous iteration may rewrite shared controls without benchmark governance |
+| [OpenBB](https://github.com/OpenBB-finance/OpenBB) | provider ecosystem and analyst/agent data interfaces | a broad catalog supplies revision-aware PIT semantics automatically |
+| [FinRobot](https://github.com/AI4Finance-Foundation/FinRobot) | composable financial agents and approachable examples | more agent roles imply stronger correctness or reproducibility |
+| [FinGPT](https://github.com/AI4Finance-Foundation/FinGPT) | financial models, datasets and evaluation community | model domain knowledge can replace data and method contracts |
+| [ai-hedge-fund](https://github.com/virattt/ai-hedge-fund) | understandable multi-perspective demonstration | simulated personas constitute an institutional research process |
+| [IRAB](https://github.com/Rabyte-Technology/Investment-Research-Agent-Benchmark) | real buy-side task taxonomy, per-task rubrics, gold references and held-out evaluation | an LLM judge alone is sufficient for exact numeric/PIT correctness |
+
+The synthesis is deliberate: borrow data/tool extensibility from OpenBB and
+Qlib, experiment regression from RD-Agent, usable examples from financial-agent
+projects, and real-task evaluation structure from IRAB. Keep PAT's thick plan,
+system-owned execution and benchmark-gated learning as the control plane.
+
+This review directly produced three executable changes:
+
+- unsupported rule-planner questions now fail closed instead of receiving an
+  oil-event workflow;
+- benchmark cases declare research family, risk tags, expected outcome and
+  severity, with sliced reports and a separate silent-critical-error count;
+- third-party adapters have a public PIT conformance suite, and generated tasks
+  may run behind a disposable process boundary with explicit limitations.

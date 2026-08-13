@@ -253,6 +253,8 @@ def _auto_probes(workspace: Path) -> dict[str, tuple[float, str, str]]:
     """Cheap executable evidence. A failed probe scores zero and stays legible."""
     from .agent import Quantifact
     from .data.adapters.base import DocumentSource
+    from .data.conformance import check_adapter
+    from .learn.benchmarks import Benchmark, BenchmarkSuite
     from .learn.teach import KNOWN_EFFECTS
     from .learn.workflows import WorkflowRepo
     from .planner_llm import LLMPlanner
@@ -282,8 +284,8 @@ def _auto_probes(workspace: Path) -> dict[str, tuple[float, str, str]]:
             and receipt["code_sha256"]
         )
         out["diagnosability"] = (
-            1 if trace_ok else 0.5,
-            "versioned receipt covers plan/code identity, planning, execution and checks",
+            1 if trace_ok and art.evidence and not art.evidence.verify() else 0.5,
+            "verifiable evidence package covers plan/code, sources, claims, execution and checks",
             "complete the machine-readable run receipt" if not trace_ok else "",
         )
         # Two vintages must expose different slices, and future documents must stay hidden.
@@ -300,10 +302,14 @@ def _auto_probes(workspace: Path) -> dict[str, tuple[float, str, str]]:
             "numeric and document vintages probed",
             "add/fix bitemporal enforcement" if not pit else "",
         )
+        adapter_report = check_adapter(
+            qf.adapter, early_as_of="2022-03-01", late_as_of="2026-08-01"
+        )
         out["structured_data"] = (
-            0.7,
+            0.75 if adapter_report.passed else 0.4,
             f"{len(qf.adapter.catalog())} synthetic series; "
-            "inspection and entitlements implemented",
+            f"{sum(c.passed for c in adapter_report.checks)}/{len(adapter_report.checks)} "
+            "adapter conformance checks passed",
             "validate against a licensed production catalog",
         )
         docs = getattr(qf.adapter, "documents", None)
@@ -313,9 +319,22 @@ def _auto_probes(workspace: Path) -> dict[str, tuple[float, str, str]]:
             "connect licensed corpora, web retrieval, chunking and retrieval evals",
         )
         workflows = WorkflowRepo().all()
+        refusal_suite = BenchmarkSuite(workspace / "audit-refusals")
+        refusal_suite.add(
+            Benchmark(
+                id="unsupported-family",
+                prompt="Build a DCF valuation for a semiconductor company",
+                assertions=[],
+                family="equity_fundamental",
+                risk_tags=["unsupported_family"],
+                expected_outcome="refuse",
+                severity="critical",
+            )
+        )
+        refusal_ok = refusal_suite.report(qf.adapter, []).passed == 1
         out["dynamic_planning"] = (
-            0.5 if LLMPlanner else 0,
-            "compiler-feedback planner implemented; stub-tested",
+            0.6 if LLMPlanner and refusal_ok else 0,
+            "compiler-feedback planner stub-tested; unsupported rule workflows refuse",
             "run real-model, multi-domain held-out planner evaluations",
         )
         out["feedback_gate"] = (

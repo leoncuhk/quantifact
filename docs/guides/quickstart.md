@@ -4,6 +4,7 @@
 uv add git+https://github.com/leoncuhk/quantifact    # PyPI release pending
 qf ask                     # the demo question, synthetic data, no key
 qf ask                     # again — every task from the value cache
+qf verify .qf/report.evidence.json
 ```
 
 ## What just happened
@@ -36,6 +37,8 @@ art.result.trace("market_prices")  # cache key, rows, timing
 art.verdicts  # every contract verdict, layer by layer
 art.findings  # what self review noticed
 art.written_series  # outputs written back into the store
+art.evidence  # portable plan/code/source/claim/verdict package
+art.evidence.verify()  # internal manifest and integrity checks
 ```
 
 ## Choosing a knowledge date

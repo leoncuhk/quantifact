@@ -35,6 +35,10 @@ jobs:
           git diff --exit-code -- site/index.html
       - name: Point-in-time example
         run: echo n | uv run python examples/04_point_in_time/run.py
+      - name: Adapter conformance
+        run: uv run qf adapter-check --json /tmp/adapter-conformance.json
+      - name: Sliced research evaluations
+        run: uv run qf evals --dir benchmarks --json /tmp/research-evals.json
 
   build:
     runs-on: ubuntu-latest
@@ -50,8 +54,45 @@ jobs:
           uv venv --python 3.12 /tmp/qf-wheel-test
           uv pip install --python /tmp/qf-wheel-test/bin/python dist/quantifact-*.whl
           cd /tmp
+          /tmp/qf-wheel-test/bin/qf --workspace /tmp/qf-wheel-run ask \
+            --out /tmp/qf-wheel-report.html \
+            --evidence /tmp/qf-wheel-evidence.json
+          /tmp/qf-wheel-test/bin/qf verify /tmp/qf-wheel-evidence.json
+          /tmp/qf-wheel-test/bin/qf adapter-check --json /tmp/qf-wheel-adapter.json
           /tmp/qf-wheel-test/bin/qf audit --json /tmp/qf-wheel-audit.json
+          set +e
+          refusal=$(/tmp/qf-wheel-test/bin/qf plan "Build a DCF valuation" 2>&1)
+          status=$?
+          set -e
+          test "$status" -eq 2
+          test "$(printf '%s\n' "$refusal" | wc -l)" -eq 1
+          printf '%s\n' "$refusal" | grep '^refused: '
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check local Markdown links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          roots = [Path("."), Path("docs"), Path(".github"), Path("examples"), Path("benchmarks")]
+          files = sorted({p for root in roots for p in root.rglob("*.md") if ".git" not in p.parts})
+          missing = []
+          for path in files:
+              for target in re.findall(r"\[[^]]*\]\(([^)]+)\)", path.read_text()):
+                  target = target.split("#", 1)[0]
+                  if not target or "://" in target or target.startswith("mailto:"):
+                      continue
+                  if not (path.parent / target).resolve().exists():
+                      missing.append(f"{path}: {target}")
+          if missing:
+              raise SystemExit("broken local links:\n" + "\n".join(missing))
+          print(f"checked {len(files)} Markdown files")
+          PY

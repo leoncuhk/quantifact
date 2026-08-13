@@ -11,6 +11,17 @@ reduction of blast radius, not a sandbox. For anything that matters:
 - treat the workspace directory as untrusted output;
 - put a CPU and memory limit on the process.
 
+`qf ask --execution process --task-timeout 10` adds a disposable worker process,
+wall timeout and best-effort CPU/address-space limits. It contains crashes and
+runaway tasks, but it still shares the host kernel and network namespace. It
+does **not** satisfy the production isolation gate by itself; place the worker
+inside a no-network container or VM with read-only data mounts.
+
+The prototype spawns one process per uncached task, which prioritises a fresh
+boundary over latency. A production service should use a pre-warmed isolated
+worker pool with one disposable task context per materialisation; process-mode
+latency is not a service SLO.
+
 ## Cost and latency
 
 With a model backend, one run of a 16-task plan costs roughly 20–50 calls

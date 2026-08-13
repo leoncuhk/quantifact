@@ -4,6 +4,10 @@
  "kind": "plan",
  "origin": "manual",
  "human_audited": true,
+ "family": "event_study",
+ "risk_tags": ["plan_structure", "method_contract"],
+ "expected_outcome": "plan",
+ "severity": "critical",
  "note": "The baseline: the demo question must produce a plan that compiles, with the full ingestion/logic/chart structure.",
  "assertions": [
   {"type": "plan_valid"},

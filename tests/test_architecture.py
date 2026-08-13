@@ -22,6 +22,7 @@ from quantifact import (
     Quantifact,
     ReferenceCodegen,
     SeriesSearch,
+    UnsupportedQuestionError,
 )
 from quantifact.bench import edit_last_chart, values_hash
 from quantifact.codegen.base import generate_all
@@ -117,6 +118,34 @@ def test_the_real_plan_compiles(plan, qf):
     assert len(layers) >= 4
     # ingestion is all in the first layer: nothing to wait for
     assert all(plan[n].type == "data_ingestion" for n in layers[0])
+
+
+def test_rule_planner_refuses_an_unsupported_research_family(qf):
+    with pytest.raises(UnsupportedQuestionError, match="supports oil/energy"):
+        qf.build_plan("Build a DCF valuation for a semiconductor company")
+
+
+def test_rule_planner_does_not_offer_oil_clarifications_for_an_unrelated_question(qf):
+    with pytest.raises(UnsupportedQuestionError):
+        qf.clarify("Optimize my portfolio")
+
+
+def test_cli_presents_an_unsupported_question_as_a_refusal(tmp_path, capsys):
+    from quantifact.cli import main
+
+    status = main(
+        [
+            "--workspace",
+            str(tmp_path / "ws"),
+            "plan",
+            "Build a DCF valuation for a semiconductor company",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert status == 2
+    assert captured.out == ""
+    assert captured.err.startswith("refused:")
+    assert "supports oil/energy" in captured.err
 
 
 # -------------------------------------------------------- static analysis

@@ -89,6 +89,11 @@ class ResearchDesign:
     limitations: list[str]
     identification_strategy: str | None = None
     out_of_sample_test: str | None = None
+    # Research families activate deterministic, domain-specific design and
+    # evidence contracts.  This is deliberately separate from question_type:
+    # a comparative question may be an event study, a cross-sectional study,
+    # or something else with materially different failure modes.
+    methodologies: list[str] = field(default_factory=list)
 
     @staticmethod
     def from_dict(d: dict[str, Any]) -> ResearchDesign:

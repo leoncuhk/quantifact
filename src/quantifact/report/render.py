@@ -435,6 +435,13 @@ def render_report(
         parts.append(_kpi(k, str(v)))
     parts.append("</div>")
 
+    parts.append(
+        '<div class="card"><h3>Evidence admission</h3>'
+        "<p><b>Admitted for expert review.</b> All mandatory system gates "
+        "completed. This status is not investment approval, proof that a claim "
+        "is true, or authorisation to trade.</p></div>"
+    )
+
     if plan.resolved_assumptions:
         parts.append('<div class="card"><h3>Resolved assumptions</h3><ul>')
         parts += [f"<li>{html.escape(a)}</li>" for a in plan.resolved_assumptions]
@@ -448,6 +455,12 @@ def render_report(
             f"<p><b>Question type:</b> {html.escape(design.question_type)}<br>"
             f"<b>Decision context:</b> {html.escape(design.decision_context)}</p>"
         )
+        if design.methodologies:
+            parts.append(
+                "<p><b>Method contracts:</b> "
+                + html.escape(", ".join(design.methodologies))
+                + "</p>"
+            )
         parts.append("<h3>Claims this analysis is allowed to support</h3><ul>")
         for claim in design.claims:
             tasks = ", ".join(claim.evidence_tasks)

@@ -19,10 +19,12 @@ from .codegen.reference import ReferenceCodegen
 from .contracts.verdict import TaskUnfixable, Verdict
 from .data.adapters.base import Adapter
 from .data.adapters.demo_synthetic import DemoSyntheticAdapter
+from .data.conformance import AdapterConformanceReport, check_adapter
 from .data.registry import SeriesMeta, SeriesStore
 from .data.search import SeriesSearch
+from .evidence import ResearchEvidencePackage
 from .harness.cache import ValueCache
-from .harness.execute import ExecutionHarness
+from .harness.execute import ExecutionHarness, ProcessExecutionHarness
 from .learn.benchmarks import Benchmark, BenchmarkSuite
 from .learn.lessons import Lesson, LessonRepo
 from .learn.teach import teach
@@ -36,13 +38,14 @@ from .plan.model import (
     ResearchDesign,
     Task,
 )
-from .planner import RulePlanner
+from .planner import RulePlanner, UnsupportedQuestionError
 
 __all__ = [
     "ANALYST",
     "AlternativeExplanation",
     "PM",
     "Adapter",
+    "AdapterConformanceReport",
     "AnalysisPlan",
     "Artifacts",
     "Benchmark",
@@ -55,8 +58,10 @@ __all__ = [
     "LessonRepo",
     "PlanCompiler",
     "PlanError",
+    "ProcessExecutionHarness",
     "Quantifact",
     "ReferenceCodegen",
+    "ResearchEvidencePackage",
     "ResearchClaim",
     "ResearchDesign",
     "RulePlanner",
@@ -66,9 +71,11 @@ __all__ = [
     "Task",
     "TaskUnfixable",
     "User",
+    "UnsupportedQuestionError",
     "ValueCache",
     "Verdict",
     "generate_all",
+    "check_adapter",
     "teach",
 ]
-__version__ = "0.2.0"
+__version__ = "0.3.0a1"

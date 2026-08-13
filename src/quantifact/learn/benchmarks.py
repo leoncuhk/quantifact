@@ -25,6 +25,10 @@ class Benchmark:
     origin: str = "teach"
     human_audited: bool = False
     note: str = ""
+    family: str = "unspecified"
+    risk_tags: list[str] = field(default_factory=list)
+    expected_outcome: str = "plan"  # plan | refuse
+    severity: str = "major"  # critical | major | minor
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -41,16 +45,82 @@ class BenchmarkResult:
     failures: list[str] = field(default_factory=list)
 
 
+@dataclass
+class BenchmarkReport:
+    results: list[BenchmarkResult]
+
+    @property
+    def passed(self) -> int:
+        return sum(r.passed for r in self.results)
+
+    @property
+    def total(self) -> int:
+        return len(self.results)
+
+    @property
+    def silent_critical_failures(self) -> int:
+        return sum(
+            not r.passed
+            and r.benchmark.severity == "critical"
+            and r.benchmark.expected_outcome != "refuse"
+            for r in self.results
+        )
+
+    def slices(self, field: str) -> dict[str, dict[str, int]]:
+        grouped: dict[str, list[BenchmarkResult]] = {}
+        for result in self.results:
+            values = getattr(result.benchmark, field)
+            values = values if isinstance(values, list) else [values]
+            for value in values or ["unspecified"]:
+                grouped.setdefault(value, []).append(result)
+        return {
+            key: {"passed": sum(r.passed for r in rows), "total": len(rows)}
+            for key, rows in sorted(grouped.items())
+        }
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "passed": self.passed,
+            "total": self.total,
+            "silent_critical_failures": self.silent_critical_failures,
+            "by_family": self.slices("family"),
+            "by_risk": self.slices("risk_tags"),
+            "results": [
+                {
+                    "id": r.benchmark.id,
+                    "family": r.benchmark.family,
+                    "expected_outcome": r.benchmark.expected_outcome,
+                    "severity": r.benchmark.severity,
+                    "risk_tags": r.benchmark.risk_tags,
+                    "passed": r.passed,
+                    "failures": r.failures,
+                }
+                for r in self.results
+            ],
+        }
+
+
 class BenchmarkSuite:
     def __init__(self, root: str | Path):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
 
     def all(self) -> list[Benchmark]:
-        return [
-            Benchmark.from_dict(json.loads(p.read_text()))
-            for p in sorted(self.root.glob("*.json"))
-        ]
+        benchmarks = []
+        for path in sorted(self.root.rglob("*.json")):
+            payload = json.loads(path.read_text())
+            # Benchmark directories may also contain performance runs, model
+            # trials, and operating-evidence templates. Only documents with
+            # the benchmark identity are cases; once identified, malformed
+            # fields still fail loudly in ``from_dict``.
+            if not isinstance(payload, dict) or not {
+                "id",
+                "prompt",
+                "assertions",
+            }.issubset(payload):
+                continue
+            benchmarks.append(Benchmark.from_dict(payload))
+        return benchmarks
 
     def add(self, bench: Benchmark) -> Path:
         p = self.root / f"{bench.id}.json"
@@ -76,8 +146,17 @@ class BenchmarkSuite:
         try:
             plan = planner.plan(bench.prompt, bench.answers)
         except Exception as e:
+            if bench.expected_outcome == "refuse":
+                return BenchmarkResult(bench, True)
             return BenchmarkResult(
                 bench, False, [f"planning raised {type(e).__name__}: {e}"]
+            )
+
+        if bench.expected_outcome == "refuse":
+            return BenchmarkResult(
+                bench,
+                False,
+                ["planner produced a plan for a question that must be refused"],
             )
 
         for a in bench.assertions:
@@ -142,3 +221,8 @@ class BenchmarkSuite:
         self, adapter, lessons: list[Lesson], entitlements: tuple[str, ...] = ()
     ) -> list[BenchmarkResult]:
         return [self.run(b, adapter, lessons, entitlements) for b in self.all()]
+
+    def report(
+        self, adapter, lessons: list[Lesson], entitlements: tuple[str, ...] = ()
+    ) -> BenchmarkReport:
+        return BenchmarkReport(self.run_all(adapter, lessons, entitlements))

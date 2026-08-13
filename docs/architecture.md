@@ -1,8 +1,11 @@
-# Architecture: four bounded subsystems
+# Architecture: containing error in investment research
 
-The architecture is organised around error containment, not around how many
-agents appear in a diagram. Each subsystem owns one irreversible hand-off and
-emits a reviewable artefact.
+Quantifact is designed around one investment-research problem: a model can
+produce a plausible analysis long before the question, data, implementation or
+inference is fit for use. The architecture therefore reduces the model's error
+space at explicit boundaries instead of relying on a larger prompt or a second
+model's approval. Each subsystem owns one irreversible hand-off and emits a
+reviewable artefact.
 
 ![Four-subsystem Quantifact architecture](assets/architecture.svg)
 
@@ -54,6 +57,43 @@ runtime mutation.
 
 This is intentionally off the success path. Ordinary runs do not continually
 rewrite their own controls.
+
+## PAT lifecycle mapped to executable components
+
+The public PAT flow is useful when read as a chain of contracts rather than a
+chain of agent names:
+
+| PAT stage | Quantifact component | Required output | Implementation status |
+|---|---|---|---|
+| Expert knowledge and permissions | `User.entitlements`, workflow and lesson repositories, adapter catalog | permitted context and candidate data | **Partial** — entitlement-aware synthetic corpus and workflows; no enterprise identity provider or broad expert corpus |
+| Chat Agent clarifies the question | `Quantifact.clarify()`, `RulePlanner` / `LLMPlanner` | resolved definitions, horizon and knowledge date | **Partial** — executable clarification; no persistent, resumable chat service |
+| Analysis Plan fixes the definition | `ResearchDesign`, `AnalysisPlan`, `PlanCompiler` | compiled research contract and typed task graph | **Implemented** for the supported operation vocabulary |
+| Coding Agent compiles the plan | `generate_all()`, codegen backend, `static_analysis` | checked Python functions and actual DAG | **Implemented**; real-model breadth remains an evaluation gap |
+| Harness executes and verifies | `ExecutionHarness`, contracts, repair and review | verified frames or a named blocking failure | **Implemented prototype**; no production process/container isolation or same-layer parallel execution |
+| Report and derived data | `ResearchEvidencePackage`, report renderer and governed writeback | integrity-checked evidence with code, source vintages, claim lineage and limits | **Implemented** |
+| Real user feedback | `qf teach`, `draft_lesson()` | a typed candidate lesson and failing benchmark | **Minimal implementation** — one registered effect; no automatic conversation mining |
+| Benchmark plus context/harness improvement | `BenchmarkSuite`, `LessonRepo`, full regression | approved release artefacts for a later version | **Partial** — regression gate exists; automated arbitrary harness changes and PR review service do not |
+
+This is why the project has four subsystems rather than four Python modules.
+The subsystem boundaries are stable; implementations behind them can become
+broader without changing who owns each decision.
+
+## Six error-containment layers
+
+| Error space constrained | Deterministic mechanism | What it prevents | What it cannot prove |
+|---|---|---|---|
+| Research definition | `ResearchDesign`, clarifications, knowledge date, claims, rivals and falsifiers | answering an undeclared or unfalsifiable question | that the chosen question is economically important |
+| Plan structure | typed schemas, units, row grain, operation vocabulary and `PlanCompiler` | unknown inputs, cycles, unit conflicts and late-bound data | that the planned methodology is the best one |
+| Generated code | one function per task, AST policy and actual-DAG cross-check | hidden dependencies, IO/network/system calls and loader date override | absence of every semantic programming error |
+| Data availability | entitlement-aware catalog and PIT-bound loaders | reading data the user may not see or that was not knowable at `as_of` | completeness and economic correctness of the source data |
+| Materialised result | schema, invariant, PIT, claim-evidence and self-review gates | empty, malformed, implausible or unsupported outputs reaching a report | causal truth, forecast skill or decision value |
+| Organisational change | failing benchmark, candidate fix, full regression and human approval | feedback silently mutating the live system | that an accepted lesson generalises beyond evaluated cases |
+
+The achieved guarantee is deliberately narrow: within supported workflows, an
+uncompiled plan, policy-violating function, future-dated input, failed contract
+or evidence-free declared claim cannot become a successful report. Production
+quality still requires held-out expert evaluations, broader tools, execution
+isolation, reliability evidence and observed research outcomes.
 
 ## Shared trust boundary
 

@@ -125,6 +125,7 @@ class SeriesStore:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.index_path = self.root / "catalog.json"
         self._meta: dict[str, SeriesMeta] = {}
+        self._visible_fingerprints: dict[tuple[str, str, str], bytes] = {}
         if self.index_path.exists():
             raw = json.loads(self.index_path.read_text())
             self._meta = {k: SeriesMeta.from_dict(v) for k, v in raw.items()}
@@ -171,6 +172,13 @@ class SeriesStore:
         meta.content_hash = _content_hash(df)
         df.to_parquet(self._path(meta.series_id))
         self._meta[meta.series_id] = meta
+        # A write changes the physical series and may change any visible
+        # vintage at or after its publication dates.
+        self._visible_fingerprints = {
+            key: value
+            for key, value in self._visible_fingerprints.items()
+            if key[0] != meta.series_id
+        }
         self.flush()
         return meta
 
@@ -206,8 +214,21 @@ class SeriesStore:
         cache entry, because they are answering different questions.
         """
         h = hashlib.sha256()
-        h.update(str(parse_date(as_of)).encode())
+        cut = pd.Timestamp(parse_date(as_of))
+        h.update(str(cut.date()).encode())
         for sid in sorted(series_ids):
             h.update(sid.encode())
-            h.update(self._meta[sid].content_hash.encode())
+            # Hash what this run was actually allowed to observe, not the full
+            # physical file. A later revision or publication must not alter
+            # the identity of an earlier vintage.
+            cache_id = (sid, str(cut.date()), self._meta[sid].content_hash)
+            visible_hash = self._visible_fingerprints.get(cache_id)
+            if visible_hash is None:
+                visible = self.read_frame(sid)
+                visible = visible[visible["pub_date"] <= cut]
+                visible_hash = hashlib.sha256(
+                    pd.util.hash_pandas_object(visible, index=True).to_numpy().tobytes()
+                ).digest()
+                self._visible_fingerprints[cache_id] = visible_hash
+            h.update(visible_hash)
         return h.hexdigest()[:16]

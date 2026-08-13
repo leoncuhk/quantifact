@@ -40,9 +40,22 @@ uniqueness on the natural key.
 
 ## Conformance
 
-Copy `tests/test_duckdb_adapter.py`, point the fixture at your adapter, and keep
-the four properties it asserts: the catalog round-trips, reads are
+Run the public suite first:
+
+```bash
+qf adapter-check --early-as-of 2022-03-01 --late-as-of 2026-08-01 \
+  --json adapter-conformance.json
+```
+
+Programmatically, call `quantifact.check_adapter(your_adapter, ...)`. The suite
+samples catalog semantics, future-date exclusion, monotone vintage visibility,
+deterministic fingerprints and point-in-time reference tables.
+
+Then copy `tests/test_duckdb_adapter.py`, point the fixture at your adapter, and
+keep its integration properties: the catalog round-trips, reads are
 point-in-time, universes are survivorship-free, and the same plan runs unchanged.
+Passing conformance is necessary but not sufficient: it does not prove source
+accuracy, complete revision history, licence compliance or full-catalog quality.
 
 ## Entitlements
 

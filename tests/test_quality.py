@@ -59,3 +59,12 @@ def test_critical_gate_blocks_a_high_average():
 def test_rubric_weights_are_a_complete_percentage():
     assert sum(c.weight for c in RUBRIC) == 100
     assert len({c.id for c in RUBRIC}) == len(RUBRIC)
+
+
+def test_repository_probe_credits_conformance_but_not_real_data_or_breadth():
+    report = audit()
+    structured = next(r for r in report.results if r.criterion.id == "structured_data")
+    planning = next(r for r in report.results if r.criterion.id == "dynamic_planning")
+    assert structured.score == 0.75 and "conformance" in structured.evidence
+    assert planning.score == 0.6 and "refuse" in planning.evidence
+    assert structured.gap and planning.gap

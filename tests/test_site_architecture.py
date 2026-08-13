@@ -34,12 +34,15 @@ def test_site_explains_architecture_workflow_and_reasoning_contract():
     page = (ROOT / "site/index.html").read_text()
     assert "__ARCHITECTURE__" not in page and "__DATA__" not in page
     for phrase in (
-        "Separate runtime, platform controls, and governance",
+        "Contain error before model output becomes investment evidence",
         "Investment Research System Architecture",
-        "Investment research workflow",
+        "PAT lifecycle implemented in Quantifact",
         "Critical investment reasoning",
         "governed lifecycle",
         "APPROVED RELEASE ARTEFACTS",
+        "PARTIAL · executable core",
+        "IMPLEMENTED · supported ops",
+        "MINIMUM LOOP · one effect",
     ):
         assert phrase in page
 

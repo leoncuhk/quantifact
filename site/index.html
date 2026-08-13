@@ -59,7 +59,10 @@ box-shadow:0 18px 50px rgba(15,23,42,.12)}.architecture svg{display:block;width:
 background:var(--paper);border:1px solid var(--line);border-radius:12px}.system:nth-child(4){border-color:var(--violet)}
 .system h3{font-size:18px;margin:10px 0}.system p{color:var(--copy);font-size:13px;margin:0 0 12px}
 .system ul{padding-left:18px;margin:0;color:var(--copy);font-size:13px}.system-output{font:11px/1.5 var(--mono);
-color:var(--blue);margin-top:14px}.pipeline{display:grid;grid-template-columns:repeat(8,1fr);gap:16px}
+color:var(--blue);margin-top:14px}.status{display:inline-block;padding:3px 8px;border-radius:999px;
+font:10px var(--mono);margin-top:12px}.status.done{color:var(--green);background:var(--green2)}
+.status.partial{color:#9a6700;background:#fff5c2}@media(prefers-color-scheme:dark){.status.partial{color:#ffd66b;background:#392f12}}
+.pipeline{display:grid;grid-template-columns:repeat(8,1fr);gap:16px}
 .pipe{position:relative;padding:17px 13px;background:var(--paper);border:1px solid var(--line);border-radius:10px;
 min-height:124px}.pipe:not(:last-child):after{content:"→";position:absolute;right:-14px;top:43px;color:var(--muted);
 font:19px var(--mono);z-index:2}.pipe b{display:block;font-size:13px;margin:8px 0 5px}.pipe span{color:var(--copy);font-size:11px;line-height:1.4;display:block}
@@ -87,7 +90,7 @@ footer{padding:45px 0 70px;color:var(--muted);font-size:13px}@media(max-width:80
 </div></header>
 
 <section id="architecture"><div class="wrap">
-  <div class="head"><div><div class="label">System engineering view</div><h2>Separate runtime, platform controls, and governance.</h2></div>
+  <div class="head"><div><div class="label">Investment research system architecture</div><h2>Contain error before model output becomes investment evidence.</h2></div>
   <p>The system boundary makes authority explicit. Three online subsystems
   compile evidence; shared services own models, data, execution and artefacts;
   the fourth subsystem governs learning outside the live success path.</p></div>
@@ -267,15 +270,15 @@ footer{padding:45px 0 70px;color:var(--muted);font-size:13px}@media(max-width:80
 </svg>
 </div>
   <div class="systems">
-    <article class="system"><div class="label">01 · research understanding</div><h3>Make the question admissible</h3><p>Prevents precise answers to vague or hindsight-defined questions.</p><ul><li>communicate and clarify</li><li>retrieve context, documents and data</li><li>fix definitions, claims, rivals and falsifiers</li></ul><div class="system-output">OUT → ResearchDesign + AnalysisPlan</div></article>
-    <article class="system"><div class="label">02 · analysis compiler</div><h3>Constrain implementation</h3><p>Prevents generated code from silently changing the research design.</p><ul><li>compile the typed plan</li><li>split tasks and generate functions in parallel</li><li>derive and cross-check the actual DAG</li></ul><div class="system-output">OUT → checked functions + DAG</div></article>
-    <article class="system"><div class="label">03 · controlled execution</div><h3>Materialise verified values</h3><p>Prevents terminal autonomy, look-ahead, skipped checks and wasteful reruns.</p><ul><li>static inspection and PIT loaders</li><li>cache, layered validation and repair</li><li>self-review, report and receipt</li></ul><div class="system-output">OUT → evidence package or failure</div></article>
-    <article class="system"><div class="label">04 · organisation learning</div><h3>Improve without silent drift</h3><p>Prevents user feedback from becoming an untested production mutation.</p><ul><li>capture and reproduce a missed failure</li><li>create a benchmark and candidate change</li><li>full regression and human approval</li></ul><div class="system-output">OUT → versioned lesson + benchmark</div></article>
+    <article class="system"><div class="label">01 · research understanding</div><h3>Make the question admissible</h3><p>Prevents precise answers to vague or hindsight-defined questions.</p><ul><li>communicate and clarify</li><li>retrieve context, documents and data</li><li>fix definitions, claims, rivals and falsifiers</li></ul><div class="system-output">OUT → ResearchDesign + AnalysisPlan</div><span class="status partial">PARTIAL · executable core</span></article>
+    <article class="system"><div class="label">02 · analysis compiler</div><h3>Constrain implementation</h3><p>Prevents generated code from silently changing the research design.</p><ul><li>compile the typed plan</li><li>split tasks and generate functions in parallel</li><li>derive and cross-check the actual DAG</li></ul><div class="system-output">OUT → checked functions + DAG</div><span class="status done">IMPLEMENTED · supported ops</span></article>
+    <article class="system"><div class="label">03 · controlled execution</div><h3>Materialise verified values</h3><p>Prevents terminal autonomy, look-ahead, skipped checks and wasteful reruns.</p><ul><li>static inspection and PIT loaders</li><li>cache, layered validation and repair</li><li>self-review, report and receipt</li></ul><div class="system-output">OUT → evidence package or failure</div><span class="status partial">IMPLEMENTED · prototype isolation</span></article>
+    <article class="system"><div class="label">04 · organisation learning</div><h3>Improve without silent drift</h3><p>Prevents user feedback from becoming an untested production mutation.</p><ul><li>capture and reproduce a missed failure</li><li>create a benchmark and candidate change</li><li>full regression and human approval</li></ul><div class="system-output">OUT → versioned lesson + benchmark</div><span class="status partial">MINIMUM LOOP · one effect</span></article>
   </div>
 </div></section>
 
 <section id="workflow"><div class="wrap">
-  <div class="head"><div><div class="label">Investment research workflow</div><h2>From expert question to compounding research memory.</h2></div>
+  <div class="head"><div><div class="label">PAT lifecycle implemented in Quantifact</div><h2>From expert question to governed research memory.</h2></div>
   <p>The success path produces evidence. Learning is a separate governed loop:
   only an audited failure or expert correction enters it.</p></div>
   <div class="pipeline">
