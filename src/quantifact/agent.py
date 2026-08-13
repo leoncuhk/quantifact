@@ -28,12 +28,19 @@ import pandas as pd
 from .codegen.base import CodegenBackend, generate_all, schemas_of
 from .codegen.reference import ReferenceCodegen
 from .contracts.layers import validate_result, validate_static
+from .contracts.methods import validate_method_evidence
 from .contracts.reasoning import validate_claim_evidence
 from .contracts.verdict import TaskUnfixable, Verdict
 from .data.adapters.demo_synthetic import DemoSyntheticAdapter
 from .data.registry import SeriesMeta
+from .evidence import ResearchEvidencePackage, build_evidence_package
 from .harness.cache import ValueCache
-from .harness.execute import ExecutionHarness, RunResult, TaskExecutionError
+from .harness.execute import (
+    ExecutionHarness,
+    ProcessExecutionHarness,
+    RunResult,
+    TaskExecutionError,
+)
 from .learn.lessons import LessonRepo
 from .learn.workflows import WorkflowRepo
 from .plan.compile import PlanCompiler
@@ -69,6 +76,8 @@ class Artifacts:
     fix_rounds: int = 0
     planning_trace: dict[str, Any] = field(default_factory=dict)
     repair_trace: list[dict[str, Any]] = field(default_factory=list)
+    evidence: ResearchEvidencePackage | None = None
+    evidence_path: Path | None = None
 
     @property
     def layers(self) -> list[list[str]]:
@@ -156,13 +165,23 @@ class Quantifact:
         debugger: Any | None = None,
         semantic_validator: Any | None = None,
         planner_backend: Any | None = None,
+        execution_mode: str = "in_process",
+        task_timeout_seconds: float = 30.0,
     ):
         self.ws = Path(workspace)
         self.ws.mkdir(parents=True, exist_ok=True)
         self.user = user
         self.adapter = adapter or DemoSyntheticAdapter(self.ws / "store")
         self.cache = ValueCache(self.ws / "cache", enabled=cache_enabled)
-        self.harness = ExecutionHarness(self.adapter, self.cache)
+        if execution_mode == "in_process":
+            self.harness = ExecutionHarness(self.adapter, self.cache)
+        elif execution_mode == "process":
+            self.harness = ProcessExecutionHarness(
+                self.adapter, self.cache, timeout_seconds=task_timeout_seconds
+            )
+        else:
+            raise ValueError("execution_mode must be 'in_process' or 'process'")
+        self.execution_mode = execution_mode
         self.backend = backend or ReferenceCodegen()
         self.lessons = LessonRepo(self.ws / "context" / "lessons")
         self.workflows = WorkflowRepo(self.ws / "context" / "workflows")
@@ -218,6 +237,7 @@ class Quantifact:
         out: str | Path | None = None,
         max_fix_rounds: int = 2,
         writeback: bool = True,
+        evidence_out: str | Path | None = None,
         on_stage: Callable[[str, float], None] | None = None,
     ) -> Artifacts:
         timings: dict[str, float] = {}
@@ -294,6 +314,14 @@ class Quantifact:
         failed_reasoning = [v for v in reasoning_verdicts if not v.ok]
         if failed_reasoning:
             raise TaskUnfixable(failed_reasoning[0])
+
+        method_verdicts = stage(
+            "method_contracts", lambda: validate_method_evidence(plan, result.frames)
+        )
+        verdicts += method_verdicts
+        failed_methods = [v for v in method_verdicts if not v.ok]
+        if failed_methods:
+            raise TaskUnfixable(failed_methods[0])
 
         frame_verdicts = stage(
             "validate",
@@ -389,7 +417,7 @@ class Quantifact:
                 ),
             )
 
-        return Artifacts(
+        artifacts = Artifacts(
             plan=plan,
             codes=codes,
             result=result,
@@ -402,6 +430,33 @@ class Quantifact:
             planning_trace=planning_trace,
             repair_trace=repair_trace,
         )
+        package = stage(
+            "evidence",
+            lambda: build_evidence_package(
+                plan=plan,
+                codes=codes,
+                result=result,
+                findings=findings,
+                verdicts=verdicts,
+                timings=timings,
+                planning_trace=planning_trace,
+                repair_trace=repair_trace,
+                adapter=self.adapter,
+                backend=self.backend.name,
+                user=self.user.name,
+                report_path=report_path,
+                execution_mode=self.execution_mode,
+            ),
+        )
+        package_path = None
+        target = evidence_out
+        if target is None and out is not None:
+            target = Path(out).with_suffix(".evidence.json")
+        if target is not None:
+            package_path = package.save(target)
+        artifacts.evidence = package
+        artifacts.evidence_path = package_path
+        return artifacts
 
     # ------------------------------------------------------------ fix loops
     def _repair_static(

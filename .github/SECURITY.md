@@ -25,3 +25,17 @@ treat the workspace directory as untrusted output.
 The core ships no credentials and no data. Adapters read theirs from the
 environment. Never commit an API key, a database path containing licensed data,
 or a workspace directory; `.gitignore` covers the defaults and CI scans commits.
+
+## Evidence-package integrity
+
+`qf verify` checks internal hashes and manifests. It is not publisher
+authentication: anyone able to replace an entire package can recompute its
+self-hash. A production deployment should sign package identities or publish
+them through a trusted transparency registry.
+
+## Supported versions
+
+Quantifact is pre-1.0 alpha software. Security fixes are applied to the latest
+commit on `main`; older source snapshots are not maintained. There is currently
+no production-safe release because process/container isolation is not yet part
+of the core runtime.

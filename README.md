@@ -7,6 +7,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB.svg)](pyproject.toml)
 [![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-6B7280.svg)](LICENSE)
 [![Explore a run](https://img.shields.io/badge/explore-a_live_run-14B8A6.svg)](https://leoncuhk.github.io/quantifact/)
+[![Status: alpha](https://img.shields.io/badge/status-alpha-f59e0b.svg)](#project-status)
 
 Quantifact is an open-source investment-research system built as an evidence
 compiler. Four bounded subsystems turn an ambiguous question into a typed
@@ -42,6 +43,12 @@ A successful run produces more than a chart:
   timings, findings, and output lineage;
 - content-addressed results, so changing one task recomputes only what changed.
 
+The durable output is a versioned **Research Evidence Package**, not the chat
+or HTML report. It binds each permitted claim to its plan, source vintages and
+licences, generated code, materialised-value fingerprint and verdicts, then
+protects the package with an integrity hash. Admission means only “fit for
+expert review”; it never means investment approval or proof that a claim is true.
+
 If a required check fails, the run stops or repairs the named task. It does not
 quietly turn an unverified number into a polished report.
 
@@ -53,12 +60,14 @@ or market-data licence required.
 ```bash
 uv add git+https://github.com/leoncuhk/quantifact
 qf ask --receipt .qf/run.json
+qf verify .qf/report.evidence.json
+qf ask --execution process --task-timeout 10  # crash/timeout containment, not a sandbox
 ```
 
 ```text
 as_of      2026-08-01 (nothing published later was read)
 plan       16 tasks in 5 layers
-contracts  68/68 verdicts passed
+contracts  70/70 verdicts passed
 report     .qf/report.html
 receipt    .qf/run.json
 ```
@@ -101,7 +110,17 @@ Quantifact makes those failure modes explicit:
 | Expensive iteration | Content-addressed caching recomputes only the affected subgraph |
 | Unsafe learning | A lesson must reproduce a failure, fix it, and pass regression before acceptance |
 
-## Four bounded subsystems
+## Product value and buyer
+
+Quantifact is intended for research organisations where analyst time, review
+cost, data semantics and silent error are expensive. Analysts use it; portfolio
+managers challenge its evidence; Heads of Research/CIOs buy research capacity;
+risk and compliance buy reconstruction and controls; data leaders buy a common
+execution layer. The measurable objective is shorter time to reviewable evidence,
+lower reviewer effort, fewer escaped critical errors and more reusable workflows—not
+more generated reports. See [the product and operating model](docs/product-operating-model.md).
+
+## Four subsystems that contain investment-research error
 
 The public PAT presentation is best understood as four cooperating subsystems,
 not four Python modules. Quantifact implements the same separation because each
@@ -206,6 +225,13 @@ controls, cache, receipts, and packaged examples are executable and tested.
 Production isolation, broad expert evaluation, service reliability, and user
 outcomes still require operating evidence.
 
+The current repository-only audit is **41.5/100 — concept prototype**. This is
+not a popularity score: it deliberately assigns zero to outcomes a repository
+cannot prove. Compiler, PIT, contracts, evidence packages and reproducibility
+are executable; expert-held-out accuracy, licensed-data breadth, isolation,
+service SLOs and adoption remain open gates. See the [maturity matrix and
+roadmap](ROADMAP.md).
+
 [`qf audit`](docs/quality-model.md) makes that boundary measurable and the
 release workflow fails closed when required evidence is absent. See
 [Production guidance](docs/guides/production.md) before connecting an untrusted
@@ -236,6 +262,9 @@ one of the most valuable contributions this project can receive.
 - [Architecture decisions](docs/adr/)
 - [Interactive run explorer](https://leoncuhk.github.io/quantifact/)
 - [Quality model and delivery gates](docs/quality-model.md)
+- [Product and operating model](docs/product-operating-model.md)
+- [Highest-quality acceptance protocol](docs/acceptance.md)
+- [Maturity matrix and roadmap](ROADMAP.md)
 
 ## Acknowledgements
 

@@ -1,0 +1,14 @@
+{
+  "id": "refuse-unsupported-portfolio-optimization",
+  "prompt": "Optimize a multi-asset portfolio subject to a 10 percent volatility target.",
+  "kind": "refusal",
+  "origin": "manual",
+  "human_audited": true,
+  "family": "portfolio_construction",
+  "risk_tags": ["unsupported_family", "wrong_workflow"],
+  "expected_outcome": "refuse",
+  "severity": "critical",
+  "note": "No portfolio optimizer or risk model is registered in the rule planner.",
+  "assertions": [],
+  "answers": {}
+}

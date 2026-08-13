@@ -7,8 +7,8 @@ authors:
     website: "https://github.com/leoncuhk"
 repository-code: "https://github.com/leoncuhk/quantifact"
 license: Apache-2.0
-version: 0.2.0
-date-released: 2026-08-12
+version: 0.3.0a1
+date-released: 2026-08-13
 keywords:
   - llm agents
   - investment research

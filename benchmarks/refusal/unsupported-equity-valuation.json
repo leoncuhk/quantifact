@@ -1,0 +1,14 @@
+{
+  "id": "refuse-unsupported-equity-valuation",
+  "prompt": "Build a discounted cash-flow valuation for a semiconductor company.",
+  "kind": "refusal",
+  "origin": "manual",
+  "human_audited": true,
+  "family": "equity_fundamental",
+  "risk_tags": ["unsupported_family", "wrong_workflow"],
+  "expected_outcome": "refuse",
+  "severity": "critical",
+  "note": "The exact rule planner must not disguise its oil-event workflow as an equity valuation.",
+  "assertions": [],
+  "answers": {}
+}

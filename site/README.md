@@ -7,6 +7,11 @@ and reproducible benchmarks. The architecture SVG is inlined from the same
 source used by the repository README, so arrow semantics cannot drift. The page
 has no runtime dependencies and can be served directly by GitHub Pages.
 
+The explorer shows implementation status explicitly. It is a synthetic,
+reproducible architecture demonstration—not evidence of expert accuracy,
+production isolation or investment performance. The repository maturity matrix
+is the authoritative statement of remaining gates.
+
 ```bash
 uv run python tools/export_site_data.py site/data.json   # run the system, export artefacts
 uv run python tools/build_site.py                        # build site/index.html

@@ -10,6 +10,8 @@ qf teach "<complaint>"     the full teach → benchmark → patch loop
 qf evals                   run the benchmark suite
 qf bench                   run the performance benchmarks
 qf audit                   evidence-backed PAT maturity audit
+qf verify <package>        verify a research evidence package offline
+qf adapter-check           run the point-in-time adapter conformance suite
 """
 
 from __future__ import annotations
@@ -80,6 +82,8 @@ def cmd_ask(args) -> int:
         debugger=debugger,
         semantic_validator=semantic,
         planner_backend=_planner_backend(args),
+        execution_mode=args.execution,
+        task_timeout_seconds=args.task_timeout,
     )
     answers = json.loads(args.answers) if args.answers else {}
     if args.as_of:
@@ -98,6 +102,7 @@ def cmd_ask(args) -> int:
         out=out,
         on_stage=stage,
         max_fix_rounds=args.fix_rounds,
+        evidence_out=args.evidence,
     )
     print(f"\nas_of      {art.plan.as_of} (nothing published later was read)")
     print(f"plan       {len(art.plan.tasks)} tasks in {len(art.layers)} layers")
@@ -117,6 +122,8 @@ def cmd_ask(args) -> int:
     if art.fix_rounds:
         print(f"repairs    {art.fix_rounds} round(s)")
     print(f"report     {art.report_path}")
+    if art.evidence_path:
+        print(f"evidence   {art.evidence_path} ({art.evidence.package_id[:12]})")
     if args.receipt:
         receipt = art.receipt(backend=qf.backend.name, user=qf.user.name)
         if backend is not None:
@@ -280,9 +287,10 @@ def cmd_evals(args) -> int:
     ws = Path(args.workspace)
     qf = Quantifact(ws, _user(args.user))
     suite = BenchmarkSuite(Path(args.dir) if args.dir else ws / "benchmarks")
-    results = suite.run_all(
+    report = suite.report(
         qf.adapter, LessonRepo(ws / "context" / "lessons").all(), qf.user.entitlements
     )
+    results = report.results
     if not results:
         print("no benchmarks yet — run `qf teach` first")
         return 0
@@ -293,6 +301,12 @@ def cmd_evals(args) -> int:
             print(f"      {f}")
         failed += not r.passed
     print(f"\n{len(results) - failed}/{len(results)} passing")
+    for family, counts in report.slices("family").items():
+        print(f"  family {family:<24} {counts['passed']}/{counts['total']}")
+    print(f"silent critical failures: {report.silent_critical_failures}")
+    if args.json:
+        Path(args.json).write_text(json.dumps(report.to_dict(), indent=2))
+        print(f"wrote {args.json}")
     return 1 if failed else 0
 
 
@@ -321,6 +335,43 @@ def cmd_audit(args) -> int:
     return 1 if args.strict and report.level != "PAT-level evidence" else 0
 
 
+def cmd_verify(args) -> int:
+    """Verify internal package integrity; this is not publisher authentication."""
+    from .evidence import ResearchEvidencePackage
+
+    package = ResearchEvidencePackage.load(args.package)
+    problems = package.verify()
+    if problems:
+        print("INVALID")
+        for problem in problems:
+            print(f"  - {problem}")
+        return 1
+    print(f"VALID       {package.package_id}")
+    print(f"as_of       {package.payload['as_of']}")
+    print(f"admission   {package.payload['admission']['decision']}")
+    print("authenticity not established; verify provenance through a trusted registry")
+    print("investment  not approved; expert judgement remains required")
+    return 0
+
+
+def cmd_adapter_check(args) -> int:
+    from .data.conformance import check_adapter
+
+    qf = Quantifact(args.workspace, _user(args.user))
+    report = check_adapter(
+        qf.adapter,
+        early_as_of=args.early_as_of,
+        late_as_of=args.late_as_of,
+        sample_size=args.sample_size,
+    )
+    for check in report.checks:
+        print(f"{'PASS' if check.passed else 'FAIL'}  {check.id:<34} {check.evidence}")
+    if args.json:
+        Path(args.json).write_text(json.dumps(report.to_dict(), indent=2))
+        print(f"wrote {args.json}")
+    return 0 if report.passed else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="qf",
@@ -338,7 +389,18 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--answers", help="JSON dict of clarification answers")
     a.add_argument("--out", help="report path")
     a.add_argument("--receipt", help="write a JSON receipt of this run")
+    a.add_argument(
+        "--evidence",
+        help="write the versioned research evidence package (default: beside report)",
+    )
     a.add_argument("--no-cache", action="store_true")
+    a.add_argument(
+        "--execution",
+        choices=["in_process", "process"],
+        default="in_process",
+        help="process contains crashes/timeouts; it is not a no-network sandbox",
+    )
+    a.add_argument("--task-timeout", type=float, default=30.0)
     a.add_argument("--backend", default="reference", choices=["reference", "llm"])
     a.add_argument("--fix", action="store_true", help="enable the debugger agent")
     a.add_argument("--semantic", action="store_true", help="enable L3 review")
@@ -393,6 +455,7 @@ def main(argv: list[str] | None = None) -> int:
     e = sub.add_parser("evals")
     e.set_defaults(fn=cmd_evals)
     e.add_argument("--dir", help="benchmark directory (default: the workspace's)")
+    e.add_argument("--json", help="write the sliced machine-readable evaluation")
 
     b = sub.add_parser("bench")
     b.set_defaults(fn=cmd_bench)
@@ -409,8 +472,35 @@ def main(argv: list[str] | None = None) -> int:
         help="exit non-zero until PAT-level evidence is reached",
     )
 
+    verify = sub.add_parser("verify")
+    verify.set_defaults(fn=cmd_verify)
+    verify.add_argument("package", help="research evidence package JSON")
+
+    adapter = sub.add_parser("adapter-check")
+    adapter.set_defaults(fn=cmd_adapter_check)
+    adapter.add_argument("--early-as-of", default="2022-03-01")
+    adapter.add_argument("--late-as-of", default="2026-08-01")
+    adapter.add_argument("--sample-size", type=int, default=8)
+    adapter.add_argument("--json")
+
     args = ap.parse_args(argv)
-    return args.fn(args)
+    try:
+        return args.fn(args)
+    except Exception as exc:
+        # Domain refusals are expected product outcomes. Keep programming bugs
+        # noisy, but do not present an unsupported question or failed contract
+        # as an internal crash.
+        from .contracts.point_in_time import LookAheadError
+        from .contracts.verdict import TaskUnfixable
+        from .plan.model import PlanError
+        from .planner import UnsupportedQuestionError
+
+        if isinstance(
+            exc, (UnsupportedQuestionError, LookAheadError, PlanError, TaskUnfixable)
+        ):
+            print(f"refused: {exc}", file=sys.stderr)
+            return 2
+        raise
 
 
 if __name__ == "__main__":

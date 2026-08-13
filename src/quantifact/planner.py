@@ -82,6 +82,26 @@ DATE_COL = ColumnSpec(
 )
 
 
+class UnsupportedQuestionError(ValueError):
+    """The deterministic planner has no audited workflow for this question.
+
+    Refusal is a correctness outcome. Reusing the one exact rule workflow for
+    an unrelated question would produce a beautifully contracted answer to the
+    wrong problem, which is more dangerous than an explicit limitation.
+    """
+
+
+_OIL_TERMS = {
+    "oil",
+    "supply shock",
+    "energy shock",
+    "middle east",
+    "hormuz",
+    "macro conditions",
+}
+_EVENT_TERMS = {"respond", "response", "compare", "episode", "event", "shock"}
+
+
 class RulePlanner:
     def __init__(
         self,
@@ -94,8 +114,26 @@ class RulePlanner:
         self.lessons = lessons or []
         self.bindings: list[BindingTrace] = []
 
+    def supports(self, prompt: str) -> bool:
+        """Whether the exact offline workflow is admissible for ``prompt``."""
+        if not prompt.strip():
+            return True  # internal call used only to obtain defaults
+        text = prompt.lower()
+        return any(term in text for term in _OIL_TERMS) and any(
+            term in text for term in _EVENT_TERMS
+        )
+
+    def require_supported(self, prompt: str) -> None:
+        if not self.supports(prompt):
+            raise UnsupportedQuestionError(
+                "the rule planner supports oil/energy event studies and historical "
+                "analogies only; use --planner llm for compiler-bounded planning or "
+                "add an audited workflow and benchmark for this research family"
+            )
+
     # ------------------------------------------------------------- clarify
     def clarify(self, prompt: str) -> list[Clarification]:
+        self.require_supported(prompt)
         episodes = [
             row["episode"]
             for _, row in self.adapter.read_table(
@@ -249,6 +287,7 @@ class RulePlanner:
 
     # ---------------------------------------------------------------- plan
     def plan(self, prompt: str, answers: dict[str, Any] | None = None) -> AnalysisPlan:
+        self.require_supported(prompt)
         given = dict(answers or {})
         a = {**self.defaults(), **given}
         as_of: str = str(a["as_of"])
@@ -817,6 +856,7 @@ class RulePlanner:
 
         design = ResearchDesign(
             question_type="comparative",
+            methodologies=["event_study", "historical_analogy"],
             decision_context=(
                 "Assess whether the latest oil-supply episode is a useful historical "
                 "analogue; this analysis informs further investigation, not a trade."

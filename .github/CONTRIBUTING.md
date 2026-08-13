@@ -31,6 +31,7 @@ uv run ruff check .
 uv run ruff format --check src tests examples tools
 uv run qf bench
 uv run qf audit
+uv build
 ```
 
 ## Adding an adapter
@@ -40,3 +41,14 @@ Implement `catalog`, `read_series`, `tables`, `read_table`, `invariants` and
 against it — see `tests/test_duckdb_adapter.py` for the pattern. An adapter
 that cannot serve `pub_date` per observation cannot support point-in-time and
 should say so in its docstring rather than pretending.
+
+Run `qf adapter-check --json adapter-conformance.json` before writing bespoke
+integration tests. Passing the suite is necessary, not proof that a data source
+is accurate or licensed.
+
+## Claims and operating evidence
+
+Do not describe repository functionality as expert accuracy, production safety
+or user value. Changes to `benchmarks/quality-evidence.json` require an immutable
+raw artifact, measurement window, denominator, sample size and named approver.
+See `docs/acceptance.md` and `ROADMAP.md` before proposing a maturity claim.

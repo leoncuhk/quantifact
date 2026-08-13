@@ -45,6 +45,7 @@ PLAN_SCHEMA = """\
   "resolved_assumptions": ["<every choice you made that a reviewer must see>"],
   "research_design": {
     "question_type": "descriptive | comparative | causal | predictive",
+    "methodologies": ["event_study | historical_analogy"],
     "decision_context": "<what decision this evidence informs; never imply a trade>",
     "claims": [{
       "id": "snake_case", "statement": "<bounded claim>",
@@ -94,6 +95,7 @@ RULES = """\
 Hard rules, each one checked by the compiler before any code is written:
 
 - pre-register bounded claims, falsifiers, rival explanations and evidence tasks
+- declare a registered methodology only when its deterministic method contracts apply
 - comparative/causal/predictive work must test at least one rival explanation
 - never label a claim causal without a causal question and identification strategy
 - never label a claim predictive without a stated out-of-sample test

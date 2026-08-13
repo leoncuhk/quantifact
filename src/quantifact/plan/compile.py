@@ -19,6 +19,7 @@ charts         chart fields exist among the task's own output columns
 
 from __future__ import annotations
 
+from ..contracts.methods import validate_method_design
 from ..contracts.reasoning import validate_research_design
 from .layers import topo_layers
 from .model import ALLOWED_DTYPES, ALLOWED_ROLES, AnalysisPlan, PlanError, parse_date
@@ -85,6 +86,7 @@ class PlanCompiler:
 
         if plan.research_design is not None or self.require_research_design:
             p.extend(validate_research_design(plan))
+            p.extend(validate_method_design(plan))
 
         if not plan.tasks:
             p.append("plan has no tasks")

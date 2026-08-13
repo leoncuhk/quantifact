@@ -4,6 +4,10 @@
  "kind": "plan",
  "origin": "manual",
  "human_audited": true,
+ "family": "historical_analogy",
+ "risk_tags": ["wrong_unit", "wrong_frequency", "wrong_scale"],
+ "expected_outcome": "plan",
+ "severity": "critical",
  "note": "Three traps share the query text: an index, the same rate in basis points, and a quarterly twin. Only the value prior and the frequency check separate them.",
  "assertions": [
   {"type": "series_bound", "requirement": "us_headline_cpi", "series_id": "US.CPI.HEADLINE.YOY"},

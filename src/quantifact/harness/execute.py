@@ -14,6 +14,7 @@ declared.
 from __future__ import annotations
 
 import builtins
+import multiprocessing as mp
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -65,6 +66,68 @@ SAFE_BUILTINS = {
 }
 
 
+def _namespace(adapter: Any, as_of: str) -> dict[str, Any]:
+    """The generated-code namespace, shared by in-process and worker execution."""
+
+    def load_series(series_id: str) -> pd.Series:
+        return adapter.read_series(series_id, as_of=as_of)
+
+    def load_table(name: str) -> pd.DataFrame:
+        return adapter.read_table(name, as_of=as_of)
+
+    return {
+        "__builtins__": SAFE_BUILTINS,
+        "pd": pd,
+        "np": np,
+        "load_series": load_series,
+        "load_table": load_table,
+    }
+
+
+def _execute_source(
+    adapter: Any, task_name: str, source: str, args: list[pd.DataFrame], as_of: str
+) -> pd.DataFrame:
+    ns = _namespace(adapter, as_of)
+    exec(compile(source, f"<task:{task_name}>", "exec"), ns)
+    fn = ns.get(task_name)
+    if not callable(fn):
+        raise RuntimeError(f"generated code defines no function '{task_name}'")
+    result = fn(*args)
+    if not isinstance(result, pd.DataFrame):
+        raise TypeError(
+            f"{task_name} returned {type(result).__name__}, expected DataFrame"
+        )
+    return result.reset_index(drop=True)
+
+
+def _process_worker(
+    connection,
+    adapter: Any,
+    task_name: str,
+    source: str,
+    args: list[pd.DataFrame],
+    as_of: str,
+    cpu_seconds: int,
+    memory_mb: int,
+) -> None:
+    """Child entry point. Resource limits are best-effort and platform-specific."""
+    try:
+        try:
+            import resource
+
+            resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds + 1))
+            if hasattr(resource, "RLIMIT_AS"):
+                limit = memory_mb * 1024 * 1024
+                resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
+        except (ImportError, OSError, ValueError):
+            pass
+        connection.send((True, _execute_source(adapter, task_name, source, args, as_of)))
+    except BaseException as exc:  # child must return a bounded error, then die
+        connection.send((False, f"{type(exc).__name__}: {exc}"))
+    finally:
+        connection.close()
+
+
 @dataclass
 class TaskTrace:
     task: str
@@ -112,21 +175,7 @@ class ExecutionHarness:
     def _namespace(self, as_of: str) -> dict[str, Any]:
         """Loaders bound to the knowledge date. Generated code cannot rebind
         them: static analysis rejects any keyword argument to a loader."""
-        adapter = self.adapter
-
-        def load_series(series_id: str) -> pd.Series:
-            return adapter.read_series(series_id, as_of=as_of)
-
-        def load_table(name: str) -> pd.DataFrame:
-            return adapter.read_table(name, as_of=as_of)
-
-        return {
-            "__builtins__": SAFE_BUILTINS,
-            "pd": pd,
-            "np": np,
-            "load_series": load_series,
-            "load_table": load_table,
-        }
+        return _namespace(self.adapter, as_of)
 
     def _compile(
         self, task_name: str, source: str, as_of: str
@@ -153,13 +202,14 @@ class ExecutionHarness:
     ) -> pd.DataFrame:
         """Execute a single task against already-materialised upstream frames.
         Used by the repair loop and by graders; no caching, no layering."""
-        fn = self._compile(task.name, source, as_of)
-        df = fn(*[frames[d] for d in task.depends_on])
-        if not isinstance(df, pd.DataFrame):
-            raise TypeError(
-                f"{task.name} returned {type(df).__name__}, expected DataFrame"
-            )
-        return df.reset_index(drop=True)
+        return self._materialise(
+            task, source, [frames[d] for d in task.depends_on], as_of
+        )
+
+    def _materialise(
+        self, task: Task, source: str, args: list[pd.DataFrame], as_of: str
+    ) -> pd.DataFrame:
+        return _execute_source(self.adapter, task.name, source, args, as_of)
 
     # ----------------------------------------------------------------- run
     def run(
@@ -203,9 +253,13 @@ class ExecutionHarness:
                         list(cached.columns),
                     )
                 else:
-                    fn = self._compile(name, codes[name], as_of)
                     try:
-                        df = fn(*[frames[d] for d in task.depends_on])
+                        df = self._materialise(
+                            task,
+                            codes[name],
+                            [frames[d] for d in task.depends_on],
+                            as_of,
+                        )
                     except Exception as e:
                         tr = TaskTrace(
                             name,
@@ -242,3 +296,65 @@ class ExecutionHarness:
                     on_task(tr)
 
         return RunResult(frames=frames, traces=traces, layers=layers, as_of=as_of)
+
+
+class ProcessExecutionHarness(ExecutionHarness):
+    """Run each generated task in a disposable, resource-bounded process.
+
+    This contains interpreter crashes, runaway CPU and wall-time overruns. It is
+    intentionally not called a sandbox: the worker still shares the host kernel
+    and network namespace. Production deployment must put this worker behind a
+    no-network container or VM boundary.
+    """
+
+    def __init__(
+        self,
+        adapter: Any,
+        cache: ValueCache,
+        *,
+        timeout_seconds: float = 10.0,
+        cpu_seconds: int = 5,
+        memory_mb: int = 1024,
+    ):
+        super().__init__(adapter, cache)
+        self.timeout_seconds = timeout_seconds
+        self.cpu_seconds = cpu_seconds
+        self.memory_mb = memory_mb
+
+    def _materialise(
+        self, task: Task, source: str, args: list[pd.DataFrame], as_of: str
+    ) -> pd.DataFrame:
+        context = mp.get_context("spawn")
+        parent, child = context.Pipe(duplex=False)
+        process = context.Process(
+            target=_process_worker,
+            args=(
+                child,
+                self.adapter,
+                task.name,
+                source,
+                args,
+                as_of,
+                self.cpu_seconds,
+                self.memory_mb,
+            ),
+        )
+        process.start()
+        child.close()
+        process.join(self.timeout_seconds)
+        if process.is_alive():
+            process.terminate()
+            process.join(1)
+            parent.close()
+            raise TimeoutError(
+                f"task '{task.name}' exceeded {self.timeout_seconds:.2f}s wall limit"
+            )
+        if not parent.poll():
+            code = process.exitcode
+            parent.close()
+            raise RuntimeError(f"task worker exited without a result (exitcode={code})")
+        ok, value = parent.recv()
+        parent.close()
+        if not ok:
+            raise RuntimeError(value)
+        return value

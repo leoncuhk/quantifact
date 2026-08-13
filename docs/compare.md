@@ -58,3 +58,12 @@ series it writes back are the kind of input a strategy consumes.
 
 Not a backtester, not a trading system, not a data product, not a general agent
 framework. See the README section of the same name.
+
+## The strategic boundary
+
+Quantifact should interoperate with these ecosystems rather than reproduce
+them. OpenBB-style providers and Qlib-style data/model assets belong behind the
+adapter/tool boundary. RD-Agent-style experiment proposals belong behind the
+plan/compiler boundary. External real-task benchmarks belong in the evaluation
+protocol. None receives authority to waive PIT, method, execution or admission
+contracts.

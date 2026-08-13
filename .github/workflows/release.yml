@@ -4,25 +4,93 @@ on:
   push:
     tags: ["v*"]
 
-permissions:
-  contents: read
-  id-token: write          # PyPI trusted publishing
-
 jobs:
-  publish:
+  validate-build:
     runs-on: ubuntu-latest
-    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --extra duckdb
-      - run: uv run pytest -q
-      - name: Require audited operating evidence
-        run: test -f benchmarks/quality-evidence.json
-      - name: PAT-level release gate
-        run: uv run qf audit --evidence benchmarks/quality-evidence.json --strict
-      - name: Build clean distributions
+      - name: Validate release identity
+        id: version
         run: |
-          rm -rf dist
-          uv build
+          uv run python tools/check_release.py --tag "$GITHUB_REF_NAME"
+          version=$(uv run python tools/check_release.py --print-version)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$version" =~ (a|b|rc|dev)[0-9]+ ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q
+      - run: uv run qf evals --dir benchmarks --json /tmp/research-evals.json
+      - run: uv run qf adapter-check --json /tmp/adapter-conformance.json
+      - name: Stable/PAT-level operating-evidence gate
+        if: steps.version.outputs.prerelease == 'false'
+        run: |
+          test -f benchmarks/quality-evidence.json
+          uv run qf audit --evidence benchmarks/quality-evidence.json --strict
+      - name: Build clean distributions
+        run: uv build
+      - name: Smoke-test installed wheel
+        run: |
+          uv venv --python 3.12 /tmp/qf-release-test
+          uv pip install --python /tmp/qf-release-test/bin/python dist/quantifact-*.whl
+          cd /tmp
+          /tmp/qf-release-test/bin/qf --workspace /tmp/qf-release-run ask \
+            --out /tmp/qf-release-report.html \
+            --evidence /tmp/qf-release-evidence.json
+          /tmp/qf-release-test/bin/qf verify /tmp/qf-release-evidence.json
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: dist/
+
+  github-release:
+    needs: validate-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ needs.validate-build.outputs.prerelease }}
+          VERSION: ${{ needs.validate-build.outputs.version }}
+        run: |
+          args=(--repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
+            --title "Quantifact $VERSION")
+          if [[ "$PRERELEASE" == "true" ]]; then
+            args+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" dist/* "${args[@]}"
+
+  publish-pypi:
+    if: needs.validate-build.outputs.prerelease == 'false'
+    needs: validate-build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist
       - uses: pypa/gh-action-pypi-publish@release/v1

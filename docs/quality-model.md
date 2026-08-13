@@ -82,6 +82,10 @@ schema, but do not turn estimates into scores.
 
 Exit: no automatic critical blocker and reproducible install/run from a wheel.
 
+**Current:** complete at repository level. The package, evidence object, clean
+wheel smoke test and automatic probes reproduce. This does not advance the
+operating gates below.
+
 ### Gate 2 — prove research breadth
 
 - Build a taxonomy of 6–10 research families with domain experts.
@@ -91,6 +95,10 @@ Exit: no automatic critical blocker and reproducible install/run from a wheel.
 
 Exit: at least 90% acceptable plans, no invented identifiers, and every failure
 is explicit.
+
+**Current:** protocol implemented, evidence incomplete. Cases carry family,
+risk, expected outcome and severity; unsupported rule workflows refuse. The
+public set is four cases, not the required expert-held-out set of at least 50.
 
 ### Gate 3 — prove decision-grade answers
 

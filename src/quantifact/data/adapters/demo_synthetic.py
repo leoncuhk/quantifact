@@ -388,11 +388,29 @@ class DemoSyntheticAdapter:
 
     def __init__(self, root: str | Path, seed: int = 42):
         root = Path(root)
-        self.store = (
-            SeriesStore(root)
-            if (root / "catalog.json").exists()
-            else build_store(root, seed)
-        )
+        root.mkdir(parents=True, exist_ok=True)
+        # CLI commands may start concurrently against the same workspace. A
+        # build lock prevents one command from reading a partially populated
+        # catalog while another is still writing the demo Parquet files.
+        lock_path = root / ".build.lock"
+        with lock_path.open("a+") as lock:
+            try:
+                import fcntl
+
+                fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            except ImportError:  # pragma: no cover - Windows is best effort
+                pass
+            existing = SeriesStore(root) if (root / "catalog.json").exists() else None
+            complete = existing is not None and all(
+                existing._path(series_id).exists() for series_id in existing.ids
+            )
+            self.store = existing if complete else build_store(root, seed)
+            try:
+                import fcntl
+
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+            except ImportError:  # pragma: no cover
+                pass
         self._universe = universe()[
             ["market_id", "asset_class", "listed_from", "delisted_on"]
         ]

@@ -1,6 +1,6 @@
 [project]
 name = "quantifact"
-version = "0.2.0"
+version = "0.3.0a1"
 description = "An investment-research agent that has to prove its numbers: plan as IR, contracts as gatekeepers, point-in-time by construction."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -32,8 +32,10 @@ duckdb = [
 
 [project.urls]
 Homepage = "https://github.com/leoncuhk/quantifact"
-Documentation = "https://github.com/leoncuhk/quantifact/tree/main/docs"
+Documentation = "https://github.com/leoncuhk/quantifact/blob/main/docs/index.md"
 Issues = "https://github.com/leoncuhk/quantifact/issues"
+Changelog = "https://github.com/leoncuhk/quantifact/blob/main/CHANGELOG.md"
+Source = "https://github.com/leoncuhk/quantifact"
 
 [project.scripts]
 qf = "quantifact.cli:main"

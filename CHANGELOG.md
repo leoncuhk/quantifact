@@ -6,6 +6,33 @@ All notable changes to this project are documented here, following
 
 ## [Unreleased]
 
+## [0.3.0a1] — 2026-08-13
+
+This alpha release strengthens the repository's fail-closed research and
+distribution boundaries. It does not claim expert validation, production
+isolation, or investment fitness.
+
+### Added
+- Versioned `ResearchEvidencePackage` with plan, code, source-vintage manifest,
+  claim lineage, value fingerprints, admission semantics and integrity checks.
+- Offline `qf verify` command with explicit integrity/authenticity boundary.
+- Registered event-study and historical-analogy method contracts.
+- Product operating model, acceptance protocol, evidence-package ADR and public
+  maturity roadmap.
+- Visible-vintage fingerprint tests and memoisation.
+- Fail-closed rule-planner routing for unsupported research families.
+- Family/risk/severity-aware evaluation reports with refusal cases and a
+  separate silent-critical-failure count.
+- Public adapter PIT conformance suite and `qf adapter-check`.
+- Optional disposable-process execution with wall/CPU/memory containment and
+  explicit non-sandbox semantics.
+
+### Changed
+- Successful report runs emit an evidence package beside the HTML report.
+- The quality audit requires the evidence package to verify before awarding
+  full diagnosability credit.
+- Cache input identity now hashes only the data visible at the knowledge date.
+
 ## [0.2.0] — 2026-08-12
 
 ### Added

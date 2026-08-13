@@ -17,6 +17,9 @@
 - [Evals and benchmarks](guides/evals.md)
 - [Running it for real](guides/production.md)
 - [Quality model and delivery gates](quality-model.md)
+- [Product, buyer and operating model](product-operating-model.md)
+- [Highest-quality acceptance protocol](acceptance.md)
+- [Maturity matrix and roadmap](../ROADMAP.md)
 - [Release process and evidence gate](releasing.md)
 
 **See it**
@@ -29,11 +32,12 @@
 | import | what it is |
 |---|---|
 | `quantifact.Quantifact` | the system: `clarify`, `build_plan`, `analyse` |
+| `ResearchEvidencePackage` | the durable, integrity-checked run product |
 | `AnalysisPlan`, `Task`, `ColumnSpec`, `ResearchDesign` | the intermediate representation and inference contract |
 | `PlanCompiler` | compile-time validation; returns execution layers |
-| `Adapter`, `DemoSyntheticAdapter` | the six-method data protocol, and one implementation |
+| `Adapter`, `DemoSyntheticAdapter`, `check_adapter` | data protocol, demo and PIT conformance suite |
 | `SeriesMeta`, `SeriesStore`, `SeriesSearch` | catalog, bitemporal storage, binding |
-| `ExecutionHarness`, `ValueCache` | execution and caching |
+| `ExecutionHarness`, `ProcessExecutionHarness`, `ValueCache` | fast execution, process containment and caching |
 | `Verdict`, `TaskUnfixable` | contract results |
 | `ReferenceCodegen`, `generate_all` | the deterministic backend |
 | `Lesson`, `Benchmark`, `teach` | the flywheel |
